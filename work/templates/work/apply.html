@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Apply to Help{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">Apply to Help</h1>
+        <p class="page-subtitle">for "{{ help_request.title }}"</p>
+    </div>
+
+    <div class="card card-static mb-2">
+        <div class="detail-meta-grid">
+            {% if help_request.budget %}
+            <div class="detail-meta-item">
+                <span class="detail-meta-label">Budget</span>
+                <span class="detail-meta-value" style="color: #059669;">{{ help_request.budget }}</span>
+            </div>
+            {% endif %}
+            {% if help_request.deadline %}
+            <div class="detail-meta-item">
+                <span class="detail-meta-label">Deadline</span>
+                <span class="detail-meta-value">{{ help_request.deadline|date:"M d, Y" }}</span>
+            </div>
+            {% endif %}
+            <div class="detail-meta-item">
+                <span class="detail-meta-label">Urgency</span>
+                <span class="badge badge-urgency-{{ help_request.urgency }}">{{ help_request.get_urgency_display
+                    }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-static">
+        <form method="POST" action="{% url 'apply_to_help' pk=help_request.pk %}" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_message">How can you help?</label>
+                {{ form.message }}
+                <span class="form-help">Explain your relevant experience and how you plan to help.</span>
+                {% for error in form.message.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_proposed_budget">Your Proposed Price (optional)</label>
+                {{ form.proposed_budget }}
+                <span class="form-help">If the poster set a budget, you can propose your own price.</span>
+                {% for error in form.proposed_budget.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                <i class="fas fa-paper-plane"></i> Submit Application
+            </button>
+        </form>
+    </div>
+
+    <div class="text-center mt-2">
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-ghost">
+            <i class="fas fa-arrow-left"></i> Back to Request
+        </a>
+    </div>
+</div>
+{% endblock %}

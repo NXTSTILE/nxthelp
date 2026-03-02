@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">Edit Profile</h1>
+        <p class="page-subtitle">Update your personal information and skills</p>
+    </div>
+
+    <div class="card card-static">
+        <form method="POST" action="{% url 'edit_profile' %}" novalidate>
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="id_first_name">First Name</label>
+                    {{ form.first_name }}
+                    {% for error in form.first_name.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_last_name">Last Name</label>
+                    {{ form.last_name }}
+                    {% for error in form.last_name.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_email">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_profession">Profession / Role</label>
+                {{ form.profession }}
+                <span class="form-help">e.g. 3rd Year CSE Student, Assistant Professor, Lab Instructor...</span>
+                {% for error in form.profession.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_bio">Bio</label>
+                {{ form.bio }}
+                {% for error in form.bio.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_skills">Skills</label>
+                {{ form.skills }}
+                <span class="form-help">Comma-separated list of skills</span>
+                {% for error in form.skills.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="id_year">Year</label>
+                    {{ form.year }}
+                    {% for error in form.year.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_department">Department</label>
+                    {{ form.department }}
+                    {% for error in form.department.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Payment Info Section -->
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+                <h3
+                    style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-rupee-sign" style="color: var(--accent-primary);"></i> Payment Information
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Add your UPI ID and phone number to receive payments from people you help.
+                </p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="id_upi_id">UPI ID</label>
+                        {{ form.upi_id }}
+                        <span class="form-help">e.g. yourname@upi, yourname@paytm</span>
+                        {% for error in form.upi_id.errors %}
+                        <span class="form-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="id_phone_number">Phone Number</label>
+                        {{ form.phone_number }}
+                        <span class="form-help">For receiving payments via phone</span>
+                        {% for error in form.phone_number.errors %}
+                        <span class="form-error">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+
+    <div class="text-center mt-2">
+        <a href="{% url 'profile' %}" class="btn btn-ghost">
+            <i class="fas fa-arrow-left"></i> Back to Profile
+        </a>
+    </div>
+</div>
+{% endblock %}

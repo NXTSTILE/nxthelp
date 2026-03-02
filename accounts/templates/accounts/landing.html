@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <nav class="landing-nav">
+        <a href="{% url 'landing' %}" class="nav-brand">
+            <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
+            <span class="brand-text">NxtHelp</span>
+        </a>
+        <div class="landing-nav-actions">
+            <a href="{% url 'login' %}" class="btn btn-ghost">Log In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <div class="landing-hero">
+        <div class="landing-hero-content fade-in">
+            <h1>Get Help. Give Help.<br>All Within Your University</h1>
+            <p>
+                Post your queries with pricing and deadlines. Anyone in the university
+                can apply to help. Choose the best applicant and connect via chat.
+            </p>
+            <div class="landing-cta-group">
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Join NxtHelp
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+            </div>
+
+            <div class="landing-stats">
+                <div class="landing-stat">
+                    <div class="landing-stat-value">{{ stats.users }}+</div>
+                    <div class="landing-stat-label">Members</div>
+                </div>
+                <div class="landing-stat">
+                    <div class="landing-stat-value">{{ stats.requests_posted }}+</div>
+                    <div class="landing-stat-label">Requests Posted</div>
+                </div>
+                <div class="landing-stat">
+                    <div class="landing-stat-value">{{ stats.requests_resolved }}+</div>
+                    <div class="landing-stat-label">Resolved</div>
+                </div>
+            </div>
+
+            <div class="landing-features">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(108,99,255,0.1); color: #6C63FF;">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>Post Your Query</h3>
+                    <p>Describe what you need help with, set your budget and deadline.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(6,214,160,0.1); color: #06d6a0;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Get Applicants</h3>
+                    <p>University members apply to help. Review their profiles and proposals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Connect &amp; Chat</h3>
+                    <p>Choose the best applicant and connect via built-in chat.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

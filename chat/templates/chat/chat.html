@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Chat — {{ help_request.title }}{% endblock %}
+
+{% block content %}
+<div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-ghost btn-sm"
+            style="padding: 0.5rem;">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <span class="avatar avatar-md" style="background: {{ other_user.profile.avatar_color }}">
+            {{ other_user.profile.initials }}
+        </span>
+        <div class="chat-header-info">
+            <div class="chat-header-name">{{ other_user.profile.display_name }}</div>
+            <div class="chat-header-sub">
+                {% if other_user.profile.profession %}{{ other_user.profile.profession }} · {% endif %}
+                Re: {{ help_request.title|truncatewords:8 }}
+            </div>
+        </div>
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-info-circle"></i> Details
+        </a>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        {% if not chat_messages %}
+        <div class="empty-state" style="margin: auto;">
+            <i class="fas fa-comments"></i>
+            <h3>Start the conversation!</h3>
+            <p>Say hello and start discussing how to work together.</p>
+        </div>
+        {% endif %}
+        {% for msg in chat_messages %}
+        <div class="chat-bubble {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}"
+            data-msg-id="{{ msg.id }}">
+            {% if msg.sender != request.user %}
+            <div class="bubble-sender">{{ msg.sender.profile.display_name }}</div>
+            {% endif %}
+            {{ msg.content }}
+            <div class="bubble-time">{{ msg.created_at|date:"h:i A" }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-input-area">
+        <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk %}"
+            style="display: flex; gap: 0.75rem; width: 100%;">
+            {% csrf_token %}
+            <input type="text" name="content" id="chatInput" placeholder="Type a message..." autocomplete="off"
+                required>
+            <button type="submit" class="chat-send-btn" title="Send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const chatInput = document.getElementById('chatInput');
+    const requestPk = {{ help_request.pk }};
+    const csrfToken = '{{ csrf_token }}';
+
+    // Scroll to bottom
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    scrollToBottom();
+
+    // Get last message ID
+    function getLastMsgId() {
+        const bubbles = chatMessages.querySelectorAll('.chat-bubble[data-msg-id]');
+        if (bubbles.length === 0) return 0;
+        return parseInt(bubbles[bubbles.length - 1].dataset.msgId);
+    }
+
+    // Send message via AJAX
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const content = chatInput.value.trim();
+        if (!content) return;
+
+        chatInput.value = '';
+        chatInput.focus();
+
+        try {
+            const res = await fetch(`/request/${requestPk}/chat/send/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: `content=${encodeURIComponent(content)}`,
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                appendMessage(data, true);
+            }
+        } catch (err) {
+            console.error('Send failed:', err);
+        }
+    });
+
+    // Append message bubble
+    function appendMessage(msg, isMine) {
+        // Remove empty state if present
+        const emptyState = chatMessages.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${isMine ? 'mine' : 'theirs'}`;
+        bubble.dataset.msgId = msg.id;
+
+        let html = '';
+        if (!isMine) {
+            html += `<div class="bubble-sender">${msg.sender}</div>`;
+        }
+        html += msg.content;
+        html += `<div class="bubble-time">${msg.time}</div>`;
+        bubble.innerHTML = html;
+
+        chatMessages.appendChild(bubble);
+        scrollToBottom();
+    }
+
+    // Poll for new messages
+    async function pollMessages() {
+        try {
+            const lastId = getLastMsgId();
+            const res = await fetch(`/request/${requestPk}/chat/fetch/?last_id=${lastId}`);
+            if (res.ok) {
+                const data = await res.json();
+                data.messages.forEach(msg => {
+                    // Only add if not already in DOM
+                    if (!chatMessages.querySelector(`[data-msg-id="${msg.id}"]`)) {
+                        appendMessage(msg, msg.is_mine);
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Poll failed:', err);
+        }
+    }
+
+    // Poll every 3 seconds
+    setInterval(pollMessages, 3000);
+
+    // Focus input
+    chatInput.focus();
+</script>
+{% endblock %}

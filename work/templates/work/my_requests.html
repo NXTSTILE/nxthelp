@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}My Requests{% endblock %}
+
+{% block content %}
+<div class="page-header"
+    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 class="page-title">My Requests</h1>
+        <p class="page-subtitle">Manage help requests you've posted</p>
+    </div>
+    <a href="{% url 'create_help_request' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Request
+    </a>
+</div>
+
+<div class="filter-tabs">
+    <a href="{% url 'my_requests' %}" class="filter-tab {% if not status_filter %}active{% endif %}">All</a>
+    <a href="{% url 'my_requests' %}?status=open"
+        class="filter-tab {% if status_filter == 'open' %}active{% endif %}">Open</a>
+    <a href="{% url 'my_requests' %}?status=in_progress"
+        class="filter-tab {% if status_filter == 'in_progress' %}active{% endif %}">In Progress</a>
+    <a href="{% url 'my_requests' %}?status=resolved"
+        class="filter-tab {% if status_filter == 'resolved' %}active{% endif %}">Resolved</a>
+    <a href="{% url 'my_requests' %}?status=closed"
+        class="filter-tab {% if status_filter == 'closed' %}active{% endif %}">Closed</a>
+</div>
+
+{% if help_requests %}
+<div class="requests-grid">
+    {% for req in help_requests %}
+    <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+        <div class="request-card-header">
+            <div class="request-card-title">{{ req.title }}</div>
+            <span class="badge badge-{{ req.status_css_class }}">{{ req.get_status_display }}</span>
+        </div>
+        <div class="request-card-meta">
+            {% if req.budget %}
+            <span class="budget-tag"><i class="fas fa-coins"></i> {{ req.budget }}</span>
+            {% endif %}
+            {% if req.deadline %}
+            <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
+                <i class="fas fa-calendar"></i> {{ req.deadline|date:"M d, Y" }}
+            </span>
+            {% endif %}
+            {% if req.category %}
+            <span class="tag"><i class="{{ req.category.icon }}"></i> {{ req.category.name }}</span>
+            {% endif %}
+            <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize
+                }}</span>
+            <span class="meta-item"><i class="fas fa-clock"></i> {{ req.time_since_posted }}</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card card-static">
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>No requests found</h3>
+        <p>You haven't posted any help requests{% if status_filter %} with this filter{% endif %}.</p>
+        <a href="{% url 'create_help_request' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Post a Request
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

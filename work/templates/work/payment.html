@@ -1,0 +1,569 @@
+{% extends "base.html" %}
+{% block title %}Send Payment — {{ help_request.title }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .payment-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (max-width: 900px) {
+        .payment-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .payment-hero {
+        text-align: center;
+        padding: 2rem 1.5rem;
+        background: linear-gradient(135deg, #6C63FF 0%, #a78bfa 50%, #06d6a0 100%);
+        border-radius: var(--radius-xl);
+        color: white;
+        margin-bottom: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .payment-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+        animation: shimmer 8s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .payment-hero-icon {
+        width: 72px;
+        height: 72px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-full);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        z-index: 1;
+    }
+
+    .payment-hero h1 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0.3rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .payment-hero p {
+        opacity: 0.9;
+        font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .payment-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .payment-card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .payment-card-title i {
+        color: var(--accent-primary);
+    }
+
+    /* Amount Input */
+    .amount-input-wrapper {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+
+    .amount-prefix {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--accent-primary);
+        pointer-events: none;
+    }
+
+    .amount-input {
+        width: 100%;
+        padding: 1rem 1rem 1rem 2.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-family: inherit;
+        transition: var(--transition);
+        text-align: left;
+    }
+
+    .amount-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-glow);
+        background: white;
+    }
+
+    .amount-input::placeholder {
+        color: var(--text-muted);
+        font-weight: 400;
+        font-size: 1rem;
+    }
+
+    /* Payment details section */
+    .payment-detail-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-light);
+        font-size: 0.88rem;
+    }
+
+    .payment-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .payment-detail-label {
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .payment-detail-value {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .note-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        background: var(--bg-input);
+        font-family: inherit;
+        font-size: 0.88rem;
+        color: var(--text-primary);
+        resize: vertical;
+        min-height: 80px;
+        transition: var(--transition);
+    }
+
+    .note-textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-glow);
+        background: white;
+    }
+
+    /* Sidebar */
+    .payment-sidebar .sidebar-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem 1.5rem;
+        box-shadow: var(--shadow-xs);
+        margin-bottom: 1rem;
+    }
+
+    .helper-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .helper-details h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .helper-details p {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+
+    .already-paid {
+        text-align: center;
+        padding: 2rem 1.5rem;
+    }
+
+    .already-paid-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-full);
+        background: rgba(6, 214, 160, 0.12);
+        color: var(--accent-secondary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .already-paid h2 {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .already-paid p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .pay-btn {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #06d6a0 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 16px rgba(6, 214, 160, 0.25);
+    }
+
+    .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(6, 214, 160, 0.3);
+    }
+
+    .pay-btn:active {
+        transform: translateY(0);
+    }
+
+    .pay-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .razorpay-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        background: rgba(59, 130, 246, 0.06);
+        border: 1px solid rgba(59, 130, 246, 0.12);
+        border-radius: var(--radius-sm);
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        justify-content: center;
+    }
+
+    .razorpay-badge i {
+        color: var(--accent-info);
+    }
+
+    .error-msg {
+        display: none;
+        padding: 0.75rem 1rem;
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.15);
+        border-radius: var(--radius-sm);
+        color: var(--accent-danger);
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-layout">
+    <!-- Main Content -->
+    <div>
+        <div class="payment-hero">
+            <div class="payment-hero-icon">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <h1>Send Payment</h1>
+            <p>Pay {{ helper.profile.display_name }} for "{{ help_request.title }}"</p>
+        </div>
+
+        {% if existing_payment %}
+        <!-- Already Paid -->
+        <div class="payment-card">
+            <div class="already-paid">
+                <div class="already-paid-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Payment Already Sent!</h2>
+                <p>You have already paid &#8377;{{ existing_payment.amount }} to {{ helper.profile.display_name }}</p>
+                <a href="{% url 'payment_receipt' pk=help_request.pk %}" class="btn btn-primary">
+                    <i class="fas fa-receipt"></i> View Receipt
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <!-- Razorpay Payment Form -->
+        <div id="error-msg" class="error-msg"></div>
+
+        <div class="payment-card" style="margin-bottom: 1rem;">
+            <div class="payment-card-title">
+                <i class="fas fa-rupee-sign"></i> Payment Amount
+            </div>
+
+            <div class="amount-input-wrapper">
+                <span class="amount-prefix">&#8377;</span>
+                <input type="number" id="amount-input" class="amount-input" placeholder="Enter amount" min="1"
+                    step="0.01" value="{{ default_amount }}" required>
+            </div>
+
+            {% if help_request.budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Listed Budget</span>
+                <span class="payment-detail-value" style="color: #059669;">{{ help_request.budget }}</span>
+            </div>
+            {% endif %}
+
+            {% if accepted_application and accepted_application.proposed_budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Helper's Proposed Price</span>
+                <span class="payment-detail-value" style="color: var(--accent-primary);">{{
+                    accepted_application.proposed_budget }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="payment-card" style="margin-bottom: 1rem;">
+            <div class="payment-card-title">
+                <i class="fas fa-sticky-note"></i> Note (Optional)
+            </div>
+            <textarea id="payment-note" class="note-textarea"
+                placeholder="Add a message for the helper... (e.g. 'Great work! Thank you for the help.')"></textarea>
+        </div>
+
+        <button type="button" class="pay-btn" id="pay-btn" onclick="initiatePayment()">
+            <i class="fas fa-lock"></i> Pay with Razorpay
+        </button>
+
+        <div class="razorpay-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Payments are secured and verified by Razorpay. UPI, Cards, Netbanking and Wallets accepted.</span>
+        </div>
+
+        <!-- Hidden form to POST Razorpay response to our server -->
+        <form id="payment-confirm-form" method="POST" action="{% url 'confirm_payment' pk=help_request.pk %}"
+            style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="razorpay_payment_id" id="rz-payment-id">
+            <input type="hidden" name="razorpay_order_id" id="rz-order-id">
+            <input type="hidden" name="razorpay_signature" id="rz-signature">
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="payment-sidebar">
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-handshake"></i> Paying To</h3>
+            <div class="helper-info">
+                <span class="avatar avatar-lg" style="background: {{ helper_profile.avatar_color }}">
+                    {{ helper_profile.initials }}
+                </span>
+                <div class="helper-details">
+                    <h3>{{ helper.profile.display_name }}</h3>
+                    {% if helper_profile.profession %}
+                    <p style="color: var(--accent-primary); font-weight: 500;">{{ helper_profile.profession }}</p>
+                    {% endif %}
+                    {% if helper_profile.department %}
+                    <p><i class="fas fa-building"></i> {{ helper_profile.department }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-file-alt"></i> Request Details</h3>
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Request</span>
+                <span class="payment-detail-value" style="font-size: 0.82rem; max-width: 160px; text-align: right;">{{
+                    help_request.title|truncatechars:40 }}</span>
+            </div>
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Status</span>
+                <span class="badge badge-{{ help_request.status_css_class }}">{{ help_request.get_status_display
+                    }}</span>
+            </div>
+            {% if help_request.budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Budget</span>
+                <span class="payment-detail-value" style="color: #059669;">{{ help_request.budget }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-info-circle"></i> How It Works</h3>
+            <div
+                style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span
+                        style="width: 24px; height: 24px; border-radius: 50%; background: rgba(108, 99, 255, 0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">1</span>
+                    <span>Enter the payment amount</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span
+                        style="width: 24px; height: 24px; border-radius: 50%; background: rgba(108, 99, 255, 0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">2</span>
+                    <span>Click "Pay with Razorpay" to open the secure checkout</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span
+                        style="width: 24px; height: 24px; border-radius: 50%; background: rgba(108, 99, 255, 0.1); color: var(--accent-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">3</span>
+                    <span>Pay via UPI, Card, Netbanking, or Wallet</span>
+                </div>
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                    <span
+                        style="width: 24px; height: 24px; border-radius: 50%; background: rgba(6, 214, 160, 0.1); color: var(--accent-secondary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0;">&#10003;</span>
+                    <span>Payment is verified and receipt is generated</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const RAZORPAY_KEY = "{{ razorpay_key_id }}";
+    const CREATE_ORDER_URL = "{% url 'create_razorpay_order' pk=help_request.pk %}";
+    const CSRF_TOKEN = "{{ csrf_token }}";
+    const PAYER_NAME = "{{ request.user.get_full_name|default:request.user.username }}";
+    const PAYER_EMAIL = "{{ request.user.email }}";
+    const HELP_TITLE = "{{ help_request.title|truncatechars:50 }}";
+
+    function showError(msg) {
+        const el = document.getElementById('error-msg');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+
+    async function initiatePayment() {
+        const amountInput = document.getElementById('amount-input');
+        const noteInput = document.getElementById('payment-note');
+        const payBtn = document.getElementById('pay-btn');
+        const amount = parseFloat(amountInput.value);
+
+        if (!amount || amount <= 0) {
+            showError('Please enter a valid amount.');
+            amountInput.focus();
+            return;
+        }
+
+        // Disable button
+        payBtn.disabled = true;
+        payBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating order...';
+
+        try {
+            // Step 1: Create Razorpay order on our server
+            const response = await fetch(CREATE_ORDER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': CSRF_TOKEN,
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    note: noteInput.value.trim(),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to create order');
+            }
+
+            // Step 2: Open Razorpay Checkout
+            const options = {
+                key: RAZORPAY_KEY,
+                amount: data.amount,
+                currency: data.currency,
+                name: 'NxtHelp',
+                description: 'Payment for: ' + HELP_TITLE,
+                order_id: data.order_id,
+                prefill: {
+                    name: PAYER_NAME,
+                    email: PAYER_EMAIL,
+                },
+                theme: {
+                    color: '#6C63FF',
+                },
+                handler: function (response) {
+                    // Step 3: Payment successful — submit to our server for verification
+                    document.getElementById('rz-payment-id').value = response.razorpay_payment_id;
+                    document.getElementById('rz-order-id').value = response.razorpay_order_id;
+                    document.getElementById('rz-signature').value = response.razorpay_signature;
+                    document.getElementById('payment-confirm-form').submit();
+                },
+                modal: {
+                    ondismiss: function () {
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay with Razorpay';
+                    }
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                showError('Payment failed: ' + response.error.description);
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay with Razorpay';
+            });
+            rzp.open();
+
+        } catch (err) {
+            showError(err.message || 'Something went wrong. Please try again.');
+            payBtn.disabled = false;
+            payBtn.innerHTML = '<i class="fas fa-lock"></i> Pay with Razorpay';
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">My Applications</h1>
+    <p class="page-subtitle">Track applications you've sent to help others</p>
+</div>
+
+<div class="filter-tabs">
+    <a href="{% url 'my_applications' %}" class="filter-tab {% if not status_filter %}active{% endif %}">All</a>
+    <a href="{% url 'my_applications' %}?status=pending"
+        class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">Pending</a>
+    <a href="{% url 'my_applications' %}?status=accepted"
+        class="filter-tab {% if status_filter == 'accepted' %}active{% endif %}">Accepted</a>
+    <a href="{% url 'my_applications' %}?status=rejected"
+        class="filter-tab {% if status_filter == 'rejected' %}active{% endif %}">Rejected</a>
+</div>
+
+{% if applications %}
+<div class="requests-grid">
+    {% for app in applications %}
+    <a href="{% url 'help_request_detail' pk=app.help_request.pk %}" class="request-card">
+        <div class="request-card-header">
+            <div class="request-card-title">{{ app.help_request.title }}</div>
+            <span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span>
+        </div>
+        <div class="request-card-desc">{{ app.message|truncatewords:20 }}</div>
+        <div class="request-card-meta">
+            <div class="poster-info">
+                <span class="avatar avatar-sm"
+                    style="background: {{ app.help_request.posted_by.profile.avatar_color }}; width:24px; height:24px; font-size:0.6rem;">
+                    {{ app.help_request.posted_by.profile.initials }}
+                </span>
+                <span class="name">{{ app.help_request.posted_by.profile.display_name }}</span>
+            </div>
+            {% if app.proposed_budget %}
+            <span class="budget-tag"><i class="fas fa-coins"></i> {{ app.proposed_budget }}</span>
+            {% endif %}
+            <span class="meta-item"><i class="fas fa-clock"></i> {{ app.created_at|timesince }} ago</span>
+        </div>
+
+        {% if app.status == 'accepted' %}
+        <div class="mt-1">
+            <span class="btn btn-primary btn-sm" style="pointer-events: none;">
+                <i class="fas fa-comments"></i> Chat Available
+            </span>
+        </div>
+        {% endif %}
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card card-static">
+    <div class="empty-state">
+        <i class="fas fa-paper-plane"></i>
+        <h3>No applications yet</h3>
+        <p>Browse open requests and apply to help others!</p>
+        <a href="{% url 'browse_requests' %}" class="btn btn-primary">
+            <i class="fas fa-compass"></i> Browse Requests
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

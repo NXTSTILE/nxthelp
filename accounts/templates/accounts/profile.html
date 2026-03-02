@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.display_name }}{% endblock %}
+
+{% block content %}
+<div class="profile-hero">
+    <span class="avatar avatar-xl" style="background: {{ profile.avatar_color }}">
+        {{ profile.initials }}
+    </span>
+    <div class="profile-info">
+        <h1>{{ profile.display_name }}</h1>
+        {% if profile.profession %}
+        <div class="profession-label">{{ profile.profession }}</div>
+        {% endif %}
+        {% if profile.bio %}
+        <div class="bio-text">{{ profile.bio }}</div>
+        {% endif %}
+        <div class="profile-details">
+            {% if profile.department %}
+            <div class="profile-detail-item">
+                <i class="fas fa-building"></i> {{ profile.department }}
+            </div>
+            {% endif %}
+            {% if profile.year %}
+            <div class="profile-detail-item">
+                <i class="fas fa-graduation-cap"></i> {{ profile.get_year_display }}
+            </div>
+            {% endif %}
+            <div class="profile-detail-item">
+                <i class="fas fa-envelope"></i> {{ profile_user.email }}
+            </div>
+        </div>
+        {% if profile.skills %}
+        <div class="skills-list">
+            {% for skill in profile.get_skills_list %}
+            <span class="tag">{{ skill }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if profile_user == request.user %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'edit_profile' %}" class="btn btn-secondary">
+        <i class="fas fa-pen"></i> Edit Profile
+    </a>
+</div>
+{% endif %}
+
+<div class="dashboard-grid">
+    <!-- Requests Posted -->
+    <div>
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-bullhorn"></i> Requests Posted</h2>
+        </div>
+        {% if posted_requests %}
+        <div class="requests-grid">
+            {% for req in posted_requests %}
+            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+                <div class="request-card-header">
+                    <div class="request-card-title">{{ req.title }}</div>
+                    <span class="badge badge-{{ req.status_css_class }}">{{ req.get_status_display }}</span>
+                </div>
+                <div class="request-card-meta">
+                    {% if req.category %}
+                    <span class="tag"><i class="{{ req.category.icon }}"></i> {{ req.category.name }}</span>
+                    {% endif %}
+                    <span class="meta-item"><i class="fas fa-clock"></i> {{ req.time_since_posted }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card card-static">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No requests posted yet.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Helped With -->
+    <div>
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-handshake"></i> Helped With</h2>
+        </div>
+        {% if helped_requests %}
+        <div class="requests-grid">
+            {% for app in helped_requests %}
+            <a href="{% url 'help_request_detail' pk=app.help_request.pk %}" class="request-card">
+                <div class="request-card-header">
+                    <div class="request-card-title">{{ app.help_request.title }}</div>
+                    <span class="badge badge-accepted">Helped</span>
+                </div>
+                <div class="request-card-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-user"></i> {{ app.help_request.posted_by.profile.display_name }}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card card-static">
+            <div class="empty-state">
+                <i class="fas fa-handshake"></i>
+                <p>No help records yet.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card fade-in">
+        <div class="auth-header">
+            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content: center; margin-bottom: 1.25rem;">
+                <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
+                <span class="brand-text">NxtHelp</span>
+            </a>
+            <h1>Create Your Account</h1>
+            <p>Join the university help marketplace</p>
+        </div>
+
+        <form method="POST" action="{% url 'register' %}" novalidate>
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="id_first_name">First Name</label>
+                    {{ form.first_name }}
+                    {% for error in form.first_name.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_last_name">Last Name</label>
+                    {{ form.last_name }}
+                    {% for error in form.last_name.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_username">Username</label>
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_email">Email</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_profession">Profession / Role</label>
+                {{ form.profession }}
+                <span class="form-help">e.g. 3rd Year CSE Student, Assistant Professor, Lab Instructor...</span>
+                {% for error in form.profession.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_password1">Password</label>
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_password2">Confirm Password</label>
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-error mb-2">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account? <a href="{% url 'login' %}">Log in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

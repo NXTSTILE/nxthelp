@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Post a Request{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+    <div class="page-header">
+        <h1 class="page-title">Post a Help Request</h1>
+        <p class="page-subtitle">Describe what you need help with. Set pricing and deadlines so others know what to
+            expect.</p>
+    </div>
+
+    <div class="card card-static">
+        <form method="POST" action="{% url 'create_help_request' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_title">Title</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_description">Description</label>
+                {{ form.description }}
+                <span class="form-help">The more detail you provide, the better help you'll get.</span>
+                {% for error in form.description.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="id_category">Category</label>
+                    {{ form.category }}
+                    {% for error in form.category.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_urgency">Urgency</label>
+                    {{ form.urgency }}
+                    {% for error in form.urgency.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="id_budget">
+                        <i class="fas fa-coins" style="color: var(--accent-secondary);"></i> Budget / Pricing
+                    </label>
+                    {{ form.budget }}
+                    <span class="form-help">e.g. ₹500, Negotiable, Free</span>
+                    {% for error in form.budget.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="id_deadline">
+                        <i class="fas fa-calendar" style="color: var(--accent-warning);"></i> Deadline
+                    </label>
+                    {{ form.deadline }}
+                    <span class="form-help">When do you need this done?</span>
+                    {% for error in form.deadline.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-error mb-2">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">
+                <i class="fas fa-paper-plane"></i> Post Request
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

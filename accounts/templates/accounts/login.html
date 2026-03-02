@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Log In{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card fade-in">
+        <div class="auth-header">
+            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content: center; margin-bottom: 1.25rem;">
+                <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
+                <span class="brand-text">NxtHelp</span>
+            </a>
+            <h1>Welcome Back</h1>
+            <p>Log in to your account</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" class="form-input" placeholder="Enter your username"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" class="form-input"
+                    placeholder="Enter your password" required>
+            </div>
+
+            {% if form.errors %}
+            <div class="form-error mb-2">
+                <p><i class="fas fa-exclamation-circle"></i> Invalid username or password. Please try again.</p>
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                <i class="fas fa-sign-in-alt"></i> Log In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account? <a href="{% url 'register' %}">Sign up</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
