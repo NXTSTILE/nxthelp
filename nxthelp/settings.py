@@ -132,7 +132,7 @@ STATICFILES_DIRS = [
 ]
 
 # WhiteNoise for serving static files on Vercel
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 
 # ─── Auth ────────────────────────────────────────────────────────
