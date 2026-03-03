@@ -13,7 +13,7 @@ env/
 
 # Django
 db.sqlite3
-staticfiles_build/
+staticfiles/
 *.log
 
 # IDE

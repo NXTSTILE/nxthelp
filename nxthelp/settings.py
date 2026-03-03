@@ -25,14 +25,14 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get(
     'DJANGO_ALLOWED_HOSTS',
-    '.vercel.app,localhost,127.0.0.1'
+    '.onrender.com,localhost,127.0.0.1'
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS',
-        'https://*.vercel.app'
+        'https://*.onrender.com'
     ).split(',')
 ]
 
@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'nxthelp.wsgi.application'
 
 
 # ─── Database ────────────────────────────────────────────────────
-# Uses DATABASE_URL env var on Vercel (e.g. Vercel Postgres / Neon / Supabase)
+# Uses DATABASE_URL env var on Render (e.g. Render Postgres)
 # Falls back to SQLite for local development
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
@@ -131,7 +131,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# WhiteNoise for serving static files on Vercel
+# WhiteNoise for serving static files in production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 

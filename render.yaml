@@ -1,0 +1,35 @@
+# render.yaml — Render Blueprint (Infrastructure as Code)
+# This file tells Render how to deploy your Django app.
+# Docs: https://docs.render.com/blueprint-spec
+
+services:
+  - type: web
+    name: nxthelp
+    runtime: python
+    plan: free                          # Free tier — upgrade later as needed
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn nxthelp.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true              # Render auto-generates a secure secret
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://*.onrender.com"
+      - key: PYTHON_VERSION
+        value: "3.11.6"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nxthelp-db
+          property: connectionString
+      # Add your Razorpay keys manually in Render dashboard for security
+      # - key: RAZORPAY_KEY_ID
+      # - key: RAZORPAY_KEY_SECRET
+
+databases:
+  - name: nxthelp-db
+    plan: free                           # Free Postgres — 90 days on free tier
+    databaseName: nxthelp
+    user: nxthelp_user
