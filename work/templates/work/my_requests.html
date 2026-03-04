@@ -45,8 +45,7 @@
             {% if req.category %}
             <span class="tag"><i class="{{ req.category.icon }}"></i> {{ req.category.name }}</span>
             {% endif %}
-            <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize
-                }}</span>
+            <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize }}</span>
             <span class="meta-item"><i class="fas fa-clock"></i> {{ req.time_since_posted }}</span>
         </div>
     </a>

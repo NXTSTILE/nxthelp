@@ -3,9 +3,9 @@
 
 {% block content %}
 <div class="auth-page">
-    <div class="auth-card fade-in">
+    <div class="auth-card fade-in" style="max-width:520px;">
         <div class="auth-header">
-            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content: center; margin-bottom: 1.25rem;">
+            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content:center; margin-bottom:1.25rem;">
                 <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
                 <span class="brand-text">NxtHelp</span>
             </a>
@@ -16,7 +16,7 @@
         <form method="POST" action="{% url 'register' %}" novalidate>
             {% csrf_token %}
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                 <div class="form-group">
                     <label class="form-label" for="id_first_name">First Name</label>
                     {{ form.first_name }}
@@ -75,9 +75,10 @@
             </div>
 
             {% if form.non_field_errors %}
-            <div class="form-error mb-2">
+            <div style="padding:0.75rem; background:rgba(239,68,68,0.08);
+                        border:1px solid rgba(239,68,68,0.2); border-radius:10px; margin-bottom:1rem;">
                 {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
+                <p class="form-error" style="margin:0;">{{ error }}</p>
                 {% endfor %}
             </div>
             {% endif %}

@@ -2,73 +2,118 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-<div class="landing-page">
-    <nav class="landing-nav">
-        <a href="{% url 'landing' %}" class="nav-brand">
-            <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
-            <span class="brand-text">NxtHelp</span>
-        </a>
-        <div class="landing-nav-actions">
-            <a href="{% url 'login' %}" class="btn btn-ghost">Log In</a>
-            <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
-        </div>
-    </nav>
 
-    <div class="landing-hero">
-        <div class="landing-hero-content fade-in">
-            <h1>Get Help. Give Help.<br>All Within Your University</h1>
-            <p>
+<!-- ─── Navbar (public) ─── -->
+<nav class="navbar navbar-expand-lg pt-4 pb-3">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'landing' %}">NxtHelp.</a>
+        <div class="ms-auto d-flex gap-3">
+            <a href="{% url 'login' %}" class="btn btn-outline-white">Log In</a>
+            <a href="{% url 'register' %}" class="btn btn-gradient">Sign Up</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ─── Hero Section ─── -->
+<section class="container text-center py-5 mt-4 position-relative z-1">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="pill-badge mb-4">
+                🎓 Now live for university students
+            </div>
+
+            <h1 class="display-3 fw-black mb-3 lh-sm landing-hero h1" style="letter-spacing:-1.5px;">
+                Get Help. Give Help.<br>All Within Your University.
+            </h1>
+
+            <p class="fs-5 mb-5 px-md-4" style="color:#a1a1aa;">
                 Post your queries with pricing and deadlines. Anyone in the university
                 can apply to help. Choose the best applicant and connect via chat.
             </p>
-            <div class="landing-cta-group">
-                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+
+            <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
+                <a href="{% url 'register' %}" class="btn btn-gradient">
                     <i class="fas fa-rocket"></i> Join NxtHelp
                 </a>
-                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">
+                <a href="{% url 'login' %}" class="btn btn-outline-white">
                     <i class="fas fa-sign-in-alt"></i> Log In
                 </a>
             </div>
 
-            <div class="landing-stats">
-                <div class="landing-stat">
+            <!-- Stats -->
+            <div class="d-flex justify-content-center gap-5 flex-wrap mb-5"
+                style="padding:1.5rem 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);">
+                <div class="text-center">
                     <div class="landing-stat-value">{{ stats.users }}+</div>
                     <div class="landing-stat-label">Members</div>
                 </div>
-                <div class="landing-stat">
+                <div class="text-center">
                     <div class="landing-stat-value">{{ stats.requests_posted }}+</div>
                     <div class="landing-stat-label">Requests Posted</div>
                 </div>
-                <div class="landing-stat">
+                <div class="text-center">
                     <div class="landing-stat-value">{{ stats.requests_resolved }}+</div>
                     <div class="landing-stat-label">Resolved</div>
                 </div>
             </div>
 
-            <div class="landing-features">
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(108,99,255,0.1); color: #6C63FF;">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    <h3>Post Your Query</h3>
-                    <p>Describe what you need help with, set your budget and deadline.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(6,214,160,0.1); color: #06d6a0;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Get Applicants</h3>
-                    <p>University members apply to help. Review their profiles and proposals.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">
-                        <i class="fas fa-comments"></i>
-                    </div>
-                    <h3>Connect &amp; Chat</h3>
-                    <p>Choose the best applicant and connect via built-in chat.</p>
-                </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Features Section ─── -->
+<section class="container py-3 position-relative z-1">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-white">Everything you need in one hub.</h3>
+    </div>
+    <div class="row g-4 px-lg-5">
+        <div class="col-md-4">
+            <div class="glass-card text-center">
+                <i class="fas fa-bullhorn icon-cyan"></i>
+                <h5 class="fw-bold text-white mb-2">Post Your Query</h5>
+                <p style="color:#a1a1aa;font-size:.9rem;margin:0;">
+                    Describe what you need help with, set your budget and deadline.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center">
+                <i class="fas fa-users icon-cyan"></i>
+                <h5 class="fw-bold text-white mb-2">Get Applicants</h5>
+                <p style="color:#a1a1aa;font-size:.9rem;margin:0;">
+                    University members apply to help. Review their profiles and proposals.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center">
+                <i class="fas fa-comments icon-cyan"></i>
+                <h5 class="fw-bold text-white mb-2">Connect &amp; Chat</h5>
+                <p style="color:#a1a1aa;font-size:.9rem;margin:0;">
+                    Choose the best applicant and connect via built-in chat.
+                </p>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="container py-5 mb-4 position-relative z-1">
+    <div class="row justify-content-center px-lg-5">
+        <div class="col-12">
+            <div class="cta-card">
+                <h3 class="fw-bold text-white mb-2">Ready to upgrade your university experience?</h3>
+                <p class="mb-4" style="color:#a1a1aa;">Join hundreds of students already helping each other on campus.
+                </p>
+                <a href="{% url 'register' %}" class="btn btn-gradient px-4">Create Your Account</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="container text-center py-4" style="color:#52525b;border-top:1px solid rgba(255,255,255,.06);">
+    <p class="mb-0 fs-6">&copy; 2026 NxtHelp — University Help Marketplace</p>
+</footer>
+
 {% endblock %}

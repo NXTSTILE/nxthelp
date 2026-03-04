@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -8,42 +8,67 @@
     <meta name="description"
         content="NxtHelp — University help marketplace. Post your queries, set pricing & deadlines, and connect with helpers.">
     <title>{% block title %}NxtHelp{% endblock %} | University Help Marketplace</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Custom Theme -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
+
+    <!-- ─── Ambient Glow Orbs ─── -->
+    <div class="ambient-light light-cyan"></div>
+    <div class="ambient-light light-magenta"></div>
+
+    <!-- ─── 3D Floating Shapes ─── -->
+    <div class="shape-scene scene-right">
+        <div class="prism">
+            <div class="prism-face front"></div>
+            <div class="prism-face right"></div>
+            <div class="prism-face left"></div>
+        </div>
+    </div>
+    <div class="shape-scene scene-left">
+        <div class="gem">
+            <div class="gem-face top-front"></div>
+            <div class="gem-face top-right"></div>
+            <div class="gem-face bottom-front"></div>
+        </div>
+    </div>
+
     {% if user.is_authenticated %}
-    <!-- Authenticated Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="{% url 'dashboard' %}" class="nav-brand">
-                <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
-                <span class="brand-text">NxtHelp</span>
+    <!-- ─── Authenticated Navbar ─── -->
+    <nav class="navbar navbar-expand-lg pt-3 pb-2">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'dashboard' %}">
+                NxtHelp.
             </a>
-            <div class="nav-links">
+            <div class="d-none d-lg-flex gap-2 align-items-center me-auto ms-4">
                 <a href="{% url 'dashboard' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    class="nav-pill {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-th-large"></i> Dashboard
                 </a>
                 <a href="{% url 'browse_requests' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
+                    class="nav-pill {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
                     <i class="fas fa-compass"></i> Browse
                 </a>
                 <a href="{% url 'my_chats' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
+                    class="nav-pill {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> Chats
                 </a>
-                <a href="{% url 'create_help_request' %}" class="nav-link nav-cta">
+                <a href="{% url 'create_help_request' %}" class="btn btn-gradient btn-sm ms-1">
                     <i class="fas fa-plus"></i> Post Request
                 </a>
             </div>
-            <div class="nav-right">
+            <div class="ms-auto d-flex gap-2 align-items-center">
                 <a href="{% url 'notifications' %}" class="nav-icon-btn" title="Notifications">
                     <i class="fas fa-bell"></i>
                     {% if unread_notification_count > 0 %}
@@ -51,100 +76,102 @@
                     {% endif %}
                 </a>
                 <div class="nav-dropdown">
-                    <button class="nav-avatar" onclick="this.parentElement.classList.toggle('open')">
+                    <button class="nav-avatar-btn" onclick="this.parentElement.classList.toggle('open')">
                         <span class="avatar avatar-sm" style="background: {{ user.profile.avatar_color }}">
                             {{ user.profile.initials }}
                         </span>
-                        <span class="nav-username">{{ user.first_name|default:user.username }}</span>
-                        <i class="fas fa-chevron-down"></i>
+                        <span class="d-none d-md-inline ms-1 text-white fw-500" style="font-size:.875rem">
+                            {{ user.first_name|default:user.username }}
+                        </span>
+                        <i class="fas fa-chevron-down ms-1" style="font-size:.7rem;color:#a1a1aa"></i>
                     </button>
-                    <div class="dropdown-menu">
-                        <a href="{% url 'profile' %}" class="dropdown-item">
-                            <i class="fas fa-user"></i> My Profile
-                        </a>
-                        <a href="{% url 'my_requests' %}" class="dropdown-item">
-                            <i class="fas fa-list"></i> My Requests
-                        </a>
-                        <a href="{% url 'my_applications' %}" class="dropdown-item">
-                            <i class="fas fa-paper-plane"></i> My Applications
-                        </a>
-                        <a href="{% url 'my_chats' %}" class="dropdown-item">
-                            <i class="fas fa-comments"></i> My Chats
-                        </a>
-                        <a href="{% url 'edit_profile' %}" class="dropdown-item">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="{% url 'logout' %}" class="dropdown-item dropdown-item-danger">
-                            <i class="fas fa-sign-out-alt"></i> Log Out
-                        </a>
+                    <div class="dropdown-glass">
+                        <a href="{% url 'profile' %}" class="dropdown-glass-item"><i class="fas fa-user"></i> My
+                            Profile</a>
+                        <a href="{% url 'my_requests' %}" class="dropdown-glass-item"><i class="fas fa-list"></i> My
+                            Requests</a>
+                        <a href="{% url 'my_applications' %}" class="dropdown-glass-item"><i
+                                class="fas fa-paper-plane"></i> My Applications</a>
+                        <a href="{% url 'my_chats' %}" class="dropdown-glass-item"><i class="fas fa-comments"></i> My
+                            Chats</a>
+                        <a href="{% url 'edit_profile' %}" class="dropdown-glass-item"><i class="fas fa-cog"></i>
+                            Settings</a>
+                        <div class="dropdown-glass-divider"></div>
+                        <a href="{% url 'logout' %}" class="dropdown-glass-item danger"><i
+                                class="fas fa-sign-out-alt"></i> Log Out</a>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="mobile-nav">
+    <!-- ─── Mobile Bottom Nav ─── -->
+    <nav class="mobile-nav d-lg-none">
         <a href="{% url 'dashboard' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            <i class="fas fa-th-large"></i> Home
+            <i class="fas fa-th-large"></i><span>Home</span>
         </a>
         <a href="{% url 'browse_requests' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
-            <i class="fas fa-compass"></i> Browse
+            <i class="fas fa-compass"></i><span>Browse</span>
         </a>
         <a href="{% url 'create_help_request' %}" class="mobile-nav-item">
-            <i class="fas fa-plus-circle"></i> Post
+            <i class="fas fa-plus-circle"></i><span>Post</span>
         </a>
         <a href="{% url 'my_chats' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
-            <i class="fas fa-comments"></i> Chats
+            <i class="fas fa-comments"></i><span>Chats</span>
         </a>
         <a href="{% url 'profile' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-            <i class="fas fa-user"></i> Profile
+            <i class="fas fa-user"></i><span>Profile</span>
         </a>
     </nav>
     {% endif %}
 
-    <!-- Messages / Toasts -->
+    <!-- ─── Toast Messages ─── -->
     {% if messages %}
-    <div class="toast-container">
+    <div class="toast-container-custom">
         {% for message in messages %}
-        <div class="toast toast-{{ message.tags }}" onclick="this.remove()">
+        <div class="toast-custom toast-{{ message.tags }}" onclick="this.remove()">
             <div class="toast-icon">
                 {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
                 {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>
                 {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
                 {% else %}<i class="fas fa-info-circle"></i>{% endif %}
             </div>
-            <span class="toast-message">{{ message }}</span>
-            <button class="toast-close"><i class="fas fa-times"></i></button>
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()"
+                style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:0 0 0 .5rem">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <main class="{% if user.is_authenticated %}main-content{% else %}main-public{% endif %}">
+    <!-- ─── Main Content ─── -->
+    <main class="{% if user.is_authenticated %}main-authenticated{% else %}main-public{% endif %}">
         {% block content %}{% endblock %}
     </main>
 
     {% if user.is_authenticated %}
-    <footer class="footer">
-        <span>© 2026 NxtHelp — University Help Marketplace</span>
+    <footer class="text-center py-4"
+        style="color:#52525b;font-size:.82rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:2rem;">
+        © 2026 NxtHelp — University Help Marketplace
     </footer>
     {% endif %}
 
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Auto-dismiss toasts
-        document.querySelectorAll('.toast').forEach(toast => {
-            setTimeout(() => toast.style.opacity = '0', 4000);
-            setTimeout(() => toast.remove(), 4500);
+        document.querySelectorAll('.toast-custom').forEach(t => {
+            setTimeout(() => t.style.opacity = '0', 4000);
+            setTimeout(() => t.remove(), 4500);
         });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
+        // Close dropdown on outside click
+        document.addEventListener('click', e => {
             document.querySelectorAll('.nav-dropdown.open').forEach(dd => {
                 if (!dd.contains(e.target)) dd.classList.remove('open');
             });

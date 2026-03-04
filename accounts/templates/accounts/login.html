@@ -5,7 +5,7 @@
 <div class="auth-page">
     <div class="auth-card fade-in">
         <div class="auth-header">
-            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content: center; margin-bottom: 1.25rem;">
+            <a href="{% url 'landing' %}" class="nav-brand" style="justify-content:center; margin-bottom:1.25rem;">
                 <span class="brand-icon"><i class="fas fa-hands-helping"></i></span>
                 <span class="brand-text">NxtHelp</span>
             </a>
@@ -29,12 +29,13 @@
             </div>
 
             {% if form.errors %}
-            <div class="form-error mb-2">
+            <div class="form-error mb-2" style="padding:0.75rem; background:rgba(239,68,68,0.08);
+                         border:1px solid rgba(239,68,68,0.2); border-radius:10px;">
                 <p><i class="fas fa-exclamation-circle"></i> Invalid username or password. Please try again.</p>
             </div>
             {% endif %}
 
-            <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:0.5rem;">
                 <i class="fas fa-sign-in-alt"></i> Log In
             </button>
         </form>
