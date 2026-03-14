@@ -106,6 +106,8 @@ class Application(models.Model):
         ('pending', 'Pending'),
         ('accepted', 'Accepted'),
         ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn'),
+        ('completed', 'Completed'),
     ]
 
     help_request = models.ForeignKey(HelpRequest, on_delete=models.CASCADE, related_name='applications')

@@ -15,6 +15,8 @@ urlpatterns = [
     path('request/<int:pk>/apply/', views.apply_to_help, name='apply_to_help'),
     path('application/<int:pk>/accept/', views.accept_application, name='accept_application'),
     path('application/<int:pk>/reject/', views.reject_application, name='reject_application'),
+    path('application/<int:pk>/withdraw/', views.withdraw_application, name='withdraw_application'),
+    path('application/<int:pk>/complete/', views.complete_application, name='complete_application'),
     path('my-applications/', views.my_applications, name='my_applications'),
 
     # Request Management

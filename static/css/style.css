@@ -982,6 +982,11 @@ select.form-control {
     color: var(--red);
 }
 
+.badge-withdrawn {
+    background: var(--slate-100);
+    color: var(--slate-500);
+}
+
 .badge-urgency-low {
     background: rgba(22, 163, 74, .12);
     color: #15803d;

@@ -196,6 +196,25 @@
             <a href="{% url 'chat_room' pk=help_request.pk %}" class="btn btn-primary btn-block mt-2 font-semibold">
                 <i class="fas fa-comments"></i> Open Chat
             </a>
+            <form method="POST" action="{% url 'complete_application' pk=existing_application.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-block mt-2 font-semibold">
+                    <i class="fas fa-check-circle"></i> Mark Work as Done
+                </button>
+            </form>
+            <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-block mt-2 font-semibold" onclick="return confirm('Are you sure you want to withdraw your application? This will reopen the request.');">
+                    <i class="fas fa-trash-alt"></i> Withdraw Application
+                </button>
+            </form>
+            {% elif existing_application.status == 'pending' %}
+            <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-block mt-2 font-semibold" onclick="return confirm('Are you sure you want to withdraw your application?');">
+                    <i class="fas fa-trash-alt"></i> Withdraw Application
+                </button>
+            </form>
             {% endif %}
         </div>
         {% elif application_form %}

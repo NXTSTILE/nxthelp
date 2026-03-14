@@ -323,6 +323,63 @@ def reject_application(request, pk):
 
 
 @login_required
+def withdraw_application(request, pk):
+    """Applicant withdraws their application."""
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user != application.applicant:
+        messages.error(request, 'You can only manage your own applications.')
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        if application.status == 'accepted':
+            # Reset the help request if the accepted applicant withdraws
+            help_req = application.help_request
+            help_req.selected_helper = None
+            help_req.status = 'open'
+            help_req.save()
+            Notification.objects.create(
+                recipient=help_req.posted_by,
+                notification_type='application_rejected',
+                title='Helper withdrew',
+                message=f'{request.user.profile.display_name} has withdrawn from "{help_req.title}".',
+                link=f'/request/{help_req.pk}/',
+            )
+
+        application.status = 'withdrawn'
+        application.save()
+        messages.success(request, 'You have withdrawn your application.')
+
+    return redirect('help_request_detail', pk=application.help_request.pk)
+
+
+@login_required
+def complete_application(request, pk):
+    """Applicant marks the work as completed, notifying the poster."""
+    application = get_object_or_404(Application, pk=pk)
+
+    if request.user != application.applicant:
+        messages.error(request, 'You can only manage your own applications.')
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        application.status = 'completed'
+        application.save()
+
+        help_req = application.help_request
+        Notification.objects.create(
+            recipient=help_req.posted_by,
+            notification_type='work_completed',
+            title='Work marked as completed by helper',
+            message=f'{request.user.profile.display_name} has marked their work on "{help_req.title}" as completed.',
+            link=f'/request/{help_req.pk}/',
+        )
+
+        messages.success(request, 'You have marked the work as completed. The poster has been notified.')
+        
+    return redirect('help_request_detail', pk=application.help_request.pk)
+
+@login_required
 def resolve_request(request, pk):
     """Mark a help request as resolved."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
