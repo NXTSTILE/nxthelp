@@ -28,7 +28,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get(
     'DJANGO_ALLOWED_HOSTS',
-    '.onrender.com,localhost,127.0.0.1'
+    '.onrender.com,.ondigitalocean.app,localhost,127.0.0.1'
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
@@ -38,6 +38,23 @@ CSRF_TRUSTED_ORIGINS = [
         'https://*.onrender.com'
     ).split(',')
 ]
+
+# ─── Production Security Headers ────────────────────────────────
+# These are safe to leave on even in development:
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Only enable these in production (HTTPS):
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000          # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True          # JS can't read session cookie
+    SESSION_COOKIE_SAMESITE = 'Lax'
 
 
 # ─── Application definition ─────────────────────────────────────
@@ -157,3 +174,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 RAZORPAY_CURRENCY = 'INR'
+
+
+# ─── Email — Gmail SMTP ─────────────────────────────────────────
+# For development set EMAIL_BACKEND to console (see .env).
+# For production set EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+# and fill in EMAIL_HOST_USER + EMAIL_HOST_PASSWORD (App Password).
+
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'NxtHelp <noreply@nxthelp.com>')

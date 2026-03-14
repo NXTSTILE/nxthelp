@@ -2,11 +2,15 @@
 {% block title %}Browse Requests{% endblock %}
 
 {% block content %}
+<!-- Page Header -->
 <div class="page-header">
-    <h1 class="page-title">Browse Help Requests</h1>
+    <h1 class="page-title">
+        <i class="fas fa-compass me-2" style="color:#1d4ed8"></i>Browse Help Requests
+    </h1>
     <p class="page-subtitle">Find requests you can help with and start earning</p>
 </div>
 
+<!-- Filters -->
 <form method="GET" action="{% url 'browse_requests' %}">
     <div class="filters-bar">
         <div class="search-box">
@@ -27,59 +31,85 @@
             <option value="medium" {% if current_urgency == 'medium' %}selected{% endif %}>Medium</option>
             <option value="high" {% if current_urgency == 'high' %}selected{% endif %}>High</option>
         </select>
-        <button type="submit" class="btn btn-primary btn-sm">
+        <button type="submit" class="btn btn-primary btn-sm font-semibold">
             <i class="fas fa-search"></i> Search
         </button>
     </div>
 </form>
 
 {% if help_requests %}
+<!-- Responsive 3-column task grid -->
 <div class="requests-grid">
     {% for req in help_requests %}
     <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+        <!-- Title + urgency badge -->
         <div class="request-card-header">
             <div class="request-card-title">{{ req.title }}</div>
-            <span class="badge badge-urgency-{{ req.urgency }}">{{ req.get_urgency_display }}</span>
+            <span class="badge badge-urgency-{{ req.urgency }} flex-shrink-0">{{ req.get_urgency_display }}</span>
         </div>
-        <div class="request-card-desc">{{ req.description|truncatewords:30 }}</div>
+
+        <!-- Description -->
+        <div class="request-card-desc">
+            {{ req.description|truncatewords:30 }}
+        </div>
+
+        <!-- Meta -->
         <div class="request-card-meta">
+            <!-- Poster -->
             <div class="poster-info">
                 <span class="avatar avatar-sm"
-                    style="background: {{ req.posted_by.profile.avatar_color }}; width:26px; height:26px; font-size:0.6rem;">
+                    style="background: {{ req.posted_by.profile.avatar_color }}; width:24px; height:24px; font-size:0.6rem;">
                     {{ req.posted_by.profile.initials }}
                 </span>
-                <span class="name">{{ req.posted_by.profile.display_name }}</span>
+                <span class="name font-medium">{{ req.posted_by.profile.display_name }}</span>
                 {% if req.posted_by.profile.profession %}
                 <span class="profession">· {{ req.posted_by.profile.profession }}</span>
                 {% endif %}
             </div>
+
             {% if req.budget %}
-            <span class="budget-tag"><i class="fas fa-coins"></i> {{ req.budget }}</span>
+            <span class="budget-tag">
+                <i class="fas fa-rupee-sign"></i> {{ req.budget }}
+            </span>
             {% endif %}
+
             {% if req.deadline %}
             <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                <i class="fas fa-calendar"></i>
+                <i class="fas fa-calendar-alt"></i>
                 {% if req.days_until_deadline is not None %}
-                {% if req.days_until_deadline == 0 %}Today
-                {% elif req.days_until_deadline == 1 %}Tomorrow
-                {% elif req.days_until_deadline < 0 %}Overdue {% else %}{{ req.deadline|date:"M d" }}{% endif %} {% else
-                    %} {{ req.deadline|date:"M d" }} {% endif %} </span>
+                    {% if req.days_until_deadline == 0 %}Today
+                    {% elif req.days_until_deadline == 1 %}Tomorrow
+                    {% elif req.days_until_deadline < 0 %}Overdue
+                    {% else %}{{ req.deadline|date:"M d" }}
                     {% endif %}
-                    {% if req.category %}
-                    <span class="tag"><i class="{{ req.category.icon }}"></i> {{ req.category.name }}</span>
-                    {% endif %}
-                    <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }}</span>
-                    <span class="meta-item"><i class="fas fa-clock"></i> {{ req.time_since_posted }}</span>
+                {% else %}{{ req.deadline|date:"M d" }}
+                {% endif %}
+            </span>
+            {% endif %}
+
+            {% if req.category %}
+            <span class="tag">
+                <i class="{{ req.category.icon }}"></i> {{ req.category.name }}
+            </span>
+            {% endif %}
+
+            <span class="meta-item">
+                <i class="fas fa-users"></i> {{ req.app_count }}
+            </span>
+            <span class="meta-item">
+                <i class="fas fa-clock"></i> {{ req.time_since_posted }}
+            </span>
         </div>
     </a>
     {% endfor %}
 </div>
+
 {% else %}
-<div class="card card-static">
-    <div class="empty-state">
-        <i class="fas fa-search"></i>
-        <h3>No requests found</h3>
-        <p>Try adjusting your filters or check back later for new requests.</p>
+<div class="card card-static rounded-xl p-6">
+    <div class="empty-state text-center py-8">
+        <i class="fas fa-search fa-3x mb-3" style="color:#cbd5e1"></i>
+        <h3 class="font-semibold text-slate-500 mb-1">No requests found</h3>
+        <p class="text-slate-400 font-light">Try adjusting your filters or check back later for new requests.</p>
     </div>
 </div>
 {% endif %}

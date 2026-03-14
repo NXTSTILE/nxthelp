@@ -1,57 +1,38 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="NxtHelp — University help marketplace. Post your queries, set pricing & deadlines, and connect with helpers.">
+        content="NxtHelp — University help marketplace. Post your queries, set pricing &amp; deadlines, and connect with helpers.">
     <title>{% block title %}NxtHelp{% endblock %} | University Help Marketplace</title>
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <!-- Icons -->
+    <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Custom Theme -->
+    <!-- NxtHelp Design System -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
 
-    <!-- ─── Ambient Glow Orbs ─── -->
-    <div class="ambient-light light-cyan"></div>
-    <div class="ambient-light light-magenta"></div>
-
-    <!-- ─── 3D Floating Shapes ─── -->
-    <div class="shape-scene scene-right">
-        <div class="prism">
-            <div class="prism-face front"></div>
-            <div class="prism-face right"></div>
-            <div class="prism-face left"></div>
-        </div>
-    </div>
-    <div class="shape-scene scene-left">
-        <div class="gem">
-            <div class="gem-face top-front"></div>
-            <div class="gem-face top-right"></div>
-            <div class="gem-face bottom-front"></div>
-        </div>
-    </div>
-
     {% if user.is_authenticated %}
-    <!-- ─── Authenticated Navbar ─── -->
-    <nav class="navbar navbar-expand-lg pt-3 pb-2">
-        <div class="container">
-            <a class="navbar-brand fw-bold fs-4 text-white" href="{% url 'dashboard' %}">
-                NxtHelp.
+    <!-- ─── Top Navbar ─── -->
+    <nav class="nxt-navbar">
+        <div class="nav-inner">
+            <!-- Brand -->
+            <a href="{% url 'dashboard' %}" class="nav-brand">
+                <i class="fas fa-hands-helping"></i>NxtHelp
             </a>
-            <div class="d-none d-lg-flex gap-2 align-items-center me-auto ms-4">
+
+            <!-- Desktop Links -->
+            <div class="nav-links" id="desktopNav">
                 <a href="{% url 'dashboard' %}"
                     class="nav-pill {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-th-large"></i> Dashboard
@@ -60,45 +41,57 @@
                     class="nav-pill {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
                     <i class="fas fa-compass"></i> Browse
                 </a>
+                <a href="{% url 'my_requests' %}"
+                    class="nav-pill {% if request.resolver_match.url_name == 'my_requests' %}active{% endif %}">
+                    <i class="fas fa-list-alt"></i> My Requests
+                </a>
                 <a href="{% url 'my_chats' %}"
                     class="nav-pill {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
                     <i class="fas fa-comments"></i> Chats
                 </a>
-                <a href="{% url 'create_help_request' %}" class="btn btn-gradient btn-sm ms-1">
+                <a href="{% url 'create_help_request' %}" class="nav-post-btn">
                     <i class="fas fa-plus"></i> Post Request
                 </a>
             </div>
-            <div class="ms-auto d-flex gap-2 align-items-center">
-                <a href="{% url 'notifications' %}" class="nav-icon-btn" title="Notifications">
+
+            <!-- Right side -->
+            <div class="nav-right">
+                {% if user.profile.balance is not None %}
+                <span class="wallet-badge" id="walletBadge">
+                    <i class="fas fa-wallet"></i> ₹{{ user.profile.balance|floatformat:0 }}
+                </span>
+                {% endif %}
+
+                <!-- Notifications -->
+                <a href="{% url 'notifications' %}" class="nav-icon-btn" title="Notifications" id="notifBtn">
                     <i class="fas fa-bell"></i>
                     {% if unread_notification_count > 0 %}
                     <span class="notif-badge">{{ unread_notification_count }}</span>
                     {% endif %}
                 </a>
-                <div class="nav-dropdown">
-                    <button class="nav-avatar-btn" onclick="this.parentElement.classList.toggle('open')">
-                        <span class="avatar avatar-sm" style="background: {{ user.profile.avatar_color }}">
-                            {{ user.profile.initials }}
-                        </span>
-                        <span class="d-none d-md-inline ms-1 text-white fw-500" style="font-size:.875rem">
-                            {{ user.first_name|default:user.username }}
-                        </span>
-                        <i class="fas fa-chevron-down ms-1" style="font-size:.7rem;color:#a1a1aa"></i>
+
+                <!-- Avatar Dropdown -->
+                <div class="nav-dropdown" id="avatarDropdown">
+                    <button class="nav-avatar-btn" id="avatarBtn" type="button"
+                        aria-haspopup="true" aria-expanded="false">
+                        <span class="avatar avatar-sm" style="background: {{ user.profile.avatar_color }}">{{ user.profile.initials }}</span>
+                        <span class="nav-username" id="navUsername">{{ user.first_name|default:user.username }}</span>
+                        <i class="fas fa-chevron-down nav-chevron"></i>
                     </button>
-                    <div class="dropdown-glass">
-                        <a href="{% url 'profile' %}" class="dropdown-glass-item"><i class="fas fa-user"></i> My
-                            Profile</a>
-                        <a href="{% url 'my_requests' %}" class="dropdown-glass-item"><i class="fas fa-list"></i> My
-                            Requests</a>
-                        <a href="{% url 'my_applications' %}" class="dropdown-glass-item"><i
-                                class="fas fa-paper-plane"></i> My Applications</a>
-                        <a href="{% url 'my_chats' %}" class="dropdown-glass-item"><i class="fas fa-comments"></i> My
-                            Chats</a>
-                        <a href="{% url 'edit_profile' %}" class="dropdown-glass-item"><i class="fas fa-cog"></i>
-                            Settings</a>
+                    <div class="dropdown-glass" role="menu">
+                        <a href="{% url 'profile' %}" class="dropdown-glass-item"><i class="fas fa-user"></i> My Profile</a>
+                        <a href="{% url 'my_requests' %}" class="dropdown-glass-item"><i class="fas fa-list-alt"></i> My Requests</a>
+                        <a href="{% url 'my_applications' %}" class="dropdown-glass-item"><i class="fas fa-paper-plane"></i> My Applications</a>
+                        <a href="{% url 'my_chats' %}" class="dropdown-glass-item"><i class="fas fa-comments"></i> Chats</a>
+                        <a href="{% url 'edit_profile' %}" class="dropdown-glass-item"><i class="fas fa-cog"></i> Settings</a>
                         <div class="dropdown-glass-divider"></div>
-                        <a href="{% url 'logout' %}" class="dropdown-glass-item danger"><i
-                                class="fas fa-sign-out-alt"></i> Log Out</a>
+                        <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-glass-item danger"
+                                style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -106,7 +99,7 @@
     </nav>
 
     <!-- ─── Mobile Bottom Nav ─── -->
-    <nav class="mobile-nav d-lg-none">
+    <nav class="mobile-nav" aria-label="Mobile navigation">
         <a href="{% url 'dashboard' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
             <i class="fas fa-th-large"></i><span>Home</span>
@@ -115,8 +108,8 @@
             class="mobile-nav-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
             <i class="fas fa-compass"></i><span>Browse</span>
         </a>
-        <a href="{% url 'create_help_request' %}" class="mobile-nav-item">
-            <i class="fas fa-plus-circle"></i><span>Post</span>
+        <a href="{% url 'create_help_request' %}" class="mobile-nav-item post-btn">
+            <i class="fas fa-plus"></i><span>Post</span>
         </a>
         <a href="{% url 'my_chats' %}"
             class="mobile-nav-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
@@ -135,14 +128,14 @@
         {% for message in messages %}
         <div class="toast-custom toast-{{ message.tags }}" onclick="this.remove()">
             <div class="toast-icon">
-                {% if message.tags == 'success' %}<i class="fas fa-check-circle"></i>
-                {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle"></i>
-                {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle"></i>
-                {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                {% if message.tags == 'success' %}<i class="fas fa-check-circle" style="color:#16a34a"></i>
+                {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle" style="color:#ef4444"></i>
+                {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i>
+                {% else %}<i class="fas fa-info-circle" style="color:#1d4ed8"></i>{% endif %}
             </div>
             <span>{{ message }}</span>
             <button onclick="this.parentElement.remove()"
-                style="background:none;border:none;color:#a1a1aa;cursor:pointer;padding:0 0 0 .5rem">
+                style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:0 0 0 .5rem;flex-shrink:0;">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -156,26 +149,37 @@
     </main>
 
     {% if user.is_authenticated %}
-    <footer class="text-center py-4"
-        style="color:#52525b;font-size:.82rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:2rem;">
-        © 2026 NxtHelp — University Help Marketplace
+    <footer>
+        <i class="fas fa-graduation-cap me-1" style="color:#1d4ed8"></i>
+        &copy; 2026 NxtHelp — University Help Marketplace
     </footer>
     {% endif %}
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Auto-dismiss toasts
-        document.querySelectorAll('.toast-custom').forEach(t => {
-            setTimeout(() => t.style.opacity = '0', 4000);
-            setTimeout(() => t.remove(), 4500);
+        document.querySelectorAll('.toast-custom').forEach(function (t) {
+            setTimeout(function () { t.style.opacity = '0'; }, 4000);
+            setTimeout(function () { t.remove(); }, 4500);
         });
-        // Close dropdown on outside click
-        document.addEventListener('click', e => {
-            document.querySelectorAll('.nav-dropdown.open').forEach(dd => {
-                if (!dd.contains(e.target)) dd.classList.remove('open');
+
+        // Avatar dropdown toggle
+        var avatarBtn = document.getElementById('avatarBtn');
+        var avatarDropdown = document.getElementById('avatarDropdown');
+        if (avatarBtn && avatarDropdown) {
+            avatarBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isOpen = avatarDropdown.classList.toggle('open');
+                avatarBtn.setAttribute('aria-expanded', isOpen);
             });
-        });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', function (e) {
+                if (!avatarDropdown.contains(e.target)) {
+                    avatarDropdown.classList.remove('open');
+                    avatarBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
     </script>
     {% block extra_js %}{% endblock %}
 </body>

@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+import uuid
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Profile(models.Model):
@@ -48,3 +51,19 @@ class Profile(models.Model):
         if len(parts) >= 2:
             return (parts[0][0] + parts[-1][0]).upper()
         return name[:2].upper()
+
+
+class EmailVerificationToken(models.Model):
+    """Token sent to users to verify their email address on registration."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_token')
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    TOKEN_EXPIRY_HOURS = 24
+
+    def is_expired(self):
+        expiry = self.created_at + timedelta(hours=self.TOKEN_EXPIRY_HOURS)
+        return timezone.now() > expiry
+
+    def __str__(self):
+        return f'EmailVerification({self.user.username})'

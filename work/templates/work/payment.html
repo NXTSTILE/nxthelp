@@ -3,6 +3,30 @@
 
 {% block extra_head %}
 <style>
+    /* ── CSS Variable Definitions for Payment Page ── */
+    :root {
+        --bg-card: #ffffff;
+        --bg-input: #ffffff;
+        --border-color: #e2e8f0;
+        --border-light: #f1f5f9;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --accent-primary: #1d4ed8;
+        --accent-primary-glow: rgba(29, 78, 216, 0.1);
+        --accent-secondary: #16a34a;
+        --accent-danger: #ef4444;
+        --accent-info: #3b82f6;
+        --shadow-sm: 0 1px 4px rgba(0, 0, 0, .06);
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, .04);
+        --radius-sm: 8px;
+        --radius-md: 10px;
+        --radius-lg: 14px;
+        --radius-xl: 18px;
+        --radius-full: 9999px;
+        --transition: all .25s ease;
+    }
+
     .payment-layout {
         display: grid;
         grid-template-columns: 1fr 380px;
@@ -19,7 +43,7 @@
     .payment-hero {
         text-align: center;
         padding: 2rem 1.5rem;
-        background: linear-gradient(135deg, #6C63FF 0%, #a78bfa 50%, #06d6a0 100%);
+        background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #1e40af 100%);
         border-radius: var(--radius-xl);
         color: white;
         margin-bottom: 1.5rem;
@@ -253,7 +277,7 @@
         padding: 1rem;
         font-size: 1rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #06d6a0 0%, #059669 100%);
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
         color: white;
         border: none;
         border-radius: var(--radius-md);
@@ -357,15 +381,14 @@
             {% if help_request.budget %}
             <div class="payment-detail-row">
                 <span class="payment-detail-label">Listed Budget</span>
-                <span class="payment-detail-value" style="color: #059669;">{{ help_request.budget }}</span>
+                <span class="payment-detail-value text-green-600 font-bold">{{ help_request.budget }}</span>
             </div>
             {% endif %}
 
             {% if accepted_application and accepted_application.proposed_budget %}
             <div class="payment-detail-row">
                 <span class="payment-detail-label">Helper's Proposed Price</span>
-                <span class="payment-detail-value" style="color: var(--accent-primary);">{{
-                    accepted_application.proposed_budget }}</span>
+                <span class="payment-detail-value" style="color: var(--accent-primary);">{{ accepted_application.proposed_budget }}</span>
             </div>
             {% endif %}
         </div>
@@ -378,8 +401,8 @@
                 placeholder="Add a message for the helper... (e.g. 'Great work! Thank you for the help.')"></textarea>
         </div>
 
-        <button type="button" class="pay-btn" id="pay-btn" onclick="initiatePayment()">
-            <i class="fas fa-lock"></i> Pay with Razorpay
+        <button type="button" class="pay-btn font-semibold" id="pay-btn" onclick="initiatePayment()">
+            <i class="fas fa-wallet"></i> Pay with Razorpay
         </button>
 
         <div class="razorpay-badge">
@@ -422,18 +445,16 @@
             <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-file-alt"></i> Request Details</h3>
             <div class="payment-detail-row">
                 <span class="payment-detail-label">Request</span>
-                <span class="payment-detail-value" style="font-size: 0.82rem; max-width: 160px; text-align: right;">{{
-                    help_request.title|truncatechars:40 }}</span>
+                <span class="payment-detail-value" style="font-size: 0.82rem; max-width: 160px; text-align: right;">{{ help_request.title|truncatechars:40 }}</span>
             </div>
             <div class="payment-detail-row">
                 <span class="payment-detail-label">Status</span>
-                <span class="badge badge-{{ help_request.status_css_class }}">{{ help_request.get_status_display
-                    }}</span>
+                <span class="badge badge-{{ help_request.status_css_class }}">{{ help_request.get_status_display }}</span>
             </div>
             {% if help_request.budget %}
             <div class="payment-detail-row">
                 <span class="payment-detail-label">Budget</span>
-                <span class="payment-detail-value" style="color: #059669;">{{ help_request.budget }}</span>
+                <span class="payment-detail-value text-green-600 font-bold">{{ help_request.budget }}</span>
             </div>
             {% endif %}
         </div>

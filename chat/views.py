@@ -48,33 +48,39 @@ def send_message(request, pk):
 
     if request.method == 'POST':
         content = request.POST.get('content', '').strip()
-        if content:
-            msg = ChatMessage.objects.create(
-                help_request=help_req,
-                sender=request.user,
-                content=content,
-            )
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-            # Notify the other user
-            recipient = help_req.selected_helper if request.user == help_req.posted_by else help_req.posted_by
-            Notification.objects.create(
-                recipient=recipient,
-                notification_type='new_message',
-                title='New message',
-                message=f'{request.user.profile.display_name} sent you a message about "{help_req.title}"',
-                link=f'/request/{help_req.pk}/chat/',
-            )
+        if not content:
+            if is_ajax:
+                return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
+            return redirect('chat_room', pk=pk)
 
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'id': msg.id,
-                    'content': msg.content,
-                    'sender': msg.sender.profile.display_name,
-                    'sender_initials': msg.sender.profile.initials,
-                    'sender_color': msg.sender.profile.avatar_color,
-                    'is_mine': True,
-                    'time': msg.created_at.strftime('%I:%M %p'),
-                })
+        msg = ChatMessage.objects.create(
+            help_request=help_req,
+            sender=request.user,
+            content=content,
+        )
+
+        # Notify the other user
+        recipient = help_req.selected_helper if request.user == help_req.posted_by else help_req.posted_by
+        Notification.objects.create(
+            recipient=recipient,
+            notification_type='new_message',
+            title='New message',
+            message=f'{request.user.profile.display_name} sent you a message about "{help_req.title}"',
+            link=f'/request/{help_req.pk}/chat/',
+        )
+
+        if is_ajax:
+            return JsonResponse({
+                'id': msg.id,
+                'content': msg.content,
+                'sender': msg.sender.profile.display_name,
+                'sender_initials': msg.sender.profile.initials,
+                'sender_color': msg.sender.profile.avatar_color,
+                'is_mine': True,
+                'time': msg.created_at.strftime('%I:%M %p'),
+            })
 
     return redirect('chat_room', pk=pk)
 

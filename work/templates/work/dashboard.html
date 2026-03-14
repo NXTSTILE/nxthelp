@@ -1,9 +1,12 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<!-- Welcome Header -->
 <div class="page-header">
-    <h1 class="page-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+    <h1 class="page-title">
+        <i class="fas fa-th-large me-2" style="color:#1d4ed8"></i>Welcome back, {{ user.first_name|default:user.username }}! 👋
+    </h1>
     <p class="page-subtitle">Here's an overview of your activity on the marketplace</p>
 </div>
 
@@ -42,9 +45,13 @@
 <div class="dashboard-grid">
     <!-- My Recent Requests -->
     <div>
-        <div class="section-header">
-            <h2 class="section-title"><i class="fas fa-bullhorn"></i> My Requests</h2>
-            <a href="{% url 'my_requests' %}" class="section-link">View All <i class="fas fa-arrow-right"></i></a>
+        <div class="section-header flex items-center justify-between mb-3">
+            <h2 class="section-title font-semibold flex items-center gap-2">
+                <i class="fas fa-bullhorn" style="color:#1d4ed8"></i> My Requests
+            </h2>
+            <a href="{% url 'my_requests' %}" class="section-link text-sm font-medium">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
 
         {% if my_requests %}
@@ -61,7 +68,7 @@
                     {% endif %}
                     {% if req.deadline %}
                     <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                        <i class="fas fa-calendar"></i> {{ req.deadline|date:"M d" }}
+                        <i class="fas fa-calendar-alt"></i> {{ req.deadline|date:"M d" }}
                     </span>
                     {% endif %}
                     <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize }}</span>
@@ -71,12 +78,13 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="card card-static">
-            <div class="empty-state">
-                <i class="fas fa-bullhorn"></i>
-                <h3>No requests yet</h3>
-                <p>Post your first help request and get help from the community.</p>
-                <a href="{% url 'create_help_request' %}" class="btn btn-primary">
+        <div class="card card-static rounded-xl p-5">
+            <div class="empty-state text-center py-6">
+                <i class="fas fa-bullhorn fa-3x mb-3" style="color:#cbd5e1"></i>
+                <h3 class="font-semibold text-slate-500 mb-1">No requests yet</h3>
+                <p class="text-slate-400 font-light mb-3">Post your first help request and get help from the community.
+                </p>
+                <a href="{% url 'create_help_request' %}" class="btn btn-primary btn-sm font-semibold">
                     <i class="fas fa-plus"></i> Post a Request
                 </a>
             </div>
@@ -86,9 +94,13 @@
 
     <!-- Available Requests to Help With -->
     <div>
-        <div class="section-header">
-            <h2 class="section-title"><i class="fas fa-compass"></i> Help Others</h2>
-            <a href="{% url 'browse_requests' %}" class="section-link">Browse All <i class="fas fa-arrow-right"></i></a>
+        <div class="section-header flex items-center justify-between mb-3">
+            <h2 class="section-title font-semibold flex items-center gap-2">
+                <i class="fas fa-compass" style="color:#1d4ed8"></i> Help Others
+            </h2>
+            <a href="{% url 'browse_requests' %}" class="section-link text-sm font-medium">
+                Browse All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
 
         {% if available_requests %}
@@ -103,10 +115,10 @@
                 <div class="request-card-meta">
                     <div class="poster-info">
                         <span class="avatar avatar-sm"
-                            style="background: {{ req.posted_by.profile.avatar_color }}; width:24px; height:24px; font-size:0.6rem;">
+                            style="background: {{ req.posted_by.profile.avatar_color }}; width:22px; height:22px; font-size:0.55rem;">
                             {{ req.posted_by.profile.initials }}
                         </span>
-                        <span class="name">{{ req.posted_by.profile.display_name }}</span>
+                        <span class="name font-medium">{{ req.posted_by.profile.display_name }}</span>
                         {% if req.posted_by.profile.profession %}
                         <span class="profession">· {{ req.posted_by.profile.profession }}</span>
                         {% endif %}
@@ -116,7 +128,7 @@
                     {% endif %}
                     {% if req.deadline %}
                     <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                        <i class="fas fa-calendar"></i> {{ req.deadline|date:"M d" }}
+                        <i class="fas fa-calendar-alt"></i> {{ req.deadline|date:"M d" }}
                     </span>
                     {% endif %}
                 </div>
@@ -124,11 +136,11 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="card card-static">
-            <div class="empty-state">
-                <i class="fas fa-compass"></i>
-                <h3>All caught up!</h3>
-                <p>No open requests available right now. Check back later.</p>
+        <div class="card card-static rounded-xl p-5">
+            <div class="empty-state text-center py-6">
+                <i class="fas fa-compass fa-3x mb-3" style="color:#cbd5e1"></i>
+                <h3 class="font-semibold text-slate-500 mb-1">All caught up!</h3>
+                <p class="text-slate-400 font-light">No open requests available right now. Check back later.</p>
             </div>
         </div>
         {% endif %}
@@ -137,12 +149,15 @@
     <!-- My Applications -->
     {% if my_applications %}
     <div class="dashboard-full">
-        <div class="section-header">
-            <h2 class="section-title"><i class="fas fa-paper-plane"></i> My Applications</h2>
-            <a href="{% url 'my_applications' %}" class="section-link">View All <i class="fas fa-arrow-right"></i></a>
+        <div class="section-header flex items-center justify-between mb-3">
+            <h2 class="section-title font-semibold flex items-center gap-2">
+                <i class="fas fa-paper-plane" style="color:#1d4ed8"></i> My Applications
+            </h2>
+            <a href="{% url 'my_applications' %}" class="section-link text-sm font-medium">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
-        <div class="requests-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+        <div class="requests-grid">
             {% for app in my_applications %}
             <a href="{% url 'help_request_detail' pk=app.help_request.pk %}" class="request-card">
                 <div class="request-card-header">
@@ -151,7 +166,8 @@
                 </div>
                 <div class="request-card-meta">
                     <div class="poster-info">
-                        <span class="name">by {{ app.help_request.posted_by.profile.display_name }}</span>
+                        <i class="fas fa-user" style="color:#1d4ed8"></i>
+                        <span class="name font-medium">by {{ app.help_request.posted_by.profile.display_name }}</span>
                     </div>
                     <span class="meta-item"><i class="fas fa-clock"></i> Applied {{ app.created_at|timesince }}
                         ago</span>
@@ -165,17 +181,18 @@
     <!-- Upcoming Deadlines -->
     {% if upcoming_deadlines %}
     <div class="dashboard-full">
-        <div class="section-header">
-            <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Upcoming Deadlines</h2>
+        <div class="section-header flex items-center justify-between mb-3">
+            <h2 class="section-title font-semibold flex items-center gap-2">
+                <i class="fas fa-calendar-alt" style="color:#1d4ed8"></i> Upcoming Deadlines
+            </h2>
         </div>
-        <div class="requests-grid"
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+        <div class="requests-grid">
             {% for req in upcoming_deadlines %}
             <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
                 <div class="request-card-header">
                     <div class="request-card-title">{{ req.title }}</div>
                     <span class="deadline-tag">
-                        <i class="fas fa-calendar"></i>
+                        <i class="fas fa-calendar-alt"></i>
                         {% if req.days_until_deadline == 0 %}Today
                         {% elif req.days_until_deadline == 1 %}Tomorrow
                         {% else %}{{ req.days_until_deadline }}d left{% endif %}

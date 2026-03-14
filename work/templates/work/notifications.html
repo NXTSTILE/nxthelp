@@ -2,53 +2,60 @@
 {% block title %}Notifications{% endblock %}
 
 {% block content %}
-<div class="page-header"
-    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+<div class="page-header flex items-center justify-between flex-wrap gap-3 mb-4">
     <div>
-        <h1 class="page-title">Notifications</h1>
+        <h1 class="page-title flex items-center gap-2">
+            <i class="fas fa-bell" style="color:#1d4ed8"></i> Notifications
+        </h1>
         <p class="page-subtitle">Stay updated on your requests and applications</p>
     </div>
     {% if notifications %}
-    <a href="{% url 'mark_all_read' %}" class="btn btn-secondary btn-sm">
+    <a href="{% url 'mark_all_read' %}" class="btn btn-secondary btn-sm font-semibold">
         <i class="fas fa-check-double"></i> Mark All Read
     </a>
     {% endif %}
 </div>
 
 {% if notifications %}
-<div>
+<div class="flex flex-col gap-2">
     {% for notif in notifications %}
     <a href="{% url 'mark_notification_read' pk=notif.pk %}"
-        class="notification-card {% if not notif.is_read %}unread{% endif %}">
-        <div class="notification-icon">
+        class="notification-card flex items-start gap-4 p-4 rounded-xl {% if not notif.is_read %}unread{% endif %}">
+        <div class="notification-icon flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+            style="background:#eff6ff; font-size:1.1rem;">
             {% if notif.notification_type == 'new_application' %}
-            <i class="fas fa-user-plus"></i>
+            <i class="fas fa-user-plus" style="color:#1d4ed8"></i>
             {% elif notif.notification_type == 'application_accepted' %}
-            <i class="fas fa-check-circle" style="color: var(--accent-secondary);"></i>
+            <i class="fas fa-check-circle" style="color:#16a34a"></i>
             {% elif notif.notification_type == 'application_rejected' %}
-            <i class="fas fa-times-circle" style="color: var(--accent-danger);"></i>
+            <i class="fas fa-times-circle" style="color:#ef4444"></i>
             {% elif notif.notification_type == 'request_resolved' %}
-            <i class="fas fa-star" style="color: var(--accent-warning);"></i>
+            <i class="fas fa-star" style="color:#f59e0b"></i>
             {% elif notif.notification_type == 'new_message' %}
-            <i class="fas fa-comment" style="color: var(--accent-info);"></i>
+            <i class="fas fa-comment" style="color:#1d4ed8"></i>
             {% else %}
-            <i class="fas fa-bell"></i>
+            <i class="fas fa-bell" style="color:#64748b"></i>
             {% endif %}
         </div>
-        <div class="notification-body">
-            <div class="notification-title">{{ notif.title }}</div>
-            <div class="notification-message">{{ notif.message }}</div>
-            <div class="notification-time"><i class="fas fa-clock"></i> {{ notif.created_at|timesince }} ago</div>
+        <div class="notification-body flex-1">
+            <div class="notification-title font-semibold text-slate-900 mb-0.5">{{ notif.title }}</div>
+            <div class="notification-message text-sm text-slate-600">{{ notif.message }}</div>
+            <div class="notification-time text-xs text-slate-400 font-light mt-1">
+                <i class="fas fa-clock me-1"></i>{{ notif.created_at|timesince }} ago
+            </div>
         </div>
+        {% if not notif.is_read %}
+        <span class="flex-shrink-0 w-2 h-2 rounded-full bg-blue-600 mt-2"></span>
+        {% endif %}
     </a>
     {% endfor %}
 </div>
 {% else %}
-<div class="card card-static">
-    <div class="empty-state">
-        <i class="fas fa-bell-slash"></i>
-        <h3>All caught up!</h3>
-        <p>You have no notifications right now.</p>
+<div class="card card-static rounded-xl p-6">
+    <div class="empty-state text-center py-8">
+        <i class="fas fa-bell-slash fa-3x mb-3" style="color:#cbd5e1"></i>
+        <h3 class="font-semibold text-slate-500 mb-1">All caught up!</h3>
+        <p class="text-slate-400 font-light">You have no notifications right now.</p>
     </div>
 </div>
 {% endif %}

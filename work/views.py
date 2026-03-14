@@ -9,12 +9,30 @@ from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal, InvalidOperation
 import razorpay
 import json
+import re
 from .models import HelpRequest, Application, Notification, Category, Payment
 from .forms import HelpRequestForm, ApplicationForm
 from chat.models import ChatMessage
 
-# Initialize Razorpay client
-razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+# ─── Razorpay lazy client ────────────────────────────────────────
+# Initialized on first use so the server doesn't crash at startup
+# if keys are missing (e.g. in local dev without payment setup).
+_razorpay_client = None
+
+
+def get_razorpay_client():
+    """Return a lazily initialized Razorpay client. Raises clearly if keys are missing."""
+    global _razorpay_client
+    if _razorpay_client is None:
+        if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+            raise ValueError(
+                "Razorpay API keys are not configured. "
+                "Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your .env file."
+            )
+        _razorpay_client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+    return _razorpay_client
 
 
 # ─── Dashboard ───────────────────────────────────────────────────
@@ -236,6 +254,11 @@ def accept_application(request, pk):
         return redirect('dashboard')
 
     if request.method == 'POST':
+        # Idempotency guard — prevent double-accepting via back button / double-click
+        if application.status == 'accepted':
+            messages.info(request, 'This application has already been accepted.')
+            return redirect('help_request_detail', pk=application.help_request.pk)
+
         application.status = 'accepted'
         application.save()
 
@@ -399,13 +422,11 @@ def payment_page(request, pk):
     if accepted_app and accepted_app.proposed_budget:
         # Try to extract number from proposed budget
         budget_str = accepted_app.proposed_budget
-        import re
         numbers = re.findall(r'[\d]+\.?[\d]*', budget_str.replace(',', ''))
         if numbers:
             default_amount = float(numbers[0])
 
     if not default_amount and help_req.budget:
-        import re
         numbers = re.findall(r'[\d]+\.?[\d]*', help_req.budget.replace(',', ''))
         if numbers:
             default_amount = float(numbers[0])
@@ -450,7 +471,7 @@ def create_razorpay_order(request, pk):
 
     # Create Razorpay order
     try:
-        razorpay_order = razorpay_client.order.create({
+        razorpay_order = get_razorpay_client().order.create({
             'amount': amount_paise,
             'currency': settings.RAZORPAY_CURRENCY,
             'notes': {
@@ -512,7 +533,7 @@ def confirm_payment(request, pk):
 
     # Verify signature with Razorpay
     try:
-        razorpay_client.utility.verify_payment_signature({
+        get_razorpay_client().utility.verify_payment_signature({
             'razorpay_order_id': razorpay_order_id,
             'razorpay_payment_id': razorpay_payment_id,
             'razorpay_signature': razorpay_signature,
