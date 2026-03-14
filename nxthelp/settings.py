@@ -28,14 +28,14 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get(
     'DJANGO_ALLOWED_HOSTS',
-    '.onrender.com,.ondigitalocean.app,localhost,127.0.0.1'
+    '.onrender.com,.ondigitalocean.app,.up.railway.app,localhost,127.0.0.1'
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         'CSRF_TRUSTED_ORIGINS',
-        'https://*.onrender.com'
+        'https://*.onrender.com,https://*.up.railway.app'
     ).split(',')
 ]
 
