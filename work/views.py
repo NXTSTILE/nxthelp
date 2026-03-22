@@ -515,11 +515,32 @@ def create_razorpay_order(request, pk):
 
     try:
         data = json.loads(request.body)
-        amount = Decimal(str(data.get('amount', 0)))
         note = data.get('note', '').strip()
 
-        if amount <= 0:
-            return JsonResponse({'error': 'Invalid amount'}, status=400)
+        # Securely calculate amount on backend
+        accepted_app = Application.objects.filter(
+            help_request=help_req,
+            applicant=help_req.selected_helper,
+            status='accepted'
+        ).first()
+
+        backend_amount = 0
+        if accepted_app and accepted_app.proposed_budget:
+            budget_str = accepted_app.proposed_budget
+            numbers = re.findall(r'[\d]+\.?[\d]*', budget_str.replace(',', ''))
+            if numbers:
+                backend_amount = float(numbers[0])
+
+        if not backend_amount and help_req.budget:
+            numbers = re.findall(r'[\d]+\.?[\d]*', help_req.budget.replace(',', ''))
+            if numbers:
+                backend_amount = float(numbers[0])
+
+        if backend_amount <= 0:
+            return JsonResponse({'error': 'Cannot determine valid payment amount from request budget.'}, status=400)
+
+        amount = Decimal(str(backend_amount))
+
     except (json.JSONDecodeError, InvalidOperation, ValueError):
         return JsonResponse({'error': 'Invalid request data'}, status=400)
 

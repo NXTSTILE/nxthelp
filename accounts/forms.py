@@ -49,6 +49,12 @@ class UserRegisterForm(UserCreationForm):
             }),
         }
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
@@ -108,6 +114,15 @@ class ProfileUpdateForm(forms.ModelForm):
                 'placeholder': 'e.g. yourname@upi, yourname@paytm',
             }),
         }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        query = User.objects.filter(email=email)
+        if self.user and self.user.pk:
+            query = query.exclude(pk=self.user.pk)
+        if query.exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

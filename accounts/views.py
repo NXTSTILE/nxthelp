@@ -143,14 +143,9 @@ def resend_verification(request):
         from django.contrib.auth.models import User
         user = User.objects.filter(email=email, is_active=False).first()
         if user:
-            sent = _send_verification_email(request, user)
-            if sent:
-                messages.success(request, f'Verification email resent to {email}.')
-            else:
-                messages.error(request, 'Failed to send the email. Please try again later.')
-        else:
-            # Don't reveal whether the email exists
-            messages.info(request, f'If that email is registered and unverified, a new link has been sent.')
+            _send_verification_email(request, user)
+        # Always return the same message to prevent email enumeration
+        messages.info(request, 'If that email is registered and unverified, a new link has been sent.')
     return redirect('login')
 
 
@@ -176,6 +171,9 @@ def login_view(request):
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')
             next_url = request.GET.get('next', 'dashboard')
+            from django.utils.http import url_has_allowed_host_and_scheme
+            if not url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                next_url = 'dashboard'
             return redirect(next_url)
         # Check if the failure is due to an inactive account
         username = request.POST.get('username', '')
@@ -233,7 +231,20 @@ def edit_profile(request):
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, instance=request.user.profile, user=request.user)
         if form.is_valid():
+            old_email = request.user.email
+            new_email = form.cleaned_data.get('email')
+            email_changed = old_email != new_email
+
             form.save()
+
+            if email_changed:
+                request.user.is_active = False
+                request.user.save()
+                _send_verification_email(request, request.user)
+                logout(request)
+                messages.warning(request, 'Your email has been changed. You must verify your new email address to log in again.')
+                return redirect('login')
+
             messages.success(request, 'Your profile has been updated.')
             return redirect('profile')
     else:
