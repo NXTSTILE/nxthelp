@@ -33,11 +33,13 @@
                         </button>
                     </form>
                     {% endif %}
+                    {% comment "Payment bypassed — re-enable when payments are active" %}
                     {% if help_request.status == 'completed' %}
                     <a href="{% url 'payment_page' pk=help_request.pk %}" class="btn btn-primary btn-sm font-semibold">
                         <i class="fas fa-wallet"></i> Send Payment
                     </a>
                     {% endif %}
+                    {% endcomment %}
                     {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
                     <form method="POST" action="{% url 'close_request' pk=help_request.pk %}">
                         {% csrf_token %}

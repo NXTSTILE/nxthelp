@@ -119,7 +119,7 @@ def my_chats(request):
     """List all active chats for the current user."""
     active_requests = HelpRequest.objects.filter(
         Q(posted_by=request.user) | Q(selected_helper=request.user),
-        status='in_progress',
+        status__in=['in_progress', 'completed', 'resolved'],
         selected_helper__isnull=False,
     ).select_related(
         'posted_by', 'posted_by__profile',

@@ -363,6 +363,11 @@ def complete_application(request, pk):
         return redirect('dashboard')
 
     if request.method == 'POST':
+        # Idempotency guard — prevent duplicate notifications on double-click
+        if application.status == 'completed':
+            messages.info(request, 'You have already marked this work as completed.')
+            return redirect('help_request_detail', pk=application.help_request.pk)
+
         application.status = 'completed'
         application.save()
 
@@ -423,7 +428,8 @@ def mark_completed(request, pk):
         return redirect('help_request_detail', pk=pk)
 
     if request.method == 'POST':
-        help_req.status = 'completed'
+        # --- Payment bypassed: go straight to resolved ---
+        help_req.status = 'resolved'
         help_req.save()
 
         # Notify the helper that work is marked completed
@@ -431,12 +437,12 @@ def mark_completed(request, pk):
             recipient=help_req.selected_helper,
             notification_type='work_completed',
             title='Work marked as completed! 🎉',
-            message=f'{request.user.profile.display_name} has marked "{help_req.title}" as completed. Payment is being processed.',
+            message=f'{request.user.profile.display_name} has marked "{help_req.title}" as completed. Great work!',
             link=f'/request/{help_req.pk}/',
         )
 
-        messages.success(request, 'Work marked as completed! Now proceed to send payment.')
-        return redirect('payment_page', pk=help_req.pk)
+        messages.success(request, 'Work marked as completed and request resolved! 🎉')
+        return redirect('help_request_detail', pk=help_req.pk)
 
     return redirect('help_request_detail', pk=pk)
 
