@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && gunicorn nxthelp.wsgi:application
+web: python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn nxthelp.wsgi:application
