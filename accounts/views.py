@@ -83,7 +83,7 @@ def register_view(request):
                 user.profile.save()
 
                 # Log the user in immediately
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(
                     request,
                     f'Welcome to NxtHelp, {user.first_name or user.username}! Your account has been created.'
