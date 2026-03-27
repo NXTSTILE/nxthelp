@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,6 +12,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from .models import Profile, EmailVerificationToken
 from .forms import UserRegisterForm, ProfileUpdateForm
+
+logger = logging.getLogger(__name__)
 
 
 # ─── Helpers ─────────────────────────────────────────────────────
@@ -41,7 +45,8 @@ def _send_verification_email(request, user):
             fail_silently=False,
         )
         return True
-    except Exception:
+    except Exception as e:
+        logger.error(f'Failed to send verification email to {user.email}: {e}')
         return False
 
 
@@ -76,15 +81,21 @@ def register_view(request):
                 user.profile.profession = form.cleaned_data.get('profession', '')
                 user.profile.save()
 
-                sent = _send_verification_email(request, user)
+                # Try sending verification email; gracefully handle failures
+                try:
+                    sent = _send_verification_email(request, user)
+                except Exception:
+                    sent = False
+
                 if sent:
                     messages.success(
                         request,
                         f'Account created! We\'ve sent a verification link to {user.email}. '
                         'Please check your inbox (and spam folder) to activate your account.'
                     )
+                    return redirect('login')
                 else:
-                    # Email failed — still activate account and warn
+                    # Email failed — activate account immediately and let them in
                     user.is_active = True
                     user.save()
                     login(request, user)
@@ -94,8 +105,6 @@ def register_view(request):
                         'You can resend it from your profile.'
                     )
                     return redirect('dashboard')
-
-                return redirect('login')
             except IntegrityError:
                 form.add_error('username', 'This username is already taken. Please choose a different one.')
     else:
