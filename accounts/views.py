@@ -66,7 +66,7 @@ def landing_page(request):
 
 
 def register_view(request):
-    """User registration — sends verification email after signup."""
+    """User registration — bypasses email verification for simplicity."""
     if request.user.is_authenticated:
         return redirect('dashboard')
     if request.method == 'POST':
@@ -74,37 +74,21 @@ def register_view(request):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                # Mark as inactive until email is verified
-                user.is_active = False
+                # Keep account active immediately since we don't require email verification
+                user.is_active = True
                 user.save()
+                
                 # Save profile extras
                 user.profile.profession = form.cleaned_data.get('profession', '')
                 user.profile.save()
 
-                # Try sending verification email; gracefully handle failures
-                try:
-                    sent = _send_verification_email(request, user)
-                except Exception:
-                    sent = False
-
-                if sent:
-                    messages.success(
-                        request,
-                        f'Account created! We\'ve sent a verification link to {user.email}. '
-                        'Please check your inbox (and spam folder) to activate your account.'
-                    )
-                    return redirect('login')
-                else:
-                    # Email failed — activate account immediately and let them in
-                    user.is_active = True
-                    user.save()
-                    login(request, user)
-                    messages.warning(
-                        request,
-                        'Account created, but we couldn\'t send the verification email. '
-                        'You can resend it from your profile.'
-                    )
-                    return redirect('dashboard')
+                # Log the user in immediately
+                login(request, user)
+                messages.success(
+                    request,
+                    f'Welcome to NxtHelp, {user.first_name or user.username}! Your account has been created.'
+                )
+                return redirect('dashboard')
             except IntegrityError:
                 form.add_error('username', 'This username is already taken. Please choose a different one.')
     else:
