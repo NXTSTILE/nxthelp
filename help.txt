@@ -1,0 +1,49 @@
+﻿Interact with Railway via CLI
+
+Usage: railway.exe [COMMAND]
+
+Commands:
+  add            Add a service to your project
+  bucket         Manage project buckets
+  completion     Generate completion script
+  connect        Connect to a database's shell (psql for Postgres, mongosh for MongoDB, etc.)
+  delete         Delete a project
+  deploy         Provisions a template into your project
+  deployment     Manage deployments
+  dev            Run Railway services locally [aliases: develop]
+  domain         Add a custom domain or generate a railway provided domain for a service
+  docs           Open Railway Documentation in default browser
+  down           Remove the most recent deployment
+  environment    Create, delete or link an environment [aliases: env]
+  init           Create a new project
+  link           Associate existing project with current directory, may specify projectId as an argument
+  list           List all projects in your Railway account
+  login          Login to your Railway account
+  logout         Logout of your Railway account
+  logs           View build, deploy, or HTTP logs from a Railway deployment
+  mcp            Starts a local MCP server for AI-agent access
+  open           Open your project dashboard
+  project        Manage projects
+  run            Run a local command using variables from the active environment [aliases: local]
+  service        Manage services
+  shell          Open a local subshell with Railway variables available
+  ssh            Connect to a service via SSH or manage SSH keys
+  status         Show information about the current project
+  telemetry_cmd  Manage telemetry preferences [aliases: telemetry]
+  unlink         Disassociate project from current directory
+  up             Upload and deploy project from the current directory
+  upgrade        Upgrade the Railway CLI to the latest version
+  variable       Manage environment variables for a service [aliases: variables, vars, var]
+  whoami         Get the current logged in user
+  volume         Manage project volumes
+  redeploy       Redeploy the latest deployment of a service
+  restart        Restart the latest deployment of a service (without rebuilding)
+  scale          
+  check_updates  Test the update check
+  functions      Manage project functions [aliases: function, func, fn, funcs, fns]
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help
+  -V, --version  Print version
+

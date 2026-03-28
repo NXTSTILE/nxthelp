@@ -32,18 +32,14 @@ if not SECRET_KEY:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get(
-    'DJANGO_ALLOWED_HOSTS',
-    '.onrender.com,.ondigitalocean.app,.up.railway.app,localhost,127.0.0.1'
-).split(',')
+# Try to get from environment, but always include our known domains
+_env_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
+_default_hosts = ['.onrender.com', '.ondigitalocean.app', '.up.railway.app', 'nxthelp.in', '.nxthelp.in', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = list(set([h for h in (_env_hosts + _default_hosts) if h]))
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get(
-        'CSRF_TRUSTED_ORIGINS',
-        'https://*.onrender.com,https://*.up.railway.app'
-    ).split(',')
-]
+_env_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+_default_origins = ['https://*.onrender.com', 'https://*.up.railway.app', 'https://nxthelp.in', 'https://*.nxthelp.in']
+CSRF_TRUSTED_ORIGINS = list(set([o.strip() for o in (_env_origins + _default_origins) if o.strip()]))
 
 # ─── Production Security Headers ────────────────────────────────
 # These are safe to leave on even in development:

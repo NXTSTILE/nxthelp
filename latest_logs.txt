@@ -1,0 +1,50 @@
+﻿
+        .note a {
+            color: #1d4ed8;
+            word-break: break-all;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.25rem;
+            font-size: .78rem;
+            color: #94a3b8;
+</head>
+            <h1>Verify your email</h1>
+                <a href="https://nxthelp.up.railway.app/accounts/verify-email/31b79682-4fa1-4db9-9711-4a898d6ed15f/" class="btn">Γ£à Verify My Email</a>
+
+                below to verify your email address and activate your account.</p>
+            <p>One click and you're in</p>
+            </div>
+<body>
+        </div>
+
+        <div class="body">
+
+    <div class="wrapper">
+            <div class="btn-wrap">
+            <p>Hi <strong>Sashikant</strong>,</p>
+            <p>Thanks for joining <strong>NxtHelp</strong> ΓÇö the university peer-help marketplace. Click the button
+        <div class="header">
+            <div class="note">
+            <div class="icon">Γ£ë∩╕Å</div>
+                <strong>Link expires in 24 hours.</strong><br>
+                If the button doesn't work, copy and paste this URL into your browser:<br>
+                <a href="https://nxthelp.up.railway.app/accounts/verify-email/31b79682-4fa1-4db9-9711-4a898d6ed15f/">https://nxthelp.up.railway.app/accounts/verify-email/31b79682-4fa1-4db9-9711-4a898d6ed15f/</a>
+
+</html>
+            </div>
+--===============0419931335149997855==--
+
+
+            <p style="margin-top:1.25rem; font-size:.85rem; color:#64748b;">
+-------------------------------------------------------------------------------
+                If you didn't create this account, you can safely ignore this email. No action is needed.
+            </p>
+        </div>
+        <div class="footer">
+            &copy; NxtHelp ┬╖ University Help Marketplace<br>
+            This is an automated message ΓÇö please do not reply.
+        </div>
+    </div>
+</body>
