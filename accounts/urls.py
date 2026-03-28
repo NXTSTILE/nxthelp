@@ -9,8 +9,8 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
 
     # Email verification
-    path('accounts/verify-email/<uuid:token>/', views.verify_email, name='verify_email'),
-    path('accounts/resend-verification/', views.resend_verification, name='resend_verification'),
+    path('verify-otp/', views.verify_otp_view, name='verify_otp'),
+    path('resend-verification/', views.resend_verification, name='resend_verification'),
 
     # Profile
     path('profile/', views.profile_view, name='profile'),

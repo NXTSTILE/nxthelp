@@ -1,4 +1,5 @@
 import logging
+import random
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
@@ -10,7 +11,7 @@ from django.core.mail import send_mail
 from django.conf import settings as django_settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from .models import Profile, EmailVerificationToken
+from .models import Profile, OTPToken
 from .forms import UserRegisterForm, ProfileUpdateForm
 
 logger = logging.getLogger(__name__)
@@ -18,20 +19,18 @@ logger = logging.getLogger(__name__)
 
 # ─── Helpers ─────────────────────────────────────────────────────
 
-def _send_verification_email(request, user):
-    """Create a token and send a verification email to the user."""
+def _send_otp_email(request, user):
+    """Create a 6-digit OTP and send a verification email to the user."""
     # Delete any existing stale token
-    EmailVerificationToken.objects.filter(user=user).delete()
-    token_obj = EmailVerificationToken.objects.create(user=user)
+    OTPToken.objects.filter(user=user).delete()
+    
+    otp_code = f"{random.randint(100000, 999999)}"
+    OTPToken.objects.create(user=user, otp_code=otp_code)
 
-    verify_url = request.build_absolute_uri(
-        f'/accounts/verify-email/{token_obj.token}/'
-    )
-
-    subject = 'Verify your NxtHelp email address'
+    subject = 'Your NxtHelp verification code'
     html_body = render_to_string('accounts/email_verification.html', {
         'user': user,
-        'verify_url': verify_url,
+        'otp_code': otp_code,
     })
     plain_body = strip_tags(html_body)
 
@@ -46,7 +45,7 @@ def _send_verification_email(request, user):
         )
         return True
     except Exception as e:
-        logger.error(f'Failed to send verification email to {user.email}: {e}')
+        logger.error(f'Failed to send OTP email to {user.email}: {e}')
         return False
 
 
@@ -66,7 +65,7 @@ def landing_page(request):
 
 
 def register_view(request):
-    """User registration — bypasses email verification for simplicity."""
+    """User registration — triggers OTP email verification."""
     if request.user.is_authenticated:
         return redirect('dashboard')
     if request.method == 'POST':
@@ -74,21 +73,21 @@ def register_view(request):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                # Keep account active immediately since we don't require email verification
-                user.is_active = True
+                # Ensure account is inactive until email is verified
+                user.is_active = False
                 user.save()
                 
                 # Save profile extras
                 user.profile.profession = form.cleaned_data.get('profession', '')
                 user.profile.save()
 
-                # Log the user in immediately
-                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                messages.success(
-                    request,
-                    f'Welcome to NxtHelp, {user.first_name or user.username}! Your account has been created.'
-                )
-                return redirect('dashboard')
+                # Send OTP email
+                _send_otp_email(request, user)
+                
+                # Store email in session for the next step
+                request.session['verification_email'] = user.email
+
+                return redirect('verify_otp')
             except IntegrityError:
                 form.add_error('username', 'This username is already taken. Please choose a different one.')
     else:
@@ -96,50 +95,74 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
-def verify_email(request, token):
-    """Verify user's email address via the link sent to their inbox."""
-    token_obj = EmailVerificationToken.objects.filter(token=token).first()
-
-    if not token_obj:
-        messages.error(request, 'Invalid verification link. Please register again or request a new link.')
+def verify_otp_view(request):
+    """Verify user's email address via the 6-digit OTP sent to their inbox."""
+    email = request.session.get('verification_email')
+    
+    if not email:
         return redirect('register')
 
-    if token_obj.is_expired():
-        user = token_obj.user
-        token_obj.delete()
-        # Resend a fresh link
-        _send_verification_email(request, user)
-        messages.warning(
-            request,
-            'Your verification link has expired. We\'ve sent a new one to your email.'
-        )
+    from django.contrib.auth.models import User
+    user = User.objects.filter(email=email).first()
+
+    if not user or user.is_active:
         return redirect('login')
 
-    # Activate the user
-    user = token_obj.user
-    user.is_active = True
-    user.save()
-    token_obj.delete()
+    if request.method == 'POST':
+        submitted_otp = request.POST.get('otp', '').strip()
+        otp_obj = OTPToken.objects.filter(user=user).first()
 
-    login(request, user)
-    messages.success(
-        request,
-        f'🎉 Welcome to NxtHelp, {user.first_name or user.username}! Your email has been verified.'
-    )
-    return redirect('dashboard')
+        if not otp_obj:
+            messages.error(request, 'No OTP generated for this account. Please request a new one.')
+            return redirect('verify_otp')
+
+        if otp_obj.is_expired():
+            otp_obj.delete()
+            _send_otp_email(request, user)
+            messages.warning(
+                request,
+                'Your OTP has expired. We\'ve sent a new one to your email.'
+            )
+            return redirect('verify_otp')
+
+        if otp_obj.otp_code == submitted_otp:
+            # Activate the user
+            user.is_active = True
+            user.save()
+            otp_obj.delete()
+            
+            # Clear session
+            if 'verification_email' in request.session:
+                del request.session['verification_email']
+
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(
+                request,
+                f'🎉 Welcome to NxtHelp, {user.first_name or user.username}! Your email has been verified.'
+            )
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid verification code. Please try again.')
+
+    return render(request, 'accounts/verify_otp.html', {'email': email})
 
 
 def resend_verification(request):
-    """Resend the verification email for the currently logged‑in (inactive) user."""
+    """Resend the verification OTP for the currently registered or logged‑in (inactive) user."""
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
+        if not email:
+            email = request.session.get('verification_email')
+            
         from django.contrib.auth.models import User
         user = User.objects.filter(email=email, is_active=False).first()
         if user:
-            _send_verification_email(request, user)
-        # Always return the same message to prevent email enumeration
-        messages.info(request, 'If that email is registered and unverified, a new link has been sent.')
-    return redirect('login')
+            _send_otp_email(request, user)
+            messages.info(request, 'A new verification code has been sent to your email.')
+            return redirect('verify_otp')
+        # Prevent email enumeration
+        messages.info(request, 'If that email is registered and unverified, a new code has been sent to it.')
+        return redirect('login')
 
 
 def login_view(request):
@@ -151,16 +174,12 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             if not user.is_active:
+                request.session['verification_email'] = user.email
                 messages.warning(
                     request,
-                    'Please verify your email before logging in. '
-                    '<a href="#resend-form" style="color:inherit;text-decoration:underline;">Resend link</a>'
+                    'Please verify your email before logging in.'
                 )
-                return render(request, 'accounts/login.html', {
-                    'form': form,
-                    'show_resend': True,
-                    'unverified_email': user.email,
-                })
+                return redirect('verify_otp')
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')
             next_url = request.GET.get('next', 'dashboard')
@@ -174,11 +193,12 @@ def login_view(request):
         try:
             user = User.objects.get(username=username)
             if not user.is_active:
-                return render(request, 'accounts/login.html', {
-                    'form': form,
-                    'show_resend': True,
-                    'unverified_email': user.email,
-                })
+                request.session['verification_email'] = user.email
+                messages.warning(
+                    request,
+                    'Please verify your email before logging in.'
+                )
+                return redirect('verify_otp')
         except User.DoesNotExist:
             pass
     else:
@@ -233,10 +253,11 @@ def edit_profile(request):
             if email_changed:
                 request.user.is_active = False
                 request.user.save()
-                _send_verification_email(request, request.user)
+                _send_otp_email(request, request.user)
+                request.session['verification_email'] = request.user.email
                 logout(request)
                 messages.warning(request, 'Your email has been changed. You must verify your new email address to log in again.')
-                return redirect('login')
+                return redirect('verify_otp')
 
             messages.success(request, 'Your profile has been updated.')
             return redirect('profile')

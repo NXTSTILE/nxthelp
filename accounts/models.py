@@ -53,17 +53,15 @@ class Profile(models.Model):
         return name[:2].upper()
 
 
-class EmailVerificationToken(models.Model):
-    """Token sent to users to verify their email address on registration."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='email_token')
-    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+class OTPToken(models.Model):
+    """6-digit OTP sent to users to verify their email address on registration."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp_token')
+    otp_code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    TOKEN_EXPIRY_HOURS = 24
-
     def is_expired(self):
-        expiry = self.created_at + timedelta(hours=self.TOKEN_EXPIRY_HOURS)
+        expiry = self.created_at + timedelta(minutes=10)
         return timezone.now() > expiry
 
     def __str__(self):
-        return f'EmailVerification({self.user.username})'
+        return f'OTP({self.user.username})'

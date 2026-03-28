@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Verify Email{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card fade-in rounded-xl p-6 shadow-md" style="max-width:420px;margin:0 auto;">
+        <div class="auth-header text-center mb-4">
+            <h1 class="text-xl font-bold text-slate-800 mb-1">Verify Your Email</h1>
+            <p class="text-slate-400 font-light text-sm">
+                We sent a 6-digit code to <strong>{{ email }}</strong>. Please enter it below.
+            </p>
+        </div>
+
+        <form method="POST" action="{% url 'verify_otp' %}" novalidate>
+            {% csrf_token %}
+
+            <div class="form-group text-center">
+                <label class="form-label font-semibold" for="otp">
+                    <i class="fas fa-key me-1" style="color:#1d4ed8"></i> Verification Code
+                </label>
+                <input type="text" name="otp" id="otp" class="form-input text-center font-mono" 
+                       style="font-size: 1.5rem; letter-spacing: 0.25rem; padding: 10px;"
+                       placeholder="XXXXXX" autocomplete="off" maxlength="6" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg font-semibold" style="margin-top:1.5rem;">
+                <i class="fas fa-check-circle"></i> Verify Code
+            </button>
+        </form>
+
+        <!-- Resend OTP form -->
+        <div id="resend-form" style="margin-top:1.5rem;padding:1rem 1.25rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-align:center;">
+            <p style="font-size:.87rem;color:#64748b;margin:0 0 .75rem;">
+                Didn't receive the code? Check your spam folder or resend it.
+            </p>
+            <form method="POST" action="{% url 'resend_verification' %}">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <button type="submit" class="btn btn-sm font-semibold"
+                    style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;">
+                    <i class="fas fa-redo me-1"></i> Resend Code
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer text-center mt-4 text-sm">
+            Entered the wrong email? <a href="{% url 'register' %}" class="font-semibold" style="color:#1d4ed8;">Sign up again</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

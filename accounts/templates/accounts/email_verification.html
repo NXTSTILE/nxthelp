@@ -119,17 +119,15 @@
         </div>
         <div class="body">
             <p>Hi <strong>{{ user.first_name|default:user.username }}</strong>,</p>
-            <p>Thanks for joining <strong>NxtHelp</strong> — the university peer-help marketplace. Click the button
-                below to verify your email address and activate your account.</p>
+            <p>Thanks for joining <strong>NxtHelp</strong> — the university peer-help marketplace. Use the 6-digit verification code below to activate your account.</p>
 
             <div class="btn-wrap">
-                <a href="{{ verify_url }}" class="btn">✅ Verify My Email</a>
+                <span style="font-size: 2rem; font-weight: bold; letter-spacing: 0.25rem; background: #e2e8f0; padding: 10px 20px; border-radius: 8px;">{{ otp_code }}</span>
             </div>
 
             <div class="note">
-                <strong>Link expires in 24 hours.</strong><br>
-                If the button doesn't work, copy and paste this URL into your browser:<br>
-                <a href="{{ verify_url }}">{{ verify_url }}</a>
+                <strong>Code expires in 10 minutes.</strong><br>
+                Please enter this code on the verification page to complete your registration.
             </div>
 
             <p style="margin-top:1.25rem; font-size:.85rem; color:#64748b;">
