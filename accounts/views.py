@@ -35,17 +35,45 @@ def _send_otp_email(request, user):
     plain_body = strip_tags(html_body)
 
     try:
-        send_mail(
-            subject,
-            plain_body,
-            django_settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            html_message=html_body,
-            fail_silently=False,
-        )
+        import os
+        import json
+        import urllib.request
+        import re
+
+        api_key = os.environ.get('BREVO_API_KEY')
+        if not api_key:
+            logger.error("BREVO_API_KEY is not set. Cannot send email.")
+            return False
+
+        url = "https://api.brevo.com/v3/smtp/email"
+        from_name = "NxtHelp"
+        from_email = django_settings.DEFAULT_FROM_EMAIL
+        
+        match = re.match(r"(.*?)\s*<(.*?)>", django_settings.DEFAULT_FROM_EMAIL)
+        if match:
+            from_name = match.group(1).strip()
+            from_email = match.group(2).strip()
+
+        data = {
+            "sender": {"name": from_name, "email": from_email},
+            "to": [{"email": user.email}],
+            "subject": subject,
+            "htmlContent": html_body,
+            "textContent": plain_body
+        }
+        
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'))
+        req.add_header('api-key', api_key)
+        req.add_header('Content-Type', 'application/json')
+        req.add_header('Accept', 'application/json')
+        
+        urllib.request.urlopen(req)
         return True
     except Exception as e:
         logger.error(f'Failed to send OTP email to {user.email}: {e}')
+        # Log the detailed HTTP response if available
+        if hasattr(e, "read"):
+            logger.error(e.read().decode("utf-8"))
         return False
 
 
@@ -82,10 +110,15 @@ def register_view(request):
                 user.profile.save()
 
                 # Send OTP email
-                _send_otp_email(request, user)
+                email_sent = _send_otp_email(request, user)
                 
                 # Store email in session for the next step
                 request.session['verification_email'] = user.email
+
+                if not email_sent:
+                    messages.warning(request, "Your account was created, but we failed to send the OTP email. Please try resending the OTP or contact support.")
+                    # Log them out or send them somewhere safe
+                    return redirect('login')
 
                 return redirect('verify_otp')
             except IntegrityError:
