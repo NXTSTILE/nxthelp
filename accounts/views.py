@@ -82,8 +82,19 @@ def register_view(request):
                 user.profile.save()
 
                 # Send OTP email
-                _send_otp_email(request, user)
-                
+                email_sent = _send_otp_email(request, user)
+                if not email_sent:
+                    logger.warning(
+                        'OTP email could not be sent during registration for user %s (%s). '
+                        'Proceeding with registration; user will need to request a new code.',
+                        user.username, user.email,
+                    )
+                    messages.warning(
+                        request,
+                        'Your account was created but we could not send the verification email. '
+                        'Please use the "Resend code" option on the next page to try again.'
+                    )
+
                 # Store email in session for the next step
                 request.session['verification_email'] = user.email
 
@@ -118,11 +129,22 @@ def verify_otp_view(request):
 
         if otp_obj.is_expired():
             otp_obj.delete()
-            _send_otp_email(request, user)
-            messages.warning(
-                request,
-                'Your OTP has expired. We\'ve sent a new one to your email.'
-            )
+            email_sent = _send_otp_email(request, user)
+            if email_sent:
+                messages.warning(
+                    request,
+                    'Your OTP has expired. We\'ve sent a new one to your email.'
+                )
+            else:
+                logger.warning(
+                    'OTP email could not be sent on expiry resend for user %s (%s).',
+                    user.username, user.email,
+                )
+                messages.error(
+                    request,
+                    'Your OTP has expired but we could not send a new code. '
+                    'Please use the "Resend code" option below.'
+                )
             return redirect('verify_otp')
 
         if otp_obj.otp_code == submitted_otp:
@@ -157,8 +179,19 @@ def resend_verification(request):
         from django.contrib.auth.models import User
         user = User.objects.filter(email=email, is_active=False).first()
         if user:
-            _send_otp_email(request, user)
-            messages.info(request, 'A new verification code has been sent to your email.')
+            email_sent = _send_otp_email(request, user)
+            if email_sent:
+                messages.info(request, 'A new verification code has been sent to your email.')
+            else:
+                logger.warning(
+                    'OTP email could not be sent on manual resend for user %s (%s).',
+                    user.username, user.email,
+                )
+                messages.error(
+                    request,
+                    'We were unable to send the verification email. '
+                    'Please try again in a few minutes or contact support.'
+                )
             return redirect('verify_otp')
         # Prevent email enumeration
         messages.info(request, 'If that email is registered and unverified, a new code has been sent to it.')
@@ -253,10 +286,20 @@ def edit_profile(request):
             if email_changed:
                 request.user.is_active = False
                 request.user.save()
-                _send_otp_email(request, request.user)
+                email_sent = _send_otp_email(request, request.user)
+                if not email_sent:
+                    logger.warning(
+                        'OTP email could not be sent after email change for user %s (%s).',
+                        request.user.username, request.user.email,
+                    )
                 request.session['verification_email'] = request.user.email
                 logout(request)
-                messages.warning(request, 'Your email has been changed. You must verify your new email address to log in again.')
+                messages.warning(
+                    request,
+                    'Your email has been changed. You must verify your new email address to log in again.'
+                    + ('' if email_sent else
+                       ' We could not send the verification email — please use the "Resend code" option.')
+                )
                 return redirect('verify_otp')
 
             messages.success(request, 'Your profile has been updated.')
