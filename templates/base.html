@@ -16,13 +16,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Tailwind CSS (utility classes used in templates) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- HTMX for AJAX interactions -->
+    <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    
     <!-- NxtHelp Design System -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body hx-boost="true">
 
     {% if user.is_authenticated %}
     <!-- ─── Top Navbar ─── -->
@@ -158,30 +162,52 @@
     {% endif %}
 
     <script>
-        // Auto-dismiss toasts
-        document.querySelectorAll('.toast-custom').forEach(function (t) {
-            setTimeout(function () { t.style.opacity = '0'; }, 4000);
-            setTimeout(function () { t.remove(); }, 4500);
-        });
+        // 1. --- ONE-TIME GLOBAL SETUP ---
+        if (!window.nxtInitialized) {
+            window.nxtInitialized = true;
 
-        // Avatar dropdown toggle
-        var avatarBtn = document.getElementById('avatarBtn');
-        var avatarDropdown = document.getElementById('avatarDropdown');
-        if (avatarBtn && avatarDropdown) {
-            avatarBtn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                var isOpen = avatarDropdown.classList.toggle('open');
-                avatarBtn.setAttribute('aria-expanded', isOpen);
+            // Set up Django CSRF token for HTMX requests
+            document.body.addEventListener('htmx:configRequest', (event) => {
+                event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
             });
 
-            // Close dropdown on outside click
+            // Close avatar dropdown on outside click (Event Delegation)
             document.addEventListener('click', function (e) {
-                if (!avatarDropdown.contains(e.target)) {
-                    avatarDropdown.classList.remove('open');
-                    avatarBtn.setAttribute('aria-expanded', 'false');
+                var avatarDropdown = document.getElementById('avatarDropdown');
+                var avatarBtn = document.getElementById('avatarBtn');
+                
+                if (avatarDropdown && avatarBtn) {
+                    if (!avatarDropdown.contains(e.target) && !avatarBtn.contains(e.target)) {
+                        avatarDropdown.classList.remove('open');
+                        avatarBtn.setAttribute('aria-expanded', 'false');
+                    }
                 }
             });
         }
+
+        // 2. --- SETUP FOR NEWLY SWAPPED CONTENT ---
+        function initDynamicElements() {
+            // Auto-dismiss toasts
+            document.querySelectorAll('.toast-custom').forEach(function (t) {
+                setTimeout(function () { t.style.opacity = '0'; }, 4000);
+                setTimeout(function () { t.remove(); }, 4500);
+            });
+
+            // Avatar dropdown toggle
+            var avatarBtn = document.getElementById('avatarBtn');
+            var avatarDropdown = document.getElementById('avatarDropdown');
+            if (avatarBtn && avatarDropdown) {
+                avatarBtn.onclick = function (e) {
+                    e.stopPropagation();
+                    var isOpen = avatarDropdown.classList.toggle('open');
+                    avatarBtn.setAttribute('aria-expanded', isOpen);
+                };
+            }
+        }
+
+        // Run now for the initial page load, and HTMX handles subsequent runs automatically 
+        // when this script block is injected into the DOM on body swap.
+        initDynamicElements();
     </script>
     {% block extra_js %}{% endblock %}
 </body>
