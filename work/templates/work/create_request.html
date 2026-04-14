@@ -60,6 +60,29 @@
 
             <div class="name-fields-grid">
                 <div class="form-group">
+                    <label class="form-label font-semibold" for="id_request_type">
+                        <i class="fas fa-folder me-1" style="color:#6366f1"></i>Request Type
+                    </label>
+                    {{ form.request_type }}
+                    {% for error in form.request_type.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-semibold" for="id_target_year">
+                        <i class="fas fa-graduation-cap me-1" style="color:#0ea5e9"></i>Target Year
+                    </label>
+                    {{ form.target_year }}
+                    <span class="form-help font-light">Which year students is this for?</span>
+                    {% for error in form.target_year.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="name-fields-grid">
+                <div class="form-group">
                     <label class="form-label font-semibold" for="id_budget">
                         <i class="fas fa-coins me-1" style="color:#16a34a"></i> Budget / Pricing
                     </label>

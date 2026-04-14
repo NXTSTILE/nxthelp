@@ -3,35 +3,40 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from collections import OrderedDict
 from .models import ChatMessage
-from work.models import HelpRequest, Notification
+from work.models import HelpRequest, Application, Notification
 
 
 @login_required
-def chat_room(request, pk):
-    """Chat between poster and selected helper."""
+def chat_room(request, pk, app_pk):
+    """Chat thread between poster and a specific applicant."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
+    application = get_object_or_404(Application, pk=app_pk, help_request=help_req)
 
-    # Only poster and selected helper can access
-    if request.user not in [help_req.posted_by, help_req.selected_helper]:
+    # Only poster and the applicant can access this thread
+    if request.user not in [help_req.posted_by, application.applicant]:
         messages.error(request, 'You do not have access to this chat.')
         return redirect('dashboard')
 
     # Mark messages as read
     ChatMessage.objects.filter(
-        help_request=help_req, is_read=False
+        application=application, is_read=False
     ).exclude(sender=request.user).update(is_read=True)
 
-    chat_messages = help_req.chat_messages.all().select_related('sender', 'sender__profile')
+    chat_messages = ChatMessage.objects.filter(
+        application=application
+    ).select_related('sender', 'sender__profile')
 
     # Determine the other person
     if request.user == help_req.posted_by:
-        other_user = help_req.selected_helper
+        other_user = application.applicant
     else:
         other_user = help_req.posted_by
 
     context = {
         'help_request': help_req,
+        'application': application,
         'chat_messages': chat_messages,
         'other_user': other_user,
     }
@@ -39,11 +44,12 @@ def chat_room(request, pk):
 
 
 @login_required
-def send_message(request, pk):
-    """Send a chat message."""
+def send_message(request, pk, app_pk):
+    """Send a chat message in a specific thread."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
+    application = get_object_or_404(Application, pk=app_pk, help_request=help_req)
 
-    if request.user not in [help_req.posted_by, help_req.selected_helper]:
+    if request.user not in [help_req.posted_by, application.applicant]:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
     if request.method == 'POST':
@@ -53,22 +59,23 @@ def send_message(request, pk):
         if not content:
             if is_ajax:
                 return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
-            return redirect('chat_room', pk=pk)
+            return redirect('chat_room', pk=pk, app_pk=app_pk)
 
         msg = ChatMessage.objects.create(
             help_request=help_req,
+            application=application,
             sender=request.user,
             content=content,
         )
 
         # Notify the other user
-        recipient = help_req.selected_helper if request.user == help_req.posted_by else help_req.posted_by
+        recipient = application.applicant if request.user == help_req.posted_by else help_req.posted_by
         Notification.objects.create(
             recipient=recipient,
             notification_type='new_message',
             title='New message',
-            message=f'{request.user.profile.display_name} sent you a message about "{help_req.title}"',
-            link=f'/request/{help_req.pk}/chat/',
+            message=f'{request.user.profile.display_name} sent a message about "{help_req.title}"',
+            link=f'/request/{help_req.pk}/chat/{application.pk}/',
         )
 
         if is_ajax:
@@ -82,19 +89,22 @@ def send_message(request, pk):
                 'time': msg.created_at.strftime('%I:%M %p'),
             })
 
-    return redirect('chat_room', pk=pk)
+    return redirect('chat_room', pk=pk, app_pk=app_pk)
 
 
 @login_required
-def fetch_messages(request, pk):
-    """AJAX endpoint to fetch new messages."""
+def fetch_messages(request, pk, app_pk):
+    """AJAX endpoint to fetch new messages for a thread."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
+    application = get_object_or_404(Application, pk=app_pk, help_request=help_req)
 
-    if request.user not in [help_req.posted_by, help_req.selected_helper]:
+    if request.user not in [help_req.posted_by, application.applicant]:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
     last_id = request.GET.get('last_id', 0)
-    new_msgs = help_req.chat_messages.filter(id__gt=last_id).select_related('sender', 'sender__profile')
+    new_msgs = ChatMessage.objects.filter(
+        application=application, id__gt=last_id
+    ).select_related('sender', 'sender__profile')
 
     # Mark incoming as read
     new_msgs.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
@@ -116,27 +126,42 @@ def fetch_messages(request, pk):
 
 @login_required
 def my_chats(request):
-    """List all active chats for the current user."""
-    active_requests = HelpRequest.objects.filter(
-        Q(posted_by=request.user) | Q(selected_helper=request.user),
-        status__in=['in_progress', 'completed', 'resolved'],
-        selected_helper__isnull=False,
-    ).select_related(
-        'posted_by', 'posted_by__profile',
-        'selected_helper', 'selected_helper__profile',
-        'category'
-    ).order_by('-updated_at')
+    """List all chats grouped by request."""
+    user = request.user
 
-    chats = []
-    for hr in active_requests:
-        other_user = hr.selected_helper if request.user == hr.posted_by else hr.posted_by
-        last_msg = hr.chat_messages.last()
-        unread = hr.chat_messages.filter(is_read=False).exclude(sender=request.user).count()
-        chats.append({
-            'help_request': hr,
+    # All applications with chat messages where user is involved
+    applications_with_chats = Application.objects.filter(
+        Q(help_request__posted_by=user) | Q(applicant=user),
+        chat_messages__isnull=False
+    ).distinct().select_related(
+        'help_request', 'help_request__category',
+        'help_request__posted_by', 'help_request__posted_by__profile',
+        'applicant', 'applicant__profile'
+    )
+
+    # Group by help_request
+    grouped = OrderedDict()
+    for app in applications_with_chats:
+        hr = app.help_request
+        if hr.pk not in grouped:
+            grouped[hr.pk] = {
+                'help_request': hr,
+                'is_poster': hr.posted_by == user,
+                'threads': [],
+            }
+
+        other_user = app.applicant if hr.posted_by == user else hr.posted_by
+        last_msg = app.chat_messages.order_by('-created_at').first()
+        unread = app.chat_messages.filter(is_read=False).exclude(sender=user).count()
+
+        grouped[hr.pk]['threads'].append({
+            'application': app,
             'other_user': other_user,
             'last_message': last_msg,
             'unread_count': unread,
         })
 
-    return render(request, 'chat/my_chats.html', {'chats': chats})
+    context = {
+        'grouped_chats': list(grouped.values()),
+    }
+    return render(request, 'chat/my_chats.html', context)

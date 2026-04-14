@@ -5,7 +5,7 @@
 <div class="chat-container" id="chatContainer">
     <div class="chat-header">
         <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-ghost btn-sm"
-            style="padding: 0.5rem;">
+            style="padding: 0.5rem;" hx-boost="false">
             <i class="fas fa-arrow-left"></i>
         </a>
         <span class="avatar avatar-md" style="background: {{ other_user.profile.avatar_color }}">
@@ -18,7 +18,7 @@
                 Re: {{ help_request.title|truncatewords:8 }}
             </div>
         </div>
-        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-secondary btn-sm">
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-secondary btn-sm" hx-boost="false">
             <i class="fas fa-info-circle"></i> Details
         </a>
     </div>
@@ -28,7 +28,7 @@
         <div class="empty-state" style="margin: auto;">
             <i class="fas fa-comments"></i>
             <h3>Start the conversation!</h3>
-            <p>Say hello and start discussing how to work together.</p>
+            <p>Say hello and discuss how you can work together.</p>
         </div>
         {% endif %}
         {% for msg in chat_messages %}
@@ -44,12 +44,12 @@
     </div>
 
     <div class="chat-input-area">
-        <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk %}"
-            style="display: flex; gap: 0.75rem; width: 100%;">
+        <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk app_pk=application.pk %}"
+            hx-boost="false" style="display: flex; gap: 0.75rem; width: 100%;">
             {% csrf_token %}
             <input type="text" name="content" id="chatInput" placeholder="Type a message..." autocomplete="off"
                 required>
-            <button type="submit" class="chat-send-btn" title="Send">
+            <button type="submit" class="chat-send-btn" title="Send" id="chatSendBtn">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </form>
@@ -62,8 +62,11 @@
     const chatMessages = document.getElementById('chatMessages');
     const chatForm = document.getElementById('chatForm');
     const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
     const requestPk = {{ help_request.pk }};
+    const appPk = {{ application.pk }};
     const csrfToken = '{{ csrf_token }}';
+    let isSending = false;
 
     // Scroll to bottom
     function scrollToBottom() {
@@ -78,17 +81,23 @@
         return parseInt(bubbles[bubbles.length - 1].dataset.msgId);
     }
 
-    // Send message via AJAX
+    // Send message via AJAX — guard against double submit
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        e.stopImmediatePropagation();
+
+        if (isSending) return;
+
         const content = chatInput.value.trim();
         if (!content) return;
 
+        isSending = true;
+        chatSendBtn.disabled = true;
         chatInput.value = '';
         chatInput.focus();
 
         try {
-            const res = await fetch(`/request/${requestPk}/chat/send/`, {
+            const res = await fetch(`/request/${requestPk}/chat/${appPk}/send/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -104,12 +113,16 @@
             }
         } catch (err) {
             console.error('Send failed:', err);
+        } finally {
+            isSending = false;
+            chatSendBtn.disabled = false;
         }
     });
 
-    // Append message bubble
+    // Append message bubble — strict dedup by ID
     function appendMessage(msg, isMine) {
-        // Remove empty state if present
+        if (chatMessages.querySelector(`[data-msg-id="${msg.id}"]`)) return;
+
         const emptyState = chatMessages.querySelector('.empty-state');
         if (emptyState) emptyState.remove();
 
@@ -129,18 +142,15 @@
         scrollToBottom();
     }
 
-    // Poll for new messages
+    // Poll for new messages every 1.5 seconds
     async function pollMessages() {
         try {
             const lastId = getLastMsgId();
-            const res = await fetch(`/request/${requestPk}/chat/fetch/?last_id=${lastId}`);
+            const res = await fetch(`/request/${requestPk}/chat/${appPk}/fetch/?last_id=${lastId}`);
             if (res.ok) {
                 const data = await res.json();
                 data.messages.forEach(msg => {
-                    // Only add if not already in DOM
-                    if (!chatMessages.querySelector(`[data-msg-id="${msg.id}"]`)) {
-                        appendMessage(msg, msg.is_mine);
-                    }
+                    appendMessage(msg, msg.is_mine);
                 });
             }
         } catch (err) {
@@ -148,8 +158,8 @@
         }
     }
 
-    // Poll every 3 seconds
-    setInterval(pollMessages, 3000);
+    // Poll every 1.5s for near real-time updates
+    setInterval(pollMessages, 1500);
 
     // Focus input
     chatInput.focus();

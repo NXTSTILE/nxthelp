@@ -6,38 +6,58 @@
     <h1 class="page-title flex items-center gap-2">
         <i class="fas fa-comments" style="color:#1d4ed8"></i> My Chats
     </h1>
-    <p class="page-subtitle">Active conversations with your helpers and requesters</p>
+    <p class="page-subtitle">Conversations grouped by request</p>
 </div>
 
-{% if chats %}
-<div class="flex flex-col gap-2">
-    {% for chat in chats %}
-    <a href="{% url 'chat_room' pk=chat.help_request.pk %}"
-        class="chat-list-item flex items-center gap-4 p-4 rounded-xl bg-white border border-slate-200">
-        <span class="avatar avatar-md flex-shrink-0" style="background: {{ chat.other_user.profile.avatar_color }}">
-            {{ chat.other_user.profile.initials }}
-        </span>
-        <div class="chat-list-info flex-1 min-w-0">
-            <div class="chat-list-name font-semibold text-slate-900 mb-0.5">{{ chat.other_user.profile.display_name }}
+{% if grouped_chats %}
+<div class="flex flex-col gap-4">
+    {% for group in grouped_chats %}
+    <div class="card card-static rounded-xl p-4">
+        <!-- Request header -->
+        <div class="flex items-center gap-3 mb-3 pb-3" style="border-bottom: 1px solid rgba(148,163,184,.15);">
+            <div class="flex-1 min-w-0">
+                <a href="{% url 'help_request_detail' pk=group.help_request.pk %}"
+                    class="font-semibold text-slate-900 hover:text-blue-700 transition-colors">
+                    <i class="fas fa-tag me-1" style="color:#1d4ed8"></i>{{ group.help_request.title }}
+                </a>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    <span class="badge badge-{{ group.help_request.status_css_class }}">{{ group.help_request.get_status_display }}</span>
+                    {% if group.is_poster %}
+                    <span class="text-xs text-slate-400">Your request</span>
+                    {% else %}
+                    <span class="text-xs text-slate-400">Applied</span>
+                    {% endif %}
+                </div>
             </div>
-            <div class="chat-list-topic text-xs font-medium mb-0.5" style="color:#1d4ed8">
-                <i class="fas fa-tag me-1"></i>{{ chat.help_request.title|truncatewords:10 }}
-            </div>
-            {% if chat.last_message %}
-            <div class="chat-list-preview text-xs text-slate-400 font-light truncate">
-                <i class="fas fa-comment me-1"></i>{{ chat.last_message.sender.profile.display_name }}: {{ chat.last_message.content|truncatewords:12 }}
-            </div>
-            {% else %}
-            <div class="chat-list-preview text-xs text-slate-400 font-light">
-                <i class="fas fa-comment me-1"></i>No messages yet — start chatting!
-            </div>
-            {% endif %}
         </div>
-        {% if chat.unread_count > 0 %}
-        <span class="chat-unread-badge flex-shrink-0">{{ chat.unread_count }}</span>
-        {% endif %}
-        <i class="fas fa-chevron-right text-slate-300 flex-shrink-0"></i>
-    </a>
+
+        <!-- Chat threads -->
+        <div class="flex flex-col gap-2">
+            {% for thread in group.threads %}
+            <a href="{% url 'chat_room' pk=group.help_request.pk app_pk=thread.application.pk %}"
+                class="chat-list-item flex items-center gap-3 p-3 rounded-lg"
+                style="background: rgba(241,245,249,.5); border: 1px solid rgba(148,163,184,.1);">
+                <span class="avatar avatar-sm flex-shrink-0" style="background: {{ thread.other_user.profile.avatar_color }}">
+                    {{ thread.other_user.profile.initials }}
+                </span>
+                <div class="flex-1 min-w-0">
+                    <div class="font-medium text-sm text-slate-800">{{ thread.other_user.profile.display_name }}</div>
+                    {% if thread.last_message %}
+                    <div class="text-xs text-slate-400 truncate">
+                        {{ thread.last_message.sender.profile.display_name }}: {{ thread.last_message.content|truncatewords:10 }}
+                    </div>
+                    {% else %}
+                    <div class="text-xs text-slate-400">No messages yet</div>
+                    {% endif %}
+                </div>
+                {% if thread.unread_count > 0 %}
+                <span class="chat-unread-badge flex-shrink-0">{{ thread.unread_count }}</span>
+                {% endif %}
+                <i class="fas fa-chevron-right text-slate-300 flex-shrink-0"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
     {% endfor %}
 </div>
 {% else %}
@@ -45,8 +65,7 @@
     <div class="empty-state text-center py-8">
         <i class="fas fa-comments fa-3x mb-3" style="color:#cbd5e1"></i>
         <h3 class="font-semibold text-slate-500 mb-1">No active chats</h3>
-        <p class="text-slate-400 font-light mb-3">You'll see chats here once someone accepts your application or you
-            accept an applicant on your request.</p>
+        <p class="text-slate-400 font-light mb-3">Apply to help requests to start chatting with posters.</p>
         <a href="{% url 'browse_requests' %}" class="btn btn-primary btn-sm font-semibold">
             <i class="fas fa-compass"></i> Browse Requests
         </a>

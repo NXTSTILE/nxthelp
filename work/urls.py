@@ -13,18 +13,14 @@ urlpatterns = [
 
     # Applications
     path('request/<int:pk>/apply/', views.apply_to_help, name='apply_to_help'),
-    path('application/<int:pk>/accept/', views.accept_application, name='accept_application'),
-    path('application/<int:pk>/reject/', views.reject_application, name='reject_application'),
     path('application/<int:pk>/withdraw/', views.withdraw_application, name='withdraw_application'),
-    path('application/<int:pk>/complete/', views.complete_application, name='complete_application'),
     path('my-applications/', views.my_applications, name='my_applications'),
 
     # Request Management
     path('request/<int:pk>/resolve/', views.resolve_request, name='resolve_request'),
     path('request/<int:pk>/close/', views.close_request, name='close_request'),
-    path('request/<int:pk>/completed/', views.mark_completed, name='mark_completed'),
 
-    # Payment
+    # Payment (kept for future use)
     path('request/<int:pk>/payment/', views.payment_page, name='payment_page'),
     path('request/<int:pk>/payment/create-order/', views.create_razorpay_order, name='create_razorpay_order'),
     path('request/<int:pk>/payment/confirm/', views.confirm_payment, name='confirm_payment'),
@@ -35,4 +31,3 @@ urlpatterns = [
     path('notifications/<int:pk>/read/', views.mark_notification_read, name='mark_notification_read'),
     path('notifications/mark-all-read/', views.mark_all_read, name='mark_all_read'),
 ]
-

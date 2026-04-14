@@ -5,7 +5,6 @@ from django.db.models import Q, Count
 from django.utils import timezone
 from django.conf import settings
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from decimal import Decimal, InvalidOperation
 import razorpay
 import json
@@ -68,10 +67,7 @@ def dashboard(request):
 
     # Unread chat count
     unread_chats = ChatMessage.objects.filter(
-        help_request__in=HelpRequest.objects.filter(
-            Q(posted_by=request.user) | Q(selected_helper=request.user),
-            status='in_progress'
-        ),
+        Q(help_request__posted_by=request.user) | Q(application__applicant=request.user),
         is_read=False
     ).exclude(sender=request.user).count()
 
@@ -123,7 +119,7 @@ def create_help_request(request):
             help_req = form.save(commit=False)
             help_req.posted_by = request.user
             help_req.save()
-            messages.success(request, 'Your request has been posted! Others can now apply to help you.')
+            messages.success(request, 'Your request has been posted!')
             return redirect('help_request_detail', pk=help_req.pk)
     else:
         form = HelpRequestForm()
@@ -132,14 +128,19 @@ def create_help_request(request):
 
 @login_required
 def help_request_detail(request, pk):
-    """View a specific help request with applications."""
+    """View a specific help request with applicants and chat threads."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
     context = {
         'help_request': help_req,
     }
 
     if request.user == help_req.posted_by:
-        context['applications'] = help_req.applications.all().select_related('applicant', 'applicant__profile')
+        # Poster sees all applicants with chat thread info
+        applications = list(help_req.applications.all().select_related('applicant', 'applicant__profile'))
+        for app in applications:
+            app.last_chat = app.chat_messages.order_by('-created_at').first()
+            app.unread_count = app.chat_messages.filter(is_read=False).exclude(sender=request.user).count()
+        context['applications'] = applications
         context['is_owner'] = True
     else:
         context['is_owner'] = False
@@ -161,12 +162,18 @@ def browse_requests(request):
     # Filtering
     category_slug = request.GET.get('category')
     urgency = request.GET.get('urgency')
+    request_type = request.GET.get('request_type')
+    target_year = request.GET.get('target_year')
     search = request.GET.get('q')
 
     if category_slug:
         requests_qs = requests_qs.filter(category__slug=category_slug)
     if urgency:
         requests_qs = requests_qs.filter(urgency=urgency)
+    if request_type:
+        requests_qs = requests_qs.filter(request_type=request_type)
+    if target_year:
+        requests_qs = requests_qs.filter(Q(target_year=target_year) | Q(target_year='all'))
     if search:
         requests_qs = requests_qs.filter(
             Q(title__icontains=search) | Q(description__icontains=search)
@@ -178,6 +185,8 @@ def browse_requests(request):
         'categories': categories,
         'current_category': category_slug,
         'current_urgency': urgency,
+        'current_request_type': request_type,
+        'current_target_year': target_year,
         'search_query': search or '',
     }
     return render(request, 'work/browse_requests.html', context)
@@ -204,7 +213,7 @@ def my_requests(request):
 
 @login_required
 def apply_to_help(request, pk):
-    """Any user applies to help with a request (except the poster)."""
+    """User applies to help — redirected to chat thread after applying."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
 
     if request.user == help_req.posted_by:
@@ -236,90 +245,12 @@ def apply_to_help(request, pk):
                 link=f'/request/{help_req.pk}/',
             )
 
-            messages.success(request, 'Your application has been submitted! The poster will review it.')
-            return redirect('help_request_detail', pk=pk)
+            messages.success(request, 'Application submitted! You can now chat with the poster.')
+            return redirect('chat_room', pk=help_req.pk, app_pk=application.pk)
     else:
         form = ApplicationForm()
 
     return render(request, 'work/apply.html', {'form': form, 'help_request': help_req})
-
-
-@login_required
-def accept_application(request, pk):
-    """Poster accepts an application."""
-    application = get_object_or_404(Application, pk=pk)
-
-    if request.user != application.help_request.posted_by:
-        messages.error(request, 'You can only manage your own requests.')
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        # Idempotency guard — prevent double-accepting via back button / double-click
-        if application.status == 'accepted':
-            messages.info(request, 'This application has already been accepted.')
-            return redirect('help_request_detail', pk=application.help_request.pk)
-
-        application.status = 'accepted'
-        application.save()
-
-        help_req = application.help_request
-        help_req.selected_helper = application.applicant
-        help_req.status = 'in_progress'
-        help_req.save()
-
-        # Reject all other pending applications
-        other_apps = help_req.applications.filter(status='pending').exclude(pk=application.pk)
-        other_app_users = list(other_apps.values_list('applicant', flat=True))
-        other_apps.update(status='rejected')
-
-        # Notify accepted applicant
-        Notification.objects.create(
-            recipient=application.applicant,
-            notification_type='application_accepted',
-            title='Application accepted!',
-            message=f'Your application to help with "{help_req.title}" has been accepted! You can now chat.',
-            link=f'/request/{help_req.pk}/chat/',
-        )
-
-        # Notify rejected applicants
-        for user_id in other_app_users:
-            Notification.objects.create(
-                recipient_id=user_id,
-                notification_type='application_rejected',
-                title='Application update',
-                message=f'Someone else was selected for "{help_req.title}". Thanks for offering!',
-                link=f'/request/{help_req.pk}/',
-            )
-
-        messages.success(request, f'{application.applicant.profile.display_name} has been selected! You can now chat with them.')
-        return redirect('chat_room', pk=help_req.pk)
-
-    return redirect('help_request_detail', pk=application.help_request.pk)
-
-
-@login_required
-def reject_application(request, pk):
-    """Poster rejects an application."""
-    application = get_object_or_404(Application, pk=pk)
-
-    if request.user != application.help_request.posted_by:
-        messages.error(request, 'You can only manage your own requests.')
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        application.status = 'rejected'
-        application.save()
-
-        Notification.objects.create(
-            recipient=application.applicant,
-            notification_type='application_rejected',
-            title='Application update',
-            message=f'Your application for "{application.help_request.title}" was not selected.',
-            link=f'/request/{application.help_request.pk}/',
-        )
-
-        messages.info(request, 'Application has been declined.')
-    return redirect('help_request_detail', pk=application.help_request.pk)
 
 
 @login_required
@@ -332,57 +263,21 @@ def withdraw_application(request, pk):
         return redirect('dashboard')
 
     if request.method == 'POST':
-        if application.status == 'accepted':
-            # Reset the help request if the accepted applicant withdraws
-            help_req = application.help_request
-            help_req.selected_helper = None
-            help_req.status = 'open'
-            help_req.save()
-            Notification.objects.create(
-                recipient=help_req.posted_by,
-                notification_type='application_rejected',
-                title='Helper withdrew',
-                message=f'{request.user.profile.display_name} has withdrawn from "{help_req.title}".',
-                link=f'/request/{help_req.pk}/',
-            )
-
         application.status = 'withdrawn'
         application.save()
+
+        Notification.objects.create(
+            recipient=application.help_request.posted_by,
+            notification_type='application_rejected',
+            title='Applicant withdrew',
+            message=f'{request.user.profile.display_name} withdrew from "{application.help_request.title}".',
+            link=f'/request/{application.help_request.pk}/',
+        )
+
         messages.success(request, 'You have withdrawn your application.')
 
     return redirect('help_request_detail', pk=application.help_request.pk)
 
-
-@login_required
-def complete_application(request, pk):
-    """Applicant marks the work as completed, notifying the poster."""
-    application = get_object_or_404(Application, pk=pk)
-
-    if request.user != application.applicant:
-        messages.error(request, 'You can only manage your own applications.')
-        return redirect('dashboard')
-
-    if request.method == 'POST':
-        # Idempotency guard — prevent duplicate notifications on double-click
-        if application.status == 'completed':
-            messages.info(request, 'You have already marked this work as completed.')
-            return redirect('help_request_detail', pk=application.help_request.pk)
-
-        application.status = 'completed'
-        application.save()
-
-        help_req = application.help_request
-        Notification.objects.create(
-            recipient=help_req.posted_by,
-            notification_type='work_completed',
-            title='Work marked as completed by helper',
-            message=f'{request.user.profile.display_name} has marked their work on "{help_req.title}" as completed.',
-            link=f'/request/{help_req.pk}/',
-        )
-
-        messages.success(request, 'You have marked the work as completed. The poster has been notified.')
-        
-    return redirect('help_request_detail', pk=application.help_request.pk)
 
 @login_required
 def resolve_request(request, pk):
@@ -397,12 +292,13 @@ def resolve_request(request, pk):
         help_req.status = 'resolved'
         help_req.save()
 
-        if help_req.selected_helper:
+        # Notify all active applicants
+        for app in help_req.applications.exclude(status='withdrawn'):
             Notification.objects.create(
-                recipient=help_req.selected_helper,
+                recipient=app.applicant,
                 notification_type='request_resolved',
                 title='Request resolved',
-                message=f'"{help_req.title}" has been marked as resolved. Thank you for helping!',
+                message=f'"{help_req.title}" has been marked as resolved.',
                 link=f'/request/{help_req.pk}/',
             )
 
@@ -411,41 +307,41 @@ def resolve_request(request, pk):
 
 
 @login_required
-def mark_completed(request, pk):
-    """Poster marks the work as completed and is redirected to payment page."""
+def close_request(request, pk):
+    """Close a help request."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
 
     if request.user != help_req.posted_by:
-        messages.error(request, 'Only the request author can mark work as completed.')
-        return redirect('help_request_detail', pk=pk)
-
-    if help_req.status != 'in_progress':
-        messages.warning(request, 'This request is not currently in progress.')
-        return redirect('help_request_detail', pk=pk)
-
-    if not help_req.selected_helper:
-        messages.error(request, 'No helper assigned to this request.')
+        messages.error(request, 'Only the request author can close it.')
         return redirect('help_request_detail', pk=pk)
 
     if request.method == 'POST':
-        # --- Payment bypassed: go straight to resolved ---
-        help_req.status = 'resolved'
+        help_req.status = 'closed'
         help_req.save()
+        messages.info(request, 'Your help request has been closed.')
+    return redirect('my_requests')
 
-        # Notify the helper that work is marked completed
-        Notification.objects.create(
-            recipient=help_req.selected_helper,
-            notification_type='work_completed',
-            title='Work marked as completed! 🎉',
-            message=f'{request.user.profile.display_name} has marked "{help_req.title}" as completed. Great work!',
-            link=f'/request/{help_req.pk}/',
-        )
 
-        messages.success(request, 'Work marked as completed and request resolved! 🎉')
-        return redirect('help_request_detail', pk=help_req.pk)
+# ─── My Applications ────────────────────────────────────────────
 
-    return redirect('help_request_detail', pk=pk)
+@login_required
+def my_applications(request):
+    """View my sent applications."""
+    applications = Application.objects.filter(
+        applicant=request.user
+    ).select_related('help_request', 'help_request__posted_by', 'help_request__category')
 
+    status_filter = request.GET.get('status')
+    if status_filter:
+        applications = applications.filter(status=status_filter)
+
+    return render(request, 'work/my_applications.html', {
+        'applications': applications,
+        'status_filter': status_filter,
+    })
+
+
+# ─── Payment (kept for future use) ──────────────────────────────
 
 @login_required
 def payment_page(request, pk):
@@ -677,41 +573,6 @@ def payment_receipt(request, pk):
     }
     return render(request, 'work/payment_receipt.html', context)
 
-
-
-@login_required
-def close_request(request, pk):
-    """Close a help request."""
-    help_req = get_object_or_404(HelpRequest, pk=pk)
-
-    if request.user != help_req.posted_by:
-        messages.error(request, 'Only the request author can close it.')
-        return redirect('help_request_detail', pk=pk)
-
-    if request.method == 'POST':
-        help_req.status = 'closed'
-        help_req.save()
-        messages.info(request, 'Your help request has been closed.')
-    return redirect('my_requests')
-
-
-# ─── My Applications ────────────────────────────────────────────
-
-@login_required
-def my_applications(request):
-    """View my sent applications."""
-    applications = Application.objects.filter(
-        applicant=request.user
-    ).select_related('help_request', 'help_request__posted_by', 'help_request__category')
-
-    status_filter = request.GET.get('status')
-    if status_filter:
-        applications = applications.filter(status=status_filter)
-
-    return render(request, 'work/my_applications.html', {
-        'applications': applications,
-        'status_filter': status_filter,
-    })
 
 
 # ─── Notifications ───────────────────────────────────────────────

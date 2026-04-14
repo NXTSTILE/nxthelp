@@ -9,7 +9,7 @@
 Your application uses a modern, battle-tested Python stack designed to be flexible and highly scalable:
 
 *   **Backend Framework:** **Django (v4.2)**
-    *   *Why it's used:* Django provides robust MVC architecture, an excellent built-in ORM for databases, automated admin interfaces, and strong built-in security features (CSRF, XSS protection).
+    *   *Why it's used:* Django provides robust MVT architecture, an excellent built-in ORM for databases, automated admin interfaces, and strong built-in security features (CSRF, XSS protection).
 *   **Database Engine:** 
     *   *Development:* **SQLite3** (Lightweight, file-based database for local testing).
     *   *Production:* **PostgreSQL** via `psycopg2-binary` (Robust, scalable database optimized for Railway/Cloud deployments). Connected dynamically using `dj-database-url`.

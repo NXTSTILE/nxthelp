@@ -15,31 +15,27 @@
                     <span class="badge badge-urgency-{{ help_request.urgency }}">
                         {{ help_request.get_urgency_display }}
                     </span>
+                    {% if help_request.request_type %}
+                    <span class="badge" style="background:rgba(99,102,241,.1);color:#6366f1;">
+                        {{ help_request.get_request_type_display }}
+                    </span>
+                    {% endif %}
+                    {% if help_request.target_year != 'all' %}
+                    <span class="badge" style="background:rgba(14,165,233,.1);color:#0ea5e9;">
+                        {{ help_request.get_target_year_display }}
+                    </span>
+                    {% endif %}
                 </div>
                 {% if is_owner %}
                 <div class="flex flex-wrap gap-2">
-                    {% if help_request.status == 'in_progress' %}
-                    <form method="POST" action="{% url 'mark_completed' pk=help_request.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-sm font-semibold">
-                            <i class="fas fa-check-double"></i> Work Completed
-                        </button>
-                    </form>
+                    {% if help_request.status == 'open' or help_request.status == 'in_progress' %}
                     <form method="POST" action="{% url 'resolve_request' pk=help_request.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-sm font-semibold"
-                            style="background:#059669 !important;">
-                            <i class="fas fa-check"></i> Mark Resolved
+                        <button type="submit" class="btn btn-success btn-sm font-semibold">
+                            <i class="fas fa-check"></i> Resolve
                         </button>
                     </form>
                     {% endif %}
-                    {% comment "Payment bypassed — re-enable when payments are active" %}
-                    {% if help_request.status == 'completed' %}
-                    <a href="{% url 'payment_page' pk=help_request.pk %}" class="btn btn-primary btn-sm font-semibold">
-                        <i class="fas fa-wallet"></i> Send Payment
-                    </a>
-                    {% endif %}
-                    {% endcomment %}
                     {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
                     <form method="POST" action="{% url 'close_request' pk=help_request.pk %}">
                         {% csrf_token %}
@@ -65,6 +61,20 @@
                             style="color: {{ help_request.category.color }};"></i>
                         {{ help_request.category.name }}
                     </span>
+                </div>
+                {% endif %}
+
+                {% if help_request.request_type %}
+                <div class="detail-meta-item">
+                    <span class="detail-meta-label font-medium"><i class="fas fa-folder me-1"></i>Type</span>
+                    <span class="detail-meta-value">{{ help_request.get_request_type_display }}</span>
+                </div>
+                {% endif %}
+
+                {% if help_request.target_year != 'all' %}
+                <div class="detail-meta-item">
+                    <span class="detail-meta-label font-medium"><i class="fas fa-graduation-cap me-1"></i>Target Year</span>
+                    <span class="detail-meta-value">{{ help_request.get_target_year_display }}</span>
                 </div>
                 {% endif %}
 
@@ -105,7 +115,7 @@
             </div>
         </div>
 
-        <!-- Applications (visible to poster) -->
+        <!-- Applicants with Chat Threads (visible to poster) -->
         {% if is_owner %}
         <div class="card card-static rounded-xl p-5 mb-4">
             <div class="card-header mb-4">
@@ -130,7 +140,9 @@
                         <div class="application-profession text-sm text-slate-500">{{ app.applicant.profile.profession }}</div>
                         {% endif %}
                     </div>
-                    <span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span>
+                    {% if app.unread_count > 0 %}
+                    <span class="chat-unread-badge">{{ app.unread_count }}</span>
+                    {% endif %}
                 </div>
 
                 <div class="application-message text-sm text-slate-600 mb-2">{{ app.message }}</div>
@@ -142,22 +154,17 @@
                 </div>
                 {% endif %}
 
-                {% if app.status == 'pending' %}
-                <div class="application-actions flex gap-2">
-                    <form method="POST" action="{% url 'accept_application' pk=app.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-sm font-semibold">
-                            <i class="fas fa-check"></i> Accept
-                        </button>
-                    </form>
-                    <form method="POST" action="{% url 'reject_application' pk=app.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm font-semibold">
-                            <i class="fas fa-times"></i> Decline
-                        </button>
-                    </form>
+                {% if app.last_chat %}
+                <div class="text-xs text-slate-400 mb-3 flex items-center gap-1">
+                    <i class="fas fa-comment"></i>
+                    <span>{{ app.last_chat.sender.profile.display_name }}: {{ app.last_chat.content|truncatewords:10 }}</span>
                 </div>
                 {% endif %}
+
+                <a href="{% url 'chat_room' pk=help_request.pk app_pk=app.pk %}" class="btn btn-primary btn-sm font-semibold">
+                    <i class="fas fa-comments"></i> Chat
+                    {% if app.unread_count > 0 %}({{ app.unread_count }} new){% endif %}
+                </a>
             </div>
             {% endfor %}
             {% else %}
@@ -168,15 +175,9 @@
             </div>
             {% endif %}
         </div>
-
-        {% if help_request.selected_helper %}
-        <a href="{% url 'chat_room' pk=help_request.pk %}" class="btn btn-primary btn-block btn-lg font-semibold">
-            <i class="fas fa-comments"></i> Open Chat with {{ help_request.selected_helper.profile.display_name }}
-        </a>
-        {% endif %}
         {% endif %}
 
-        <!-- Apply Form (visible to other users) -->
+        <!-- Applicant's View -->
         {% if not is_owner %}
         {% if existing_application %}
         <div class="card card-static rounded-xl p-5 mb-4">
@@ -194,29 +195,18 @@
             </div>
             {% endif %}
 
-            {% if existing_application.status == 'accepted' %}
-            <a href="{% url 'chat_room' pk=help_request.pk %}" class="btn btn-primary btn-block mt-2 font-semibold">
-                <i class="fas fa-comments"></i> Open Chat
-            </a>
-            <form method="POST" action="{% url 'complete_application' pk=existing_application.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-success btn-block mt-2 font-semibold">
-                    <i class="fas fa-check-circle"></i> Mark Work as Done
-                </button>
-            </form>
-            <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger btn-block mt-2 font-semibold" onclick="return confirm('Are you sure you want to withdraw your application? This will reopen the request.');">
-                    <i class="fas fa-trash-alt"></i> Withdraw Application
-                </button>
-            </form>
-            {% elif existing_application.status == 'pending' %}
-            <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger btn-block mt-2 font-semibold" onclick="return confirm('Are you sure you want to withdraw your application?');">
-                    <i class="fas fa-trash-alt"></i> Withdraw Application
-                </button>
-            </form>
+            {% if existing_application.status != 'withdrawn' %}
+            <div class="flex flex-wrap gap-2">
+                <a href="{% url 'chat_room' pk=help_request.pk app_pk=existing_application.pk %}" class="btn btn-primary btn-sm font-semibold">
+                    <i class="fas fa-comments"></i> Chat with Poster
+                </a>
+                <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm font-semibold" onclick="return confirm('Withdraw your application?');">
+                        <i class="fas fa-trash-alt"></i> Withdraw
+                    </button>
+                </form>
+            </div>
             {% endif %}
         </div>
         {% elif application_form %}
@@ -245,7 +235,7 @@
                     {% endfor %}
                 </div>
                 <button type="submit" class="btn btn-primary btn-block font-semibold">
-                    <i class="fas fa-paper-plane"></i> Submit Application
+                    <i class="fas fa-paper-plane"></i> Apply & Start Chatting
                 </button>
             </form>
         </div>
@@ -311,31 +301,6 @@
                 {% endif %}
             </div>
         </div>
-
-        {% if help_request.selected_helper %}
-        <div class="sidebar-card rounded-xl p-4">
-            <h3 class="card-title font-semibold mb-3 flex items-center gap-2">
-                <i class="fas fa-handshake" style="color:#16a34a"></i> Selected Helper
-            </h3>
-            <div class="flex items-center gap-3">
-                <span class="avatar avatar-md"
-                    style="background: {{ help_request.selected_helper.profile.avatar_color }}">
-                    {{ help_request.selected_helper.profile.initials }}
-                </span>
-                <div>
-                    <a href="{% url 'user_profile' username=help_request.selected_helper.username %}"
-                        class="font-bold text-slate-800 hover:text-blue-700 transition-colors">
-                        {{ help_request.selected_helper.profile.display_name }}
-                    </a>
-                    {% if help_request.selected_helper.profile.profession %}
-                    <div class="text-xs text-slate-400 font-light">
-                        {{ help_request.selected_helper.profile.profession }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

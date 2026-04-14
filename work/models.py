@@ -38,12 +38,29 @@ class HelpRequest(models.Model):
         ('closed', 'Closed'),
     ]
 
+    REQUEST_TYPE_CHOICES = [
+        ('personal', 'Personal'),
+        ('academic', 'Academic'),
+        ('non_academic', 'Non-Academic'),
+    ]
+
+    TARGET_YEAR_CHOICES = [
+        ('all', 'All Years'),
+        ('1', '1st Year'),
+        ('2', '2nd Year'),
+        ('3', '3rd Year'),
+        ('4', '4th Year'),
+        ('5', '5th Year / Postgrad'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posted_requests')
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='help_requests')
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES, default='medium')
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='open')
+    request_type = models.CharField(max_length=15, choices=REQUEST_TYPE_CHOICES, default='personal')
+    target_year = models.CharField(max_length=5, choices=TARGET_YEAR_CHOICES, default='all', help_text='Which year is this request for?')
     budget = models.CharField(
         max_length=100, blank=True,
         help_text='e.g. ₹500, Negotiable, Free, etc.'
