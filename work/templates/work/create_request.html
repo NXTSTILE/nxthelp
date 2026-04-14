@@ -37,17 +37,7 @@
             </div>
 
             <div class="name-fields-grid">
-                <div class="form-group">
-                    <label class="form-label font-semibold" for="id_category">
-                        <i class="fas fa-tag me-1" style="color:#1d4ed8"></i>Category
-                    </label>
-                    {{ form.category }}
-                    {% for error in form.category.errors %}
-                    <span class="form-error">{{ error }}</span>
-                    {% endfor %}
-                </div>
-
-                <div class="form-group">
+                <div class="form-group" style="grid-column: span 2;">
                     <label class="form-label font-semibold" for="id_urgency">
                         <i class="fas fa-fire me-1" style="color:#f59e0b"></i>Urgency
                     </label>

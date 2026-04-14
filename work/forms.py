@@ -6,7 +6,7 @@ class HelpRequestForm(forms.ModelForm):
     """Form to create a help request with pricing and deadline."""
     class Meta:
         model = HelpRequest
-        fields = ['title', 'description', 'category', 'urgency', 'request_type', 'target_year', 'budget', 'deadline']
+        fields = ['title', 'description', 'urgency', 'request_type', 'target_year', 'budget', 'deadline']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -17,7 +17,6 @@ class HelpRequestForm(forms.ModelForm):
                 'rows': 6,
                 'placeholder': 'Describe your problem in detail. The more context you provide, the better help you will get.',
             }),
-            'category': forms.Select(attrs={'class': 'form-input'}),
             'urgency': forms.Select(attrs={'class': 'form-input'}),
             'request_type': forms.Select(attrs={'class': 'form-input'}),
             'target_year': forms.Select(attrs={'class': 'form-input'}),
