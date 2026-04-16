@@ -9,19 +9,112 @@
         content="NxtHelp — University help marketplace. Post your queries, set pricing &amp; deadlines, and connect with helpers.">
     <title>{% block title %}NxtHelp{% endblock %} | University Help Marketplace</title>
 
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Tailwind CSS (utility classes used in templates) -->
+    
+    <!-- Legacy Cleanups (Loaded First so Tailwind can override) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Tailwind CSS with Custom Config -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981', // Pristine Emerald accent
+                            600: '#059669',
+                            900: '#064e3b',
+                        },
+                        surface: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.04)',
+                        'soft-lg': '0 20px 40px -10px rgba(0,0,0,0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass-panel {
+                @apply bg-white/80 backdrop-blur-md border border-white/40 shadow-soft;
+            }
+            .text-display {
+                @apply font-display tracking-tight text-slate-900;
+            }
+        }
+        
+        /* Smooth Entrance Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Staggered delays */
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
+        /* Dropdown Toggle Rules */
+        #avatarDropdown.open > #dropdownMenu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+        }
+        #avatarDropdown.open .dropdown-arrow {
+            transform: rotate(180deg) !important;
+        }
+        /* Cards Override */
+        .requests-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 !important; }
+        .request-card { @apply flex flex-col bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-soft-lg hover:-translate-y-1 hover:border-brand-200 hover:text-slate-800 transition-all !important; }
+        .request-card-header { @apply flex items-start justify-between gap-4 mb-3 !important; }
+        .request-card-title { @apply text-display font-bold text-slate-800 leading-snug !important; }
+        .request-card-desc { @apply text-sm text-slate-500 mb-4 flex-grow !important; }
+        .request-card-meta { @apply flex flex-wrap items-center gap-3 text-xs font-medium text-slate-400 mt-auto border-t border-slate-50 pt-3 !important; }
+        
+        .badge { @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider !important; }
+        .badge-open { @apply bg-emerald-50 text-emerald-600 !important; }
+        .badge-in_progress { @apply bg-amber-50 text-amber-600 !important; }
+        .badge-completed { @apply bg-indigo-50 text-indigo-600 !important; }
+        
+        .budget-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-100 !important; }
+        .deadline-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 !important; }
+        .deadline-tag.overdue { @apply bg-rose-50 text-rose-600 border-rose-100 !important; }
+        
+        /* Buttons Override */
+        .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 !important; }
+        .btn-primary { @apply bg-brand-600 text-white hover:bg-brand-700 hover:shadow-md hover:-translate-y-0.5 focus:ring-brand-500 border-none !important; }
+        .btn-secondary { @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-brand-600 !important; }
+        .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg !important; }
+    </style>
     
     <!-- HTMX for AJAX interactions -->
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
-    
-    <!-- NxtHelp Design System -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -30,74 +123,81 @@
 
     {% if user.is_authenticated %}
     <!-- ─── Top Navbar ─── -->
-    <nav class="nxt-navbar">
-        <div class="nav-inner">
-            <!-- Brand -->
-            <a href="{% url 'dashboard' %}" class="nav-brand">
-                <i class="fas fa-hands-helping"></i>NxtHelp
-            </a>
+    <nav class="glass-panel sticky top-0 z-50 flex items-center h-16 w-full fade-in-up">
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            <!-- Left: Brand & Links -->
+            <div class="flex items-center gap-8">
+                <!-- Brand -->
+                <a href="{% url 'dashboard' %}" class="text-display text-xl font-bold text-brand-600 flex items-center gap-2 hover:text-brand-500 transition-colors">
+                    <i class="fas fa-hands-helping text-brand-500"></i>NxtHelp
+                </a>
 
-            <!-- Desktop Links -->
-            <div class="nav-links" id="desktopNav">
-                <a href="{% url 'dashboard' %}"
-                    class="nav-pill {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <i class="fas fa-th-large"></i> Dashboard
-                </a>
-                <a href="{% url 'browse_requests' %}"
-                    class="nav-pill {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
-                    <i class="fas fa-compass"></i> Browse
-                </a>
-                <a href="{% url 'my_requests' %}"
-                    class="nav-pill {% if request.resolver_match.url_name == 'my_requests' %}active{% endif %}">
-                    <i class="fas fa-list-alt"></i> My Requests
-                </a>
-                <a href="{% url 'my_chats' %}"
-                    class="nav-pill {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
-                    <i class="fas fa-comments"></i> Chats
-                </a>
-                <a href="{% url 'create_help_request' %}" class="nav-post-btn">
-                    <i class="fas fa-plus"></i> Post Request
-                </a>
+                <!-- Desktop Links -->
+                <div class="hidden md:flex items-center gap-1" id="desktopNav">
+                    <a href="{% url 'dashboard' %}"
+                        class="px-4 py-2 rounded-full text-sm font-medium transition-all {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-50 text-brand-600 shadow-sm{% else %}text-slate-600 hover:text-brand-600 hover:bg-brand-50/50{% endif %}">
+                        <i class="fas fa-th-large mr-1.5"></i> Dashboard
+                    </a>
+                    <a href="{% url 'browse_requests' %}"
+                        class="px-4 py-2 rounded-full text-sm font-medium transition-all {% if request.resolver_match.url_name == 'browse_requests' %}bg-brand-50 text-brand-600 shadow-sm{% else %}text-slate-600 hover:text-brand-600 hover:bg-brand-50/50{% endif %}">
+                        <i class="fas fa-compass mr-1.5"></i> Browse
+                    </a>
+                    <a href="{% url 'my_requests' %}"
+                        class="px-4 py-2 rounded-full text-sm font-medium transition-all {% if request.resolver_match.url_name == 'my_requests' %}bg-brand-50 text-brand-600 shadow-sm{% else %}text-slate-600 hover:text-brand-600 hover:bg-brand-50/50{% endif %}">
+                        <i class="fas fa-list-alt mr-1.5"></i> My Requests
+                    </a>
+                    <a href="{% url 'my_chats' %}"
+                        class="px-4 py-2 rounded-full text-sm font-medium transition-all {% if request.resolver_match.url_name == 'my_chats' %}bg-brand-50 text-brand-600 shadow-sm{% else %}text-slate-600 hover:text-brand-600 hover:bg-brand-50/50{% endif %}">
+                        <i class="fas fa-comments mr-1.5"></i> Chats
+                    </a>
+                </div>
             </div>
 
             <!-- Right side -->
-            <div class="nav-right">
+            <div class="flex items-center gap-3">
+                <a href="{% url 'create_help_request' %}" class="hidden sm:flex px-4 py-2 rounded-full text-sm font-bold text-white bg-brand-500 hover:bg-brand-600 shadow-md shadow-brand-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all items-center gap-2">
+                    <i class="fas fa-plus"></i> Post Request
+                </a>
+
                 {% if user.profile.balance is not None %}
-                <span class="wallet-badge" id="walletBadge">
-                    <i class="fas fa-wallet"></i> ₹{{ user.profile.balance|floatformat:0 }}
+                <span class="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 flex items-center gap-2 shadow-sm" id="walletBadge">
+                    <i class="fas fa-wallet text-amber-500"></i> ₹{{ user.profile.balance|floatformat:0 }}
                 </span>
                 {% endif %}
 
                 <!-- Notifications -->
-                <a href="{% url 'notifications' %}" class="nav-icon-btn" title="Notifications" id="notifBtn">
-                    <i class="fas fa-bell"></i>
+                <a href="{% url 'notifications' %}" class="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-brand-600 transition-colors" title="Notifications" id="notifBtn">
+                    <i class="fas fa-bell text-lg"></i>
                     {% if unread_notification_count > 0 %}
-                    <span class="notif-badge">{{ unread_notification_count }}</span>
+                    <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center border border-white">{{ unread_notification_count }}</span>
                     {% endif %}
                 </a>
 
                 <!-- Avatar Dropdown -->
-                <div class="nav-dropdown" id="avatarDropdown">
-                    <button class="nav-avatar-btn" id="avatarBtn" type="button"
+                <div class="relative" id="avatarDropdown">
+                    <button class="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200" id="avatarBtn" type="button"
                         aria-haspopup="true" aria-expanded="false">
-                        <span class="avatar avatar-sm" style="background: {{ user.profile.avatar_color }}">{{ user.profile.initials }}</span>
-                        <span class="nav-username" id="navUsername">{{ user.first_name|default:user.username }}</span>
-                        <i class="fas fa-chevron-down nav-chevron"></i>
+                        <span class="w-8 h-8 rounded-full text-white font-bold text-xs flex items-center justify-center uppercase shadow-sm" style="background: {{ user.profile.avatar_color }}">{{ user.profile.initials }}</span>
+                        <span class="text-sm font-medium text-slate-700 max-w-[90px] truncate" id="navUsername">{{ user.first_name|default:user.username }}</span>
+                        <i class="fas fa-chevron-down text-[10px] text-slate-400 dropdown-arrow transition-transform"></i>
                     </button>
-                    <div class="dropdown-glass" role="menu">
-                        <a href="{% url 'profile' %}" class="dropdown-glass-item"><i class="fas fa-user"></i> My Profile</a>
-                        <a href="{% url 'my_requests' %}" class="dropdown-glass-item"><i class="fas fa-list-alt"></i> My Requests</a>
-                        <a href="{% url 'my_applications' %}" class="dropdown-glass-item"><i class="fas fa-paper-plane"></i> My Applications</a>
-                        <a href="{% url 'my_chats' %}" class="dropdown-glass-item"><i class="fas fa-comments"></i> Chats</a>
-                        <a href="{% url 'edit_profile' %}" class="dropdown-glass-item"><i class="fas fa-cog"></i> Settings</a>
-                        <div class="dropdown-glass-divider"></div>
-                        <form method="post" action="{% url 'logout' %}" style="margin:0;">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-glass-item danger"
-                                style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
-                                <i class="fas fa-sign-out-alt"></i> Log Out
-                            </button>
-                        </form>
+                    <div class="absolute right-0 top-[calc(100%+8px)] w-56 bg-white/95 backdrop-blur-xl border border-slate-100 rounded-2xl shadow-soft-lg opacity-0 invisible translate-y-2 transition-all duration-200 z-50 overflow-hidden" role="menu" id="dropdownMenu">
+                        <div class="p-2">
+                            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-user w-4 text-center"></i> My Profile</a>
+                            <a href="{% url 'my_requests' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-list-alt w-4 text-center"></i> My Requests</a>
+                            <a href="{% url 'my_applications' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-paper-plane w-4 text-center"></i> My Applications</a>
+                            <a href="{% url 'my_chats' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-comments w-4 text-center"></i> Chats</a>
+                            <a href="{% url 'edit_profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-cog w-4 text-center"></i> Settings</a>
+                        </div>
+                        <div class="h-px bg-slate-100 w-full mx-0"></div>
+                        <div class="p-2">
+                            <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="flex items-center gap-3 w-full px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer">
+                                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Log Out
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
