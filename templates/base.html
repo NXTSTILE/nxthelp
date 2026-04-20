@@ -18,7 +18,9 @@
     <!-- Legacy Cleanups (Loaded First so Tailwind can override) -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-    <!-- Tailwind CSS Custom Config (Must load before CDN script) -->
+    <!-- Tailwind CDN (must load FIRST to create the tailwind global object) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Custom Config (must load AFTER CDN script) -->
     <script>
         tailwind.config = {
             theme: {
@@ -32,7 +34,7 @@
                             50: '#ecfdf5',
                             100: '#d1fae5',
                             200: '#a7f3d0',
-                            500: '#10b981', // Pristine Emerald accent
+                            500: '#10b981',
                             600: '#059669',
                             700: '#047857',
                             900: '#064e3b',
@@ -54,7 +56,6 @@
             }
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style type="text/tailwindcss">
         @layer utilities {
             .glass-panel {
