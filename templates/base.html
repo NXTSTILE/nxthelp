@@ -18,7 +18,9 @@
     <!-- Legacy Cleanups (Loaded First so Tailwind can override) -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
-    <!-- Tailwind CSS Custom Config (Must load before CDN script) -->
+    <!-- Tailwind CDN (must load first to define the global) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Tailwind Config (must load after CDN script) -->
     <script>
         tailwind.config = {
             theme: {
@@ -57,7 +59,6 @@
             }
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style type="text/tailwindcss">
         @layer utilities {
             .glass-panel {
