@@ -117,8 +117,8 @@ WSGI_APPLICATION = 'nxthelp.wsgi.application'
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# makemigrations and migrate don't need a live DB — always use SQLite for them locally
-if 'makemigrations' in sys.argv or 'migrate' in sys.argv:
+# makemigrations doesn't need a live DB — always use SQLite for it
+if 'makemigrations' in sys.argv:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
