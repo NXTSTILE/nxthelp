@@ -114,7 +114,7 @@ def dashboard(request):
 def create_help_request(request):
     """Any user can create a help request."""
     if request.method == 'POST':
-        form = HelpRequestForm(request.POST)
+        form = HelpRequestForm(request.POST, request.FILES)
         if form.is_valid():
             help_req = form.save(commit=False)
             help_req.posted_by = request.user

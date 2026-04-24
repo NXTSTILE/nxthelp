@@ -6,7 +6,7 @@ class HelpRequestForm(forms.ModelForm):
     """Form to create a help request with pricing and deadline."""
     class Meta:
         model = HelpRequest
-        fields = ['title', 'description', 'urgency', 'request_type', 'target_year', 'budget', 'deadline']
+        fields = ['title', 'description', 'urgency', 'request_type', 'target_year', 'budget', 'deadline', 'image']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -29,6 +29,10 @@ class HelpRequestForm(forms.ModelForm):
                 'type': 'date',
                 'placeholder': 'Select a deadline...',
             }),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-input',
+                'accept': 'image/*',
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -37,6 +41,8 @@ class HelpRequestForm(forms.ModelForm):
         self.fields['deadline'].label = 'Deadline (optional)'
         self.fields['budget'].required = False
         self.fields['budget'].label = 'Budget / Pricing'
+        self.fields['image'].required = False
+        self.fields['image'].label = 'Attach an Image (optional)'
 
 
 class ApplicationForm(forms.ModelForm):

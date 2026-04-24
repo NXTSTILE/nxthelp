@@ -130,8 +130,16 @@
         {% if available_requests %}
         <div class="requests-grid">
             {% for req in available_requests %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
-                <div class="request-card-header">
+            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card" style="overflow:hidden;">
+                {% if req.image %}
+                <div style="margin:-1px -1px 0; overflow:hidden; border-radius:inherit; border-bottom-left-radius:0; border-bottom-right-radius:0; max-height:180px;">
+                    <img src="{{ req.image.url }}" alt="Post image"
+                        style="width:100%; height:180px; object-fit:cover; display:block; transition:transform 0.3s ease;"
+                        onmouseover="this.style.transform='scale(1.03)'"
+                        onmouseout="this.style.transform='scale(1)'">
+                </div>
+                {% endif %}
+                <div class="request-card-header" style="{% if req.image %}padding-top:0.75rem;{% endif %}">
                     <div class="request-card-title">{{ req.title }}</div>
                     <span class="badge badge-urgency-{{ req.urgency }}">{{ req.get_urgency_display }}</span>
                 </div>

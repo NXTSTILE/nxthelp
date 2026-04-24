@@ -12,7 +12,7 @@
     </div>
 
     <div class="card card-static rounded-xl p-5">
-        <form method="POST" action="{% url 'create_help_request' %}" novalidate>
+        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
             <div class="form-group">
@@ -103,6 +103,18 @@
                 {% endfor %}
             </div>
             {% endif %}
+
+            <div class="form-group">
+                <label class="form-label font-semibold" for="id_image">
+                    <i class="fas fa-image me-1" style="color:#8b5cf6"></i> Attach an Image
+                    <span class="text-slate-400 font-normal">(optional)</span>
+                </label>
+                {{ form.image }}
+                <span class="form-help font-light">Upload a photo to give more context — max 10MB, JPG/PNG/WebP.</span>
+                {% for error in form.image.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
 
             <button type="submit" class="btn btn-primary btn-block btn-lg mt-2 font-semibold">
                 <i class="fas fa-paper-plane"></i> Post Request

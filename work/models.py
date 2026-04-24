@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid
+from cloudinary.models import CloudinaryField
 
 
 class Category(models.Model):
@@ -66,6 +67,7 @@ class HelpRequest(models.Model):
         help_text='e.g. ₹500, Negotiable, Free, etc.'
     )
     deadline = models.DateField(null=True, blank=True, help_text='When do you need help by?')
+    image = CloudinaryField('image', folder='request_images', blank=True, null=True)
     selected_helper = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='helping_requests'

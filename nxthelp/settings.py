@@ -73,6 +73,9 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'work.apps.WorkConfig',
     'chat.apps.ChatConfig',
+    # Cloudinary
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -114,8 +117,8 @@ WSGI_APPLICATION = 'nxthelp.wsgi.application'
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-# makemigrations doesn't need a live DB — always use SQLite for it
-if 'makemigrations' in sys.argv:
+# makemigrations and migrate don't need a live DB — always use SQLite for them locally
+if 'makemigrations' in sys.argv or 'migrate' in sys.argv:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -133,6 +136,25 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+
+# ─── Cloudinary (media storage) ─────────────────────────────────
+import cloudinary
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+}
+
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    secure=True,
+)
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # ─── Password validation ────────────────────────────────────────
