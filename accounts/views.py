@@ -4,15 +4,16 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.db import IntegrityError
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
+from datetime import timedelta
 from .models import Profile, OTPToken
-from .forms import UserRegisterForm, ProfileUpdateForm
+from .forms import UserRegisterForm, ProfileUpdateForm, EmailOrUsernameAuthForm
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ def register_view(request):
 
                 return redirect('verify_otp')
             except IntegrityError:
-                form.add_error('username', 'This username is already taken. Please choose a different one.')
+                form.add_error(None, 'An account with this username or email already exists.')
     else:
         form = UserRegisterForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -141,7 +142,14 @@ def verify_otp_view(request):
     if not user or user.is_active:
         return redirect('login')
 
+    attempts_key = f'otp_attempts_{user.pk}'
+
     if request.method == 'POST':
+        attempts = request.session.get(attempts_key, 0)
+        if attempts >= 5:
+            messages.error(request, 'Too many failed attempts. Please request a new code.')
+            return redirect('verify_otp')
+
         submitted_otp = request.POST.get('otp', '').strip()
         otp_obj = OTPToken.objects.filter(user=user).first()
 
@@ -151,6 +159,7 @@ def verify_otp_view(request):
 
         if otp_obj.is_expired():
             otp_obj.delete()
+            request.session.pop(attempts_key, None)
             _send_otp_email(request, user)
             messages.warning(
                 request,
@@ -165,8 +174,8 @@ def verify_otp_view(request):
             otp_obj.delete()
             
             # Clear session
-            if 'verification_email' in request.session:
-                del request.session['verification_email']
+            request.session.pop('verification_email', None)
+            request.session.pop(attempts_key, None)
 
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(
@@ -175,7 +184,12 @@ def verify_otp_view(request):
             )
             return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid verification code. Please try again.')
+            request.session[attempts_key] = attempts + 1
+            remaining = 5 - (attempts + 1)
+            if remaining > 0:
+                messages.error(request, f'Invalid verification code. {remaining} attempt{"s" if remaining != 1 else ""} remaining.')
+            else:
+                messages.error(request, 'Invalid verification code. Too many failed attempts. Please request a new code.')
 
     return render(request, 'accounts/verify_otp.html', {'email': email})
 
@@ -190,7 +204,13 @@ def resend_verification(request):
         from django.contrib.auth.models import User
         user = User.objects.filter(email=email, is_active=False).first()
         if user:
+            otp_obj = OTPToken.objects.filter(user=user).first()
+            if otp_obj and timezone.now() - otp_obj.created_at < timedelta(seconds=60):
+                messages.warning(request, 'Please wait a minute before requesting a new code.')
+                return redirect('verify_otp')
             _send_otp_email(request, user)
+            # Reset attempt counter on successful resend
+            request.session.pop(f'otp_attempts_{user.pk}', None)
             messages.info(request, 'A new verification code has been sent to your email.')
             return redirect('verify_otp')
         # Prevent email enumeration
@@ -203,7 +223,7 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = EmailOrUsernameAuthForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             if not user.is_active:
@@ -220,22 +240,8 @@ def login_view(request):
             if not url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
                 next_url = 'dashboard'
             return redirect(next_url)
-        # Check if the failure is due to an inactive account
-        username = request.POST.get('username', '')
-        from django.contrib.auth.models import User
-        try:
-            user = User.objects.get(username=username)
-            if not user.is_active:
-                request.session['verification_email'] = user.email
-                messages.warning(
-                    request,
-                    'Please verify your email before logging in.'
-                )
-                return redirect('verify_otp')
-        except User.DoesNotExist:
-            pass
     else:
-        form = AuthenticationForm()
+        form = EmailOrUsernameAuthForm()
     return render(request, 'accounts/login.html', {'form': form})
 
 

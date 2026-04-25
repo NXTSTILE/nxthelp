@@ -132,14 +132,24 @@
 
         let html = '';
         if (!isMine) {
-            html += `<div class="bubble-sender">${msg.sender}</div>`;
+            html += `<div class="bubble-sender">${escapeHtml(msg.sender)}</div>`;
         }
-        html += msg.content;
-        html += `<div class="bubble-time">${msg.time}</div>`;
+        // Use textContent for content to prevent XSS; wrapper div preserves styling
+        const contentDiv = document.createElement('div');
+        contentDiv.textContent = msg.content;
+        html += contentDiv.outerHTML;
+        html += `<div class="bubble-time">${escapeHtml(msg.time)}</div>`;
         bubble.innerHTML = html;
 
         chatMessages.appendChild(bubble);
         scrollToBottom();
+    }
+
+    // Escape HTML entities to prevent XSS injection via innerHTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Poll for new messages every 1.5 seconds

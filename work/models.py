@@ -103,16 +103,29 @@ class HelpRequest(models.Model):
         return None
 
     @property
+    @property
     def time_since_posted(self):
         delta = timezone.now() - self.created_at
-        if delta.days > 0:
-            return f'{delta.days}d ago'
-        hours = delta.seconds // 3600
-        if hours > 0:
-            return f'{hours}h ago'
-        minutes = delta.seconds // 60
-        return f'{minutes}m ago' if minutes > 0 else 'Just now'
+        total_seconds = int(delta.total_seconds())
 
+        if total_seconds < 60:
+            return 'Just now'
+        if total_seconds < 3600:
+            minutes = total_seconds // 60
+            return f'{minutes}m ago'
+        if total_seconds < 86400:
+            hours = total_seconds // 3600
+            return f'{hours}h ago'
+        if delta.days < 7:
+            return f'{delta.days}d ago'
+        if delta.days < 30:
+            weeks = delta.days // 7
+            return f'{weeks}w ago'
+        if delta.days < 365:
+            months = delta.days // 30
+            return f'{months}mo ago'
+        years = delta.days // 365
+        return f'{years}y ago'
     @property
     def status_css_class(self):
         return self.status.replace('_', '-')

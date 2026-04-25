@@ -1,7 +1,20 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import Profile
+
+
+class EmailOrUsernameAuthForm(AuthenticationForm):
+    """Custom auth form that does NOT reject inactive users.
+
+    This prevents timing-based user enumeration: valid credentials for
+    inactive accounts will pass ``is_valid()`` so the view can redirect
+    to OTP verification without needing a secondary DB lookup.
+    """
+
+    def confirm_login_allowed(self, user):
+        # Allow inactive users so the view can handle them uniformly.
+        pass
 
 
 class UserRegisterForm(UserCreationForm):
