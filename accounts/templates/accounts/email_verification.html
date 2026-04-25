@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Verify your NxtHelp email</title>
+    <title>Verify your UniConnect email</title>
     <style>
         body {
             margin: 0;
@@ -23,7 +23,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
             padding: 2.5rem 2rem;
             text-align: center;
             color: #fff;
@@ -72,7 +72,7 @@
         .btn {
             display: inline-block;
             padding: 0.85rem 2.5rem;
-            background: #1d4ed8;
+            background: #7c3aed;
             color: #fff !important;
             text-decoration: none;
             border-radius: 10px;
@@ -82,7 +82,7 @@
         }
 
         .btn:hover {
-            background: #1e40af;
+            background: #6d28d9;
         }
 
         .note {
@@ -96,7 +96,7 @@
         }
 
         .note a {
-            color: #1d4ed8;
+            color: #7c3aed;
             word-break: break-all;
         }
 
@@ -119,7 +119,7 @@
         </div>
         <div class="body">
             <p>Hi <strong>{{ user.first_name|default:user.username }}</strong>,</p>
-            <p>Thanks for joining <strong>NxtHelp</strong> — the university peer-help marketplace. Use the 6-digit verification code below to activate your account.</p>
+            <p>Thanks for joining <strong>UniConnect</strong> — the university peer-help marketplace. Use the 6-digit verification code below to activate your account.</p>
 
             <div class="btn-wrap">
                 <span style="font-size: 2rem; font-weight: bold; letter-spacing: 0.25rem; background: #e2e8f0; padding: 10px 20px; border-radius: 8px;">{{ otp_code }}</span>
@@ -135,7 +135,7 @@
             </p>
         </div>
         <div class="footer">
-            &copy; NxtHelp · University Help Marketplace<br>
+            &copy; UniConnect · University Help Marketplace<br>
             This is an automated message — please do not reply.
         </div>
     </div>

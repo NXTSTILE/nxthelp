@@ -128,7 +128,7 @@
         <div class="card card-static rounded-xl p-5 mb-4">
             <div class="card-header mb-4">
                 <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-users" style="color:#1d4ed8"></i> Applicants ({{ applications|length }})
+                    <i class="fas fa-users" style="color:#7c3aed"></i> Applicants ({{ applications|length }})
                 </h2>
             </div>
 
@@ -191,7 +191,7 @@
         <div class="card card-static rounded-xl p-5 mb-4">
             <div class="card-header flex items-center justify-between mb-3">
                 <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-paper-plane" style="color:#1d4ed8"></i> Your Application
+                    <i class="fas fa-paper-plane" style="color:#7c3aed"></i> Your Application
                 </h2>
                 <span class="badge badge-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
             </div>
@@ -221,7 +221,7 @@
         <div class="card card-static rounded-xl p-5 mb-4">
             <div class="card-header mb-4">
                 <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-hand-paper" style="color:#1d4ed8"></i> Apply to Help
+                    <i class="fas fa-hand-paper" style="color:#7c3aed"></i> Apply to Help
                 </h2>
             </div>
             <form method="POST" action="{% url 'apply_to_help' pk=help_request.pk %}" novalidate>
@@ -256,7 +256,7 @@
         <!-- Posted By -->
         <div class="sidebar-card rounded-xl p-4 mb-3">
             <h3 class="card-title font-semibold mb-3 flex items-center gap-2">
-                <i class="fas fa-user" style="color:#1d4ed8"></i> Posted By
+                <i class="fas fa-user" style="color:#7c3aed"></i> Posted By
             </h3>
             <div class="flex items-center gap-3">
                 <span class="avatar avatar-lg" style="background: {{ help_request.posted_by.profile.avatar_color }}">
@@ -268,7 +268,7 @@
                         {{ help_request.posted_by.profile.display_name }}
                     </a>
                     {% if help_request.posted_by.profile.profession %}
-                    <div class="text-sm font-medium" style="color:#1d4ed8">
+                    <div class="text-sm font-medium" style="color:#7c3aed">
                         {{ help_request.posted_by.profile.profession }}
                     </div>
                     {% endif %}
@@ -284,7 +284,7 @@
         <!-- Quick Info -->
         <div class="sidebar-card rounded-xl p-4 mb-3">
             <h3 class="card-title font-semibold mb-3 flex items-center gap-2">
-                <i class="fas fa-info-circle" style="color:#1d4ed8"></i> Quick Info
+                <i class="fas fa-info-circle" style="color:#7c3aed"></i> Quick Info
             </h3>
             <div class="flex flex-col gap-3 text-sm">
                 {% if is_owner %}

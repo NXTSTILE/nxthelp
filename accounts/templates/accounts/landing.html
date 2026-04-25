@@ -4,15 +4,41 @@
 {% block extra_head %}
 <style>
     .landing-nav {
-        background: #1d4ed8;
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
         padding: .7rem 0;
-        box-shadow: 0 2px 8px rgba(29, 78, 216, .25);
+        box-shadow: 0 2px 8px rgba(124, 58, 237, .25);
     }
 
     .landing-hero-section {
         padding: 3rem 1rem 2rem;
         text-align: center;
-        background: linear-gradient(180deg, #f0f4ff 0%, #f8fafc 100%);
+        background: linear-gradient(180deg, #f5f3ff 0%, #f8fafc 50%, #ffffff 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .landing-hero-section::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 10s ease-in-out infinite;
+    }
+
+    .landing-hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        left: -5%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(13,148,136,0.06) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 12s ease-in-out infinite reverse;
     }
 
     @media (min-width: 768px) {
@@ -28,6 +54,8 @@
         letter-spacing: -1.5px;
         line-height: 1.15;
         margin: 1.25rem 0;
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
     }
 
     .hero-sub {
@@ -36,6 +64,8 @@
         max-width: 560px;
         margin: 0 auto 2rem;
         line-height: 1.7;
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+        opacity: 0;
     }
 
     .hero-btns {
@@ -44,6 +74,8 @@
         gap: .75rem;
         flex-wrap: wrap;
         margin-bottom: 2.5rem;
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        opacity: 0;
     }
 
     .landing-stats {
@@ -55,12 +87,18 @@
         border-top: 1px solid #e2e8f0;
         border-bottom: 1px solid #e2e8f0;
         margin-bottom: 0;
+        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
+        opacity: 0;
     }
 
     .landing-stat-value {
         font-size: 2rem;
         font-weight: 800;
         line-height: 1.1;
+        background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .landing-stat-label {
@@ -94,38 +132,60 @@
         border-radius: 14px;
         padding: 1.75rem 1.5rem;
         text-align: center;
-        transition: box-shadow .2s, transform .2s;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .feature-card:hover {
-        box-shadow: 0 8px 30px rgba(29, 78, 216, .12);
-        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(124, 58, 237, .14);
+        transform: translateY(-6px) scale(1.02);
+        border-color: #c4b5fd;
     }
 
     .feature-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         margin-bottom: .75rem;
-        font-size: 1.3rem;
+        font-size: 1.4rem;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1) rotate(-4deg);
     }
 
     .cta-section {
         padding: 3rem 1rem;
+        background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
     }
 
     .cta-card {
         max-width: 700px;
         margin: 0 auto;
-        background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        border-radius: 18px;
+        background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #7c3aed 100%);
+        background-size: 200% 200%;
+        animation: gradientShift 8s ease infinite;
+        border-radius: 20px;
         padding: 3rem 2rem;
         text-align: center;
         color: #fff;
-        box-shadow: 0 8px 40px rgba(29, 78, 216, .25);
+        box-shadow: 0 12px 50px rgba(124, 58, 237, .3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        animation: float 15s ease-in-out infinite;
     }
 
     .landing-footer {
@@ -134,6 +194,23 @@
         color: #94a3b8;
         font-size: .82rem;
         border-top: 1px solid #e2e8f0;
+        background: #f8fafc;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(2deg); }
     }
 </style>
 {% endblock %}
@@ -144,13 +221,13 @@
 <nav class="landing-nav">
     <div style="max-width:1100px;margin:0 auto;padding:0 1rem;display:flex;align-items:center;">
         <a href="{% url 'landing' %}" style="font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:-.3px;">
-            <i class="fas fa-hands-helping me-1"></i>NxtHelp
+            <i class="fas fa-share-nodes me-1"></i>UniConnect
         </a>
         <div style="margin-left:auto;display:flex;gap:.75rem;align-items:center;">
             <a href="{% url 'login' %}" class="btn btn-outline-white btn-sm"><i class="fas fa-sign-in-alt"></i> Log
                 In</a>
             <a href="{% url 'register' %}" class="btn btn-sm"
-                style="background:#fff;color:#1d4ed8;border-radius:50px;font-weight:700;"><i class="fas fa-rocket"></i>
+                style="background:#fff;color:#7c3aed;border-radius:50px;font-weight:700;"><i class="fas fa-rocket"></i>
                 Sign Up</a>
         </div>
     </div>
@@ -159,27 +236,27 @@
 <!-- Hero -->
 <section class="landing-hero-section">
     <div style="max-width:700px;margin:0 auto;">
-        <div class="pill-badge" style="color:#1d4ed8;border-color:#93c5fd;background:#eff6ff;">🎓 Now live for
+        <div class="pill-badge" style="color:#7c3aed;border-color:#c4b5fd;background:#f5f3ff;">🎓 Now live for
             university students</div>
         <h1 class="hero-h1">Get Help. Give Help.<br>All Within Your University.</h1>
         <p class="hero-sub">Post your queries with pricing and deadlines. Anyone in the university can apply to help.
             Choose the best applicant and connect via chat.</p>
         <div class="hero-btns">
-            <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Join NxtHelp</a>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Join UniConnect</a>
             <a href="{% url 'login' %}" class="btn btn-secondary btn-lg"><i class="fas fa-sign-in-alt"></i> Log In</a>
         </div>
         <!-- Stats Row -->
         <div class="landing-stats">
-            <div class="text-center">
-                <div class="landing-stat-value" style="color:#1d4ed8;">{{ stats.users }}+</div>
+            <div class="text-center" style="animation: fadeInUp 0.6s 0.5s forwards; opacity:0;">
+                <div class="landing-stat-value">{{ stats.users }}+</div>
                 <div class="landing-stat-label">Members</div>
             </div>
-            <div class="text-center">
-                <div class="landing-stat-value" style="color:#1d4ed8;">{{ stats.requests_posted }}+</div>
+            <div class="text-center" style="animation: fadeInUp 0.6s 0.65s forwards; opacity:0;">
+                <div class="landing-stat-value">{{ stats.requests_posted }}+</div>
                 <div class="landing-stat-label">Requests Posted</div>
             </div>
-            <div class="text-center">
-                <div class="landing-stat-value" style="color:#16a34a;">{{ stats.requests_resolved }}+</div>
+            <div class="text-center" style="animation: fadeInUp 0.6s 0.8s forwards; opacity:0;">
+                <div class="landing-stat-value" style="background: linear-gradient(135deg, #0d9488 0%, #16a34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ stats.requests_resolved }}+</div>
                 <div class="landing-stat-label">Resolved</div>
             </div>
         </div>
@@ -193,24 +270,24 @@
         <p style="color:#64748b;margin-top:.4rem;">A trusted peer-help marketplace built for your campus.</p>
     </div>
     <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon" style="background:#eff6ff;"><i class="fas fa-bullhorn" style="color:#1d4ed8;"></i>
+        <div class="feature-card" style="animation: fadeInUp 0.6s 0.2s forwards; opacity:0;">
+            <div class="feature-icon" style="background:linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);"><i class="fas fa-bullhorn" style="color:#7c3aed;"></i>
             </div>
             <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Post Your Query</h5>
             <p style="color:#64748b;font-size:.88rem;margin:0;">Describe what you need help with, set your budget and
                 deadline.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:#f0fdf4;"><i class="fas fa-users" style="color:#16a34a;"></i>
+        <div class="feature-card" style="animation: fadeInUp 0.6s 0.35s forwards; opacity:0;">
+            <div class="feature-icon" style="background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);"><i class="fas fa-users" style="color:#16a34a;"></i>
             </div>
             <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Get Applicants</h5>
             <p style="color:#64748b;font-size:.88rem;margin:0;">University members apply to help. Review their profiles
                 and proposals.</p>
         </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:#eff6ff;"><i class="fas fa-comments" style="color:#1d4ed8;"></i>
+        <div class="feature-card" style="animation: fadeInUp 0.6s 0.5s forwards; opacity:0;">
+            <div class="feature-icon" style="background:linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);"><i class="fas fa-comments" style="color:#7c3aed;"></i>
             </div>
-            <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Connect &amp; Chat</h5>
+            <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Connect & Chat</h5>
             <p style="color:#64748b;font-size:.88rem;margin:0;">Choose the best applicant and connect via built-in chat.
             </p>
         </div>
@@ -220,11 +297,13 @@
 <!-- CTA -->
 <section class="cta-section">
     <div class="cta-card">
-        <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;">Ready to upgrade your university experience?
+        <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;position:relative;z-index:1;">Ready to upgrade your university experience?
         </h3>
-        <p style="opacity:.85;margin-bottom:1.75rem;">Join students already helping each other on campus.</p>
+        <p style="opacity:.9;margin-bottom:1.75rem;position:relative;z-index:1;">Join students already helping each other on campus.</p>
         <a href="{% url 'register' %}" class="btn"
-            style="background:#fff;color:#1d4ed8;border-radius:50px;font-size:1rem;padding:.75rem 2.5rem;font-weight:700;">
+            style="background:#fff;color:#7c3aed;border-radius:50px;font-size:1rem;padding:.75rem 2.5rem;font-weight:700;position:relative;z-index:1;transition: all 0.3s ease;"
+            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)';"
+            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
             <i class="fas fa-graduation-cap me-1"></i> Create Your Account
         </a>
     </div>
@@ -232,8 +311,8 @@
 
 <!-- Footer -->
 <footer class="landing-footer">
-    <i class="fas fa-graduation-cap me-1" style="color:#1d4ed8;"></i>
-    &copy; 2026 NxtHelp — University Help Marketplace
+    <i class="fas fa-graduation-cap me-1" style="color:#7c3aed;"></i>
+    &copy; 2026 UniConnect — University Help Marketplace
 </footer>
 
 {% endblock %}

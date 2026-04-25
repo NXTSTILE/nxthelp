@@ -10,7 +10,7 @@
     <div class="profile-info flex-1">
         <h1 class="font-bold text-slate-900 text-2xl mb-1">{{ profile.display_name }}</h1>
         {% if profile.profession %}
-        <div class="profession-label font-semibold mb-2" style="color:#1d4ed8;">
+        <div class="profession-label font-semibold mb-2" style="color:#7c3aed;">
             <i class="fas fa-graduation-cap me-1"></i>{{ profile.profession }}
         </div>
         {% endif %}
@@ -20,16 +20,16 @@
         <div class="profile-details flex flex-wrap gap-3 mb-3">
             {% if profile.department %}
             <div class="profile-detail-item flex items-center gap-1 text-sm text-slate-500">
-                <i class="fas fa-building" style="color:#1d4ed8"></i> {{ profile.department }}
+                <i class="fas fa-building" style="color:#7c3aed"></i> {{ profile.department }}
             </div>
             {% endif %}
             {% if profile.year %}
             <div class="profile-detail-item flex items-center gap-1 text-sm text-slate-500">
-                <i class="fas fa-graduation-cap" style="color:#1d4ed8"></i> {{ profile.get_year_display }}
+                <i class="fas fa-graduation-cap" style="color:#7c3aed"></i> {{ profile.get_year_display }}
             </div>
             {% endif %}
             <div class="profile-detail-item flex items-center gap-1 text-sm text-slate-500">
-                <i class="fas fa-envelope" style="color:#1d4ed8"></i> {{ profile_user.email }}
+                <i class="fas fa-envelope" style="color:#7c3aed"></i> {{ profile_user.email }}
             </div>
         </div>
         {% if profile.skills %}
@@ -55,7 +55,7 @@
     <div>
         <div class="section-header flex items-center justify-between mb-3">
             <h2 class="section-title font-semibold flex items-center gap-2">
-                <i class="fas fa-bullhorn" style="color:#1d4ed8"></i> Requests Posted
+                <i class="fas fa-bullhorn" style="color:#7c3aed"></i> Requests Posted
             </h2>
         </div>
         {% if posted_requests %}

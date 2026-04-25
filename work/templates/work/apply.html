@@ -5,7 +5,7 @@
 <div style="max-width: 600px; margin: 0 auto;">
     <div class="page-header">
         <h1 class="page-title flex items-center gap-2">
-            <i class="fas fa-hand-paper" style="color:#1d4ed8"></i> Apply to Help
+            <i class="fas fa-hand-paper" style="color:#7c3aed"></i> Apply to Help
         </h1>
         <p class="page-subtitle">for "{{ help_request.title }}"</p>
     </div>
@@ -23,7 +23,7 @@
             {% if help_request.deadline %}
             <div class="detail-meta-item">
                 <span class="detail-meta-label font-medium"><i class="fas fa-calendar-alt me-1"
-                        style="color:#1d4ed8"></i>Deadline</span>
+                        style="color:#7c3aed"></i>Deadline</span>
                 <span class="detail-meta-value font-light">{{ help_request.deadline|date:"M d, Y" }}</span>
             </div>
             {% endif %}
@@ -41,7 +41,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_message">
-                    <i class="fas fa-comment-alt me-1" style="color:#1d4ed8"></i>How can you help?
+                    <i class="fas fa-comment-alt me-1" style="color:#7c3aed"></i>How can you help?
                 </label>
                 {{ form.message }}
                 <span class="form-help font-light">Explain your relevant experience and how you plan to help.</span>

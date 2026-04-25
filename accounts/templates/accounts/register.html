@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="auth-page">
-    <div class="auth-card fade-in rounded-xl p-6 shadow-md" style="max-width:520px;margin:0 auto;">
+    <div class="auth-card scale-in rounded-xl p-6 shadow-md" style="max-width:520px;margin:0 auto;">
         <div class="auth-header text-center mb-4">
             <a href="{% url 'landing' %}" class="nav-brand"
                 style="justify-content:center; margin-bottom:1.25rem; display:flex; align-items:center; gap:.5rem; text-decoration:none;">
                 <span class="brand-icon"
-                    style="width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#1d4ed8;color:#fff;font-size:1.1rem;">
-                    <i class="fas fa-hands-helping"></i>
+                    style="width:42px;height:42px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#7c3aed;color:#fff;font-size:1.1rem;">
+                    <i class="fas fa-share-nodes"></i>
                 </span>
-                <span class="brand-text" style="font-size:1.3rem;font-weight:800;color:#0f172a;">NxtHelp</span>
+                <span class="brand-text" style="font-size:1.3rem;font-weight:800;color:#0f172a;">UniConnect</span>
             </a>
             <h1 class="text-xl font-bold text-slate-800 mb-1">Create Your Account</h1>
             <p class="text-slate-400 font-light text-sm">Join the university help marketplace</p>
@@ -23,7 +23,7 @@
             <div class="name-fields-grid">
                 <div class="form-group">
                     <label class="form-label font-semibold" for="id_first_name">
-                        <i class="fas fa-user me-1" style="color:#1d4ed8"></i>First Name
+                        <i class="fas fa-user me-1" style="color:#7c3aed"></i>First Name
                     </label>
                     {{ form.first_name }}
                     {% for error in form.first_name.errors %}
@@ -41,7 +41,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_username">
-                    <i class="fas fa-at me-1" style="color:#1d4ed8"></i>Username
+                    <i class="fas fa-at me-1" style="color:#7c3aed"></i>Username
                 </label>
                 {{ form.username }}
                 {% for error in form.username.errors %}
@@ -51,7 +51,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_email">
-                    <i class="fas fa-envelope me-1" style="color:#1d4ed8"></i>Email
+                    <i class="fas fa-envelope me-1" style="color:#7c3aed"></i>Email
                 </label>
                 {{ form.email }}
                 {% for error in form.email.errors %}
@@ -61,7 +61,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_profession">
-                    <i class="fas fa-graduation-cap me-1" style="color:#1d4ed8"></i>Profession / Role
+                    <i class="fas fa-graduation-cap me-1" style="color:#7c3aed"></i>Profession / Role
                 </label>
                 {{ form.profession }}
                 <span class="form-help font-light">e.g. 3rd Year CSE Student, Assistant Professor, Lab
@@ -73,7 +73,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_password1">
-                    <i class="fas fa-lock me-1" style="color:#1d4ed8"></i>Password
+                    <i class="fas fa-lock me-1" style="color:#7c3aed"></i>Password
                 </label>
                 {{ form.password1 }}
                 {% for error in form.password1.errors %}
@@ -83,7 +83,7 @@
 
             <div class="form-group">
                 <label class="form-label font-semibold" for="id_password2">
-                    <i class="fas fa-lock me-1" style="color:#1d4ed8"></i>Confirm Password
+                    <i class="fas fa-lock me-1" style="color:#7c3aed"></i>Confirm Password
                 </label>
                 {{ form.password2 }}
                 {% for error in form.password2.errors %}
@@ -105,7 +105,7 @@
         </form>
 
         <div class="auth-footer text-center mt-4 text-sm">
-            Already have an account? <a href="{% url 'login' %}" class="font-semibold" style="color:#1d4ed8;">Log in</a>
+            Already have an account? <a href="{% url 'login' %}" class="font-semibold" style="color:#7c3aed;">Log in</a>
         </div>
     </div>
 </div>

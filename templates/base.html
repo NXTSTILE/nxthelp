@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="NxtHelp — University help marketplace. Post your queries, set pricing &amp; deadlines, and connect with helpers.">
-    <title>{% block title %}NxtHelp{% endblock %} | University Help Marketplace</title>
+        content="UniConnect — University help marketplace. Post your queries, set pricing &amp; deadlines, and connect with helpers.">
+    <title>{% block title %}UniConnect{% endblock %} | University Help Marketplace</title>
 
     <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,16 +31,16 @@
                     },
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
                         },
                         surface: {
                             50: '#f8fafc',
@@ -54,68 +54,120 @@
                         'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
                         'soft': '0 10px 40px -10px rgba(0,0,0,0.04)',
                         'soft-lg': '0 20px 40px -10px rgba(0,0,0,0.06)',
+                        'glow': '0 0 40px -10px rgba(124,58,237,0.25)',
+                        'glow-lg': '0 0 60px -10px rgba(124,58,237,0.35)',
                     }
                 }
             }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .glass-panel {
-                @apply bg-white/95 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)];
+        <style type="text/tailwindcss">
+            @layer utilities {
+                .glass-panel {
+                    @apply bg-white/95 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)];
+                }
+                .text-display {
+                    @apply font-display tracking-tight text-slate-900;
+                }
             }
-            .text-display {
-                @apply font-display tracking-tight text-slate-900;
+            
+            /* Smooth Entrance Animations */
+            .fade-in-up {
+                animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+                transform: translateY(20px);
             }
-        }
-        
-        /* Smooth Entrance Animations */
-        .fade-in-up {
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
+            @keyframes fadeInUp {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-        }
-        /* Staggered delays */
-        .delay-100 { animation-delay: 100ms; }
-        .delay-200 { animation-delay: 200ms; }
-        .delay-300 { animation-delay: 300ms; }
-
-        /* Dropdown Toggle Rules */
-        #avatarDropdown.open > #dropdownMenu {
-            opacity: 1 !important;
-            visibility: visible !important;
-            transform: translateY(0) !important;
-        }
-        #avatarDropdown.open .dropdown-arrow {
-            transform: rotate(180deg) !important;
-        }
-        /* Cards Override */
-        .requests-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 !important; }
-        .request-card { @apply flex flex-col bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-soft-lg hover:-translate-y-1 hover:border-brand-200 hover:text-slate-800 transition-all !important; }
-        .request-card-header { @apply flex items-start justify-between gap-4 mb-3 !important; }
-        .request-card-title { @apply text-display font-bold text-slate-800 leading-snug !important; }
-        .request-card-desc { @apply text-sm text-slate-500 mb-4 flex-grow !important; }
-        .request-card-meta { @apply flex flex-wrap items-center gap-3 text-xs font-medium text-slate-400 mt-auto border-t border-slate-50 pt-3 !important; }
-        
-        .badge { @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider !important; }
-        .badge-open { @apply bg-emerald-50 text-emerald-600 !important; }
-        .badge-in_progress { @apply bg-amber-50 text-amber-600 !important; }
-        .badge-completed { @apply bg-indigo-50 text-indigo-600 !important; }
-        
-        .budget-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-100 !important; }
-        .deadline-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 !important; }
-        .deadline-tag.overdue { @apply bg-rose-50 text-rose-600 border-rose-100 !important; }
-        
-        /* Buttons Override */
-        .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 !important; }
-        .btn-primary { @apply relative overflow-hidden bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 hover:shadow-[0_8px_20px_-6px_rgba(99,102,241,0.4)] hover:-translate-y-0.5 focus:ring-brand-500 border-none !important; }
-        .btn-secondary { @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-brand-600 hover:border-slate-300 hover:shadow-sm !important; }
+            .fade-in {
+                animation: fadeIn 0.5s ease forwards;
+                opacity: 0;
+            }
+            @keyframes fadeIn {
+                to { opacity: 1; }
+            }
+            .scale-in {
+                animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            @keyframes scaleIn {
+                to { opacity: 1; transform: scale(1); }
+            }
+            /* Staggered delays */
+            .delay-100 { animation-delay: 100ms; }
+            .delay-200 { animation-delay: 200ms; }
+            .delay-300 { animation-delay: 300ms; }
+            .delay-400 { animation-delay: 400ms; }
+            .delay-500 { animation-delay: 500ms; }
+    
+            /* Floating animation for background elements */
+            .float {
+                animation: float 8s ease-in-out infinite;
+            }
+            .float-delayed {
+                animation: float 10s ease-in-out infinite;
+                animation-delay: -3s;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0) rotate(0deg); }
+                50% { transform: translateY(-20px) rotate(2deg); }
+            }
+    
+            /* Pulse glow for CTAs */
+            .pulse-glow {
+                animation: pulseGlow 3s ease-in-out infinite;
+            }
+            @keyframes pulseGlow {
+                0%, 100% { box-shadow: 0 0 20px -5px rgba(124,58,237,0.3); }
+                50% { box-shadow: 0 0 35px -2px rgba(124,58,237,0.5); }
+            }
+    
+            /* Shimmer effect for loading states */
+            .shimmer {
+                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+                background-size: 200% 100%;
+                animation: shimmer 2s infinite;
+            }
+            @keyframes shimmer {
+                0% { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+    
+            /* Dropdown Toggle Rules */
+            #avatarDropdown.open > #dropdownMenu {
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: translateY(0) !important;
+            }
+            #avatarDropdown.open .dropdown-arrow {
+                transform: rotate(180deg) !important;
+            }
+            /* Cards Override */
+            .requests-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 !important; }
+            .request-card { @apply flex flex-col bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:-translate-y-1 hover:border-brand-200 hover:text-slate-800 transition-all duration-300 !important; }
+            .request-card-header { @apply flex items-start justify-between gap-4 mb-3 !important; }
+            .request-card-title { @apply text-display font-bold text-slate-800 leading-snug !important; }
+            .request-card-desc { @apply text-sm text-slate-500 mb-4 flex-grow !important; }
+            .request-card-meta { @apply flex flex-wrap items-center gap-3 text-xs font-medium text-slate-400 mt-auto border-t border-slate-50 pt-3 !important; }
+            
+            .badge { @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider !important; }
+            .badge-open { @apply bg-emerald-50 text-emerald-600 !important; }
+            .badge-in_progress { @apply bg-amber-50 text-amber-600 !important; }
+            .badge-completed { @apply bg-indigo-50 text-indigo-600 !important; }
+            
+            .budget-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-100 !important; }
+            .deadline-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 !important; }
+            .deadline-tag.overdue { @apply bg-rose-50 text-rose-600 border-rose-100 !important; }
+            
+            /* Buttons Override */
+            .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 !important; }
+            .btn-primary { @apply relative overflow-hidden bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 hover:shadow-[0_8px_20px_-6px_rgba(124,58,237,0.4)] hover:-translate-y-0.5 focus:ring-brand-500 border-none !important; }
+            .btn-secondary { @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-brand-600 hover:border-brand-200 hover:shadow-sm !important; }
+            .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg !important; }
+        </style>
         .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg !important; }
     </style>
     
@@ -127,11 +179,12 @@
 
 <body hx-boost="true" class="antialiased min-h-screen bg-slate-50 text-slate-800 selection:bg-brand-100 selection:text-brand-900 relative">
     
-    <!-- Subtle, trusted background accents — toned down for a professional feel -->
+    <!-- Vibrant, animated background accents — warm violet & teal feel -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-sky-100/30 blur-[100px]"></div>
-        <div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-slate-200/25 blur-[120px]"></div>
-        <div class="absolute top-[40%] left-[60%] w-[400px] h-[400px] rounded-full bg-blue-100/20 blur-[120px]"></div>
+        <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-violet-200/30 blur-[100px] float"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-fuchsia-100/25 blur-[120px] float-delayed"></div>
+        <div class="absolute top-[40%] left-[60%] w-[400px] h-[400px] rounded-full bg-teal-100/20 blur-[120px] float"></div>
+        <div class="absolute top-[20%] left-[20%] w-[300px] h-[300px] rounded-full bg-purple-100/20 blur-[100px] float-delayed"></div>
     </div>
 
     {% if user.is_authenticated %}
@@ -142,7 +195,7 @@
             <div class="flex items-center gap-8">
                 <!-- Brand -->
                 <a href="{% url 'dashboard' %}" class="text-display text-xl font-bold text-brand-600 flex items-center gap-2 hover:text-brand-500 transition-colors">
-                    <i class="fas fa-hands-helping text-brand-500"></i>NxtHelp
+                    <i class="fas fa-share-nodes text-brand-500"></i>UniConnect
                 </a>
 
                 <!-- Desktop Links -->
@@ -161,7 +214,7 @@
 
             <!-- Right side -->
             <div class="flex items-center gap-3">
-                <a href="{% url 'create_help_request' %}" class="hidden sm:flex px-5 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 shadow-[0_4px_12px_-4px_rgba(99,102,241,0.5)] hover:shadow-[0_8px_16px_-6px_rgba(99,102,241,0.6)] hover:-translate-y-0.5 transition-all duration-300 items-center gap-2">
+                <a href="{% url 'create_help_request' %}" class="hidden sm:flex px-5 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 shadow-[0_4px_12px_-4px_rgba(124,58,237,0.5)] hover:shadow-[0_8px_16px_-6px_rgba(124,58,237,0.6)] hover:-translate-y-0.5 transition-all duration-300 items-center gap-2 pulse-glow">
                     <i class="fas fa-plus"></i> Post Request
                 </a>
 
@@ -243,7 +296,7 @@
                 {% if message.tags == 'success' %}<i class="fas fa-check-circle" style="color:#16a34a"></i>
                 {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle" style="color:#ef4444"></i>
                 {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i>
-                {% else %}<i class="fas fa-info-circle" style="color:#1d4ed8"></i>{% endif %}
+                {% else %}<i class="fas fa-info-circle" style="color:#7c3aed"></i>{% endif %}
             </div>
             <span>{{ message }}</span>
             <button onclick="this.parentElement.remove()"
@@ -262,8 +315,8 @@
 
     {% if user.is_authenticated %}
     <footer>
-        <i class="fas fa-graduation-cap me-1" style="color:#1d4ed8"></i>
-        &copy; 2026 NxtHelp — University Help Marketplace
+        <i class="fas fa-graduation-cap me-1" style="color:#7c3aed"></i>
+        &copy; 2026 UniConnect — University Help Marketplace
     </footer>
     {% endif %}
 

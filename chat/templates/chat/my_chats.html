@@ -4,7 +4,7 @@
 {% block content %}
 <div class="page-header mb-4">
     <h1 class="page-title flex items-center gap-2">
-        <i class="fas fa-comments" style="color:#1d4ed8"></i> My Chats
+        <i class="fas fa-comments" style="color:#7c3aed"></i> My Chats
     </h1>
     <p class="page-subtitle">Conversations grouped by request</p>
 </div>
@@ -17,8 +17,8 @@
         <div class="flex items-center gap-3 mb-3 pb-3" style="border-bottom: 1px solid rgba(148,163,184,.15);">
             <div class="flex-1 min-w-0">
                 <a href="{% url 'help_request_detail' pk=group.help_request.pk %}"
-                    class="font-semibold text-slate-900 hover:text-blue-700 transition-colors">
-                    <i class="fas fa-tag me-1" style="color:#1d4ed8"></i>{{ group.help_request.title }}
+                    class="font-semibold text-slate-900 hover:text-brand-700 transition-colors">
+                    <i class="fas fa-tag me-1" style="color:#7c3aed"></i>{{ group.help_request.title }}
                 </a>
                 <div class="flex flex-wrap gap-2 mt-1">
                     <span class="badge badge-{{ group.help_request.status_css_class }}">{{ group.help_request.get_status_display }}</span>
