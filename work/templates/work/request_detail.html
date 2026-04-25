@@ -53,6 +53,12 @@
             <h1 class="detail-title font-bold text-slate-900 mb-2">{{ help_request.title }}</h1>
             <div class="detail-description text-slate-700 leading-relaxed mb-4">{{ help_request.description }}</div>
 
+            {% if help_request.image %}
+            <div class="detail-image mb-4">
+                <img src="{{ help_request.image.url }}" alt="{{ help_request.title }}" class="rounded-xl w-full max-h-96 object-cover border border-slate-200">
+            </div>
+            {% endif %}
+
             <!-- Meta grid -->
             <div class="detail-meta-grid">
                 {% if help_request.category %}
