@@ -103,7 +103,6 @@ class HelpRequest(models.Model):
         return None
 
     @property
-    @property
     def time_since_posted(self):
         delta = timezone.now() - self.created_at
         total_seconds = int(delta.total_seconds())
@@ -247,4 +246,3 @@ class Payment(models.Model):
         elif self.payment_method == 'phone' and len(addr) >= 6:
             return addr[:2] + '****' + addr[-4:]
         return addr
-
