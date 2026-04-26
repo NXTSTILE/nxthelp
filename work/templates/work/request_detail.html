@@ -125,7 +125,7 @@
 
         <!-- Applicants with Chat Threads (visible to poster) -->
         {% if is_owner %}
-        <div class="card card-static rounded-xl p-5 mb-4">
+        <div class="card card-static rounded-xl p-5 mb-4" id="applicants-section" hx-get="{% url 'help_request_detail' pk=help_request.pk %}" hx-trigger="every 15s" hx-select="#applicants-section" hx-swap="outerHTML">
             <div class="card-header mb-4">
                 <h2 class="card-title font-semibold flex items-center gap-2">
                     <i class="fas fa-users" style="color:#7c3aed"></i> Applicants ({{ applications|length }})
@@ -162,10 +162,10 @@
                 </div>
                 {% endif %}
 
-                {% if app.last_chat %}
+                {% if app.last_chat_content %}
                 <div class="text-xs text-slate-400 mb-3 flex items-center gap-1">
                     <i class="fas fa-comment"></i>
-                    <span>{{ app.last_chat.sender.profile.display_name }}: {{ app.last_chat.content|truncatewords:10 }}</span>
+                    <span>{{ app.last_chat_sender_name }}: {{ app.last_chat_content|truncatewords:10 }}</span>
                 </div>
                 {% endif %}
 

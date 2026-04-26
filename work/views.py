@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Count
+from django.db.models import Q, Count, OuterRef, Subquery
 from django.utils import timezone
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 import razorpay
@@ -136,10 +137,24 @@ def help_request_detail(request, pk):
 
     if request.user == help_req.posted_by:
         # Poster sees all applicants with chat thread info
-        applications = list(help_req.applications.all().select_related('applicant', 'applicant__profile'))
-        for app in applications:
-            app.last_chat = app.chat_messages.order_by('-created_at').first()
-            app.unread_count = app.chat_messages.filter(is_read=False).exclude(sender=request.user).count()
+        last_chat_content = ChatMessage.objects.filter(
+            application=OuterRef('pk')
+        ).order_by('-created_at').values('content')[:1]
+        
+        last_chat_sender = ChatMessage.objects.filter(
+            application=OuterRef('pk')
+        ).order_by('-created_at').values('sender__profile__display_name')[:1]
+
+        applications = help_req.applications.all().select_related(
+            'applicant', 'applicant__profile'
+        ).annotate(
+            unread_count=Count(
+                'chat_messages',
+                filter=Q(chat_messages__is_read=False) & ~Q(chat_messages__sender=request.user)
+            ),
+            last_chat_content=Subquery(last_chat_content),
+            last_chat_sender_name=Subquery(last_chat_sender)
+        )
         context['applications'] = applications
         context['is_owner'] = True
     else:
@@ -180,8 +195,16 @@ def browse_requests(request):
         )
 
     categories = Category.objects.all()
+    
+    # Check if AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('ajax') == '1'
+
+    paginator = Paginator(requests_qs, 12) # 12 requests per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'help_requests': requests_qs,
+        'help_requests': page_obj,
         'categories': categories,
         'current_category': category_slug,
         'current_urgency': urgency,
@@ -189,6 +212,10 @@ def browse_requests(request):
         'current_target_year': target_year,
         'search_query': search or '',
     }
+    
+    if is_ajax:
+        return render(request, 'work/partials/requests_list.html', context)
+        
     return render(request, 'work/browse_requests.html', context)
 
 
@@ -203,8 +230,13 @@ def my_requests(request):
     status_filter = request.GET.get('status')
     if status_filter:
         requests_qs = requests_qs.filter(status=status_filter)
+        
+    paginator = Paginator(requests_qs, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     return render(request, 'work/my_requests.html', {
-        'help_requests': requests_qs,
+        'help_requests': page_obj,
         'status_filter': status_filter,
     })
 
@@ -335,8 +367,12 @@ def my_applications(request):
     if status_filter:
         applications = applications.filter(status=status_filter)
 
+    paginator = Paginator(applications, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'work/my_applications.html', {
-        'applications': applications,
+        'applications': page_obj,
         'status_filter': status_filter,
     })
 
@@ -611,3 +647,18 @@ def notification_count(request):
         count = Notification.objects.filter(recipient=request.user, is_read=False).count()
         return {'unread_notification_count': count}
     return {'unread_notification_count': 0}
+
+@login_required
+def api_unread_counts(request):
+    """API endpoint to get real-time counts for unread chats and notifications."""
+    unread_chats = ChatMessage.objects.filter(
+        Q(help_request__posted_by=request.user) | Q(application__applicant=request.user),
+        is_read=False
+    ).exclude(sender=request.user).count()
+    
+    unread_notifs = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    
+    return JsonResponse({
+        'unread_chats': unread_chats,
+        'unread_notifications': unread_notifs,
+    })

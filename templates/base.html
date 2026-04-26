@@ -330,6 +330,41 @@
                 event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
             });
 
+            // AJAX Polling for Real-Time Notification & Chat Counts
+            function pollUnreadCounts() {
+                // Ensure we only poll if user is authenticated (notifBtn exists)
+                if (document.getElementById('notifBtn')) {
+                    fetch('/api/unread-counts/', {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Network response was not ok');
+                        return res.json();
+                    })
+                    .then(data => {
+                        // Update Notification Bell Badge
+                        const notifBtn = document.getElementById('notifBtn');
+                        let notifBadge = notifBtn.querySelector('span');
+                        if (data.unread_notifications > 0) {
+                            if (!notifBadge) {
+                                notifBadge = document.createElement('span');
+                                notifBadge.className = 'absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center border border-white';
+                                notifBtn.appendChild(notifBadge);
+                            }
+                            notifBadge.textContent = data.unread_notifications > 99 ? '99+' : data.unread_notifications;
+                        } else if (notifBadge) {
+                            notifBadge.remove();
+                        }
+                        
+                        // Fire a custom event for other pages (like dashboard) to listen and update specific chat counts
+                        document.dispatchEvent(new CustomEvent('unreadCountsUpdated', { detail: data }));
+                    })
+                    .catch(err => console.log('Polling unread counts error:', err));
+                }
+            }
+            // Poll every 30 seconds
+            setInterval(pollUnreadCounts, 30000);
+
             // Close avatar dropdown on outside click (Event Delegation)
             document.addEventListener('click', function (e) {
                 var avatarDropdown = document.getElementById('avatarDropdown');

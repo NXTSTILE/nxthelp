@@ -12,64 +12,104 @@
 {% if grouped_chats %}
 <div class="flex flex-col gap-4">
     {% for group in grouped_chats %}
-    <div class="card card-static rounded-xl p-4">
-        <!-- Request header -->
-        <div class="flex items-center gap-3 mb-3 pb-3" style="border-bottom: 1px solid rgba(148,163,184,.15);">
+    <div class="card card-static rounded-xl p-0 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+        <!-- Request header (Clickable to toggle) -->
+        <div class="flex items-center gap-3 p-4 cursor-pointer hover:bg-slate-50 transition-colors group chat-group-header" 
+             onclick="toggleThreads(this)">
             <div class="flex-1 min-w-0">
-                <a href="{% url 'help_request_detail' pk=group.help_request.pk %}"
-                    class="font-semibold text-slate-900 hover:text-brand-700 transition-colors">
-                    <i class="fas fa-tag me-1" style="color:#7c3aed"></i>{{ group.help_request.title }}
-                </a>
-                <div class="flex flex-wrap gap-2 mt-1">
+                <div class="font-bold text-slate-900 group-hover:text-brand-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-tag text-brand-500"></i>
+                    {{ group.help_request.title }}
+                </div>
+                <div class="flex flex-wrap gap-2 mt-1 items-center">
                     <span class="badge badge-{{ group.help_request.status_css_class }}">{{ group.help_request.get_status_display }}</span>
                     {% if group.is_poster %}
-                    <span class="text-xs text-slate-400">Your request</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-violet-500 bg-violet-50 px-1.5 py-0.5 rounded">Your Request</span>
                     {% else %}
-                    <span class="text-xs text-slate-400">Applied</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-50 px-1.5 py-0.5 rounded">Applied</span>
                     {% endif %}
+                    <span class="text-xs text-slate-400 font-medium">
+                        {{ group.threads|length }} conversation{{ group.threads|pluralize }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Unread indicator if any thread has unread messages -->
+                <div class="chevron-icon text-slate-400 transition-transform duration-300">
+                    <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Chat threads -->
-        <div class="flex flex-col gap-2">
-            {% for thread in group.threads %}
-            <a href="{% url 'chat_room' pk=group.help_request.pk app_pk=thread.application.pk %}"
-                class="chat-list-item flex items-center gap-3 p-3 rounded-lg"
-                style="background: rgba(241,245,249,.5); border: 1px solid rgba(148,163,184,.1);">
-                <span class="avatar avatar-sm flex-shrink-0" style="background: {{ thread.other_user.profile.avatar_color }}">
-                    {{ thread.other_user.profile.initials }}
-                </span>
-                <div class="flex-1 min-w-0">
-                    <div class="font-medium text-sm text-slate-800">{{ thread.other_user.profile.display_name }}</div>
-                    {% if thread.last_message %}
-                    <div class="text-xs text-slate-400 truncate">
-                        {{ thread.last_message.sender.profile.display_name }}: {{ thread.last_message.content|truncatewords:10 }}
+        <!-- Chat threads (Hidden by default) -->
+        <div class="threads-container hidden bg-white border-t border-slate-100">
+            <div class="flex flex-col">
+                {% for thread in group.threads %}
+                <a href="{% url 'chat_room' pk=group.help_request.pk app_pk=thread.application.pk %}"
+                    class="flex items-center gap-4 p-4 hover:bg-violet-50/50 transition-colors border-b last:border-0 border-slate-50">
+                    <div class="relative">
+                        <span class="avatar avatar-md flex-shrink-0" style="background: {{ thread.other_user.profile.avatar_color }}; width: 42px; height: 42px;">
+                            {{ thread.other_user.profile.initials }}
+                        </span>
+                        {% if thread.unread_count > 0 %}
+                        <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                            {{ thread.unread_count }}
+                        </span>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="text-xs text-slate-400">No messages yet</div>
-                    {% endif %}
-                </div>
-                {% if thread.unread_count > 0 %}
-                <span class="chat-unread-badge flex-shrink-0">{{ thread.unread_count }}</span>
-                {% endif %}
-                <i class="fas fa-chevron-right text-slate-300 flex-shrink-0"></i>
-            </a>
-            {% endfor %}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start mb-0.5">
+                            <div class="font-bold text-slate-800">{{ thread.other_user.profile.display_name }}</div>
+                            {% if thread.last_message %}
+                            <div class="text-[10px] text-slate-400">{{ thread.last_message.created_at|timesince }} ago</div>
+                            {% endif %}
+                        </div>
+                        {% if thread.last_message %}
+                        <div class="text-sm text-slate-500 truncate pr-4">
+                            <span class="font-medium text-slate-600">{% if thread.last_message.sender == request.user %}You:{% else %}{{ thread.last_message.sender.first_name }}:{% endif %}</span>
+                            {{ thread.last_message.content }}
+                        </div>
+                        {% else %}
+                        <div class="text-sm text-slate-400 italic">No messages yet. Start the conversation!</div>
+                        {% endif %}
+                    </div>
+                    <i class="fas fa-comment-dots text-slate-200 group-hover:text-brand-300"></i>
+                </a>
+                {% endfor %}
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<script>
+function toggleThreads(header) {
+    const container = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron-icon');
+    
+    // Toggle visibility
+    if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+        header.classList.add('bg-slate-50');
+    } else {
+        container.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+        header.classList.remove('bg-slate-50');
+    }
+}
+</script>
+
 {% else %}
-<div class="card card-static rounded-xl p-6">
-    <div class="empty-state text-center py-8">
-        <i class="fas fa-comments fa-3x mb-3" style="color:#cbd5e1"></i>
-        <h3 class="font-semibold text-slate-500 mb-1">No active chats</h3>
-        <p class="text-slate-400 font-light mb-3">Apply to help requests to start chatting with posters.</p>
-        <a href="{% url 'browse_requests' %}" class="btn btn-primary btn-sm font-semibold">
-            <i class="fas fa-compass"></i> Browse Requests
-        </a>
+<div class="card card-static rounded-2xl p-12 text-center shadow-sm">
+    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-comments text-3xl text-slate-300"></i>
     </div>
+    <h3 class="text-xl font-bold text-slate-800 mb-2">No active chats</h3>
+    <p class="text-slate-500 max-w-sm mx-auto mb-8 font-medium">When you apply to help others or people apply to your requests, your conversations will appear here.</p>
+    <a href="{% url 'browse_requests' %}" class="btn btn-primary btn-md px-8 shadow-lg shadow-brand-500/20">
+        <i class="fas fa-compass me-2"></i> Browse Help Requests
+    </a>
 </div>
 {% endif %}
 {% endblock %}

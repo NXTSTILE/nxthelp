@@ -11,7 +11,7 @@
 </div>
 
 <!-- Filters -->
-<form method="GET" action="{% url 'browse_requests' %}">
+<form method="GET" action="{% url 'browse_requests' %}" id="filter-form">
     <div class="filters-bar">
         <div class="search-box">
             <i class="fas fa-search"></i>
@@ -51,89 +51,86 @@
     </div>
 </form>
 
-{% if help_requests %}
-<!-- Responsive 3-column task grid -->
-<div class="requests-grid">
-    {% for req in help_requests %}
-    <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
-        <!-- Title + urgency badge -->
-        <div class="request-card-header">
-            <div class="request-card-title">{{ req.title }}</div>
-            <span class="badge badge-urgency-{{ req.urgency }} flex-shrink-0">{{ req.get_urgency_display }}</span>
-        </div>
-
-        <!-- Description -->
-        <div class="request-card-desc">
-            {{ req.description|truncatewords:30 }}
-        </div>
-
-        <!-- Meta -->
-        <div class="request-card-meta">
-            <!-- Poster -->
-            <div class="poster-info">
-                <span class="avatar avatar-sm"
-                    style="background: {{ req.posted_by.profile.avatar_color }}; width:24px; height:24px; font-size:0.6rem;">
-                    {{ req.posted_by.profile.initials }}
-                </span>
-                <span class="name font-medium">{{ req.posted_by.profile.display_name }}</span>
-            </div>
-
-            {% if req.request_type %}
-            <span class="tag" style="color:#6366f1;">
-                <i class="fas fa-folder"></i> {{ req.get_request_type_display }}
-            </span>
-            {% endif %}
-
-            {% if req.target_year != 'all' %}
-            <span class="tag" style="color:#0ea5e9;">
-                <i class="fas fa-graduation-cap"></i> Year {{ req.target_year }}
-            </span>
-            {% endif %}
-
-            {% if req.budget %}
-            <span class="budget-tag">
-                <i class="fas fa-rupee-sign"></i> {{ req.budget }}
-            </span>
-            {% endif %}
-
-            {% if req.deadline %}
-            <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                <i class="fas fa-calendar-alt"></i>
-                {% if req.days_until_deadline is not None %}
-                    {% if req.days_until_deadline == 0 %}Today
-                    {% elif req.days_until_deadline == 1 %}Tomorrow
-                    {% elif req.days_until_deadline < 0 %}Overdue
-                    {% else %}{{ req.deadline|date:"M d" }}
-                    {% endif %}
-                {% else %}{{ req.deadline|date:"M d" }}
-                {% endif %}
-            </span>
-            {% endif %}
-
-            {% if req.category %}
-            <span class="tag">
-                <i class="{{ req.category.icon }}"></i> {{ req.category.name }}
-            </span>
-            {% endif %}
-
-            <span class="meta-item">
-                <i class="fas fa-users"></i> {{ req.app_count }}
-            </span>
-            <span class="meta-item">
-                <i class="fas fa-clock"></i> {{ req.time_since_posted }}
-            </span>
-        </div>
-    </a>
-    {% endfor %}
+<div id="requests-list-container" class="transition-opacity duration-200">
+    {% include "work/partials/requests_list.html" %}
 </div>
 
-{% else %}
-<div class="card card-static rounded-xl p-6">
-    <div class="empty-state text-center py-8">
-        <i class="fas fa-search fa-3x mb-3" style="color:#cbd5e1"></i>
-        <h3 class="font-semibold text-slate-500 mb-1">No requests found</h3>
-        <p class="text-slate-400 font-light">Try adjusting your filters or check back later for new requests.</p>
-    </div>
-</div>
-{% endif %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filter-form');
+    const container = document.getElementById('requests-list-container');
+    const filterSelects = filterForm.querySelectorAll('.filter-select');
+    const searchInput = filterForm.querySelector('input[name="q"]');
+    let searchTimeout = null;
+
+    function fetchRequests(url) {
+        container.style.opacity = '0.5';
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            container.innerHTML = html;
+            container.style.opacity = '1';
+        })
+        .catch(err => {
+            console.error('Error fetching requests:', err);
+            container.style.opacity = '1';
+        });
+    }
+
+    function updateResults() {
+        const url = new URL(filterForm.action, window.location.origin);
+        const formData = new FormData(filterForm);
+        for (const [key, value] of formData.entries()) {
+            if (value) {
+                url.searchParams.append(key, value);
+            }
+        }
+        window.history.pushState({}, '', url);
+        fetchRequests(url);
+    }
+
+    // Attach event listeners
+    filterSelects.forEach(select => {
+        select.removeAttribute('onchange'); // Remove inline onchange from HTML
+        select.addEventListener('change', updateResults);
+    });
+
+    // Debounce search input
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(updateResults, 300);
+    });
+
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateResults();
+    });
+
+    // Handle pagination clicks dynamically
+    container.addEventListener('click', function(e) {
+        const link = e.target.closest('.ajax-page-link');
+        if (link) {
+            e.preventDefault();
+            const page = link.getAttribute('data-page');
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.history.pushState({}, '', url);
+            fetchRequests(url);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+
+    // Real-time polling for new requests every 15 seconds
+    setInterval(() => {
+        // Only update if user is not actively typing a search to avoid interruption
+        if (document.activeElement !== searchInput) {
+            updateResults();
+        }
+    }, 15000);
+});
+</script>
 {% endblock %}

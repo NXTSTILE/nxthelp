@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils import timezone
 from collections import OrderedDict
 from .models import ChatMessage
 from work.models import HelpRequest, Application, Notification
@@ -68,15 +69,25 @@ def send_message(request, pk, app_pk):
             content=content,
         )
 
-        # Notify the other user
+        # Notify the other user ONLY if they don't already have an unread message notification for this chat
         recipient = application.applicant if request.user == help_req.posted_by else help_req.posted_by
-        Notification.objects.create(
+        link = f'/request/{help_req.pk}/chat/{application.pk}/'
+        
+        has_unread_notif = Notification.objects.filter(
             recipient=recipient,
             notification_type='new_message',
-            title='New message',
-            message=f'{request.user.profile.display_name} sent a message about "{help_req.title}"',
-            link=f'/request/{help_req.pk}/chat/{application.pk}/',
-        )
+            link=link,
+            is_read=False
+        ).exists()
+
+        if not has_unread_notif:
+            Notification.objects.create(
+                recipient=recipient,
+                notification_type='new_message',
+                title='New message',
+                message=f'{request.user.profile.display_name} sent a message about "{help_req.title}"',
+                link=link,
+            )
 
         if is_ajax:
             return JsonResponse({
@@ -86,7 +97,7 @@ def send_message(request, pk, app_pk):
                 'sender_initials': msg.sender.profile.initials,
                 'sender_color': msg.sender.profile.avatar_color,
                 'is_mine': True,
-                'time': msg.created_at.strftime('%I:%M %p'),
+                'time': timezone.localtime(msg.created_at).strftime('%I:%M %p'),
             })
 
     return redirect('chat_room', pk=pk, app_pk=app_pk)
@@ -118,7 +129,7 @@ def fetch_messages(request, pk, app_pk):
             'sender_initials': msg.sender.profile.initials,
             'sender_color': msg.sender.profile.avatar_color,
             'is_mine': msg.sender == request.user,
-            'time': msg.created_at.strftime('%I:%M %p'),
+            'time': timezone.localtime(msg.created_at).strftime('%I:%M %p'),
         })
 
     return JsonResponse({'messages': data})
