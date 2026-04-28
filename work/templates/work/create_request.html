@@ -3,15 +3,29 @@
 
 {% block extra_head %}
 <style>
-    /* Clean, modern, drama-free static form */
+    /* Clean, modern, interactive static form */
+    
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .form-wrapper {
         max-width: 640px;
-        margin: 2.5rem auto;
-        padding: 2.5rem;
+        margin: 1.5rem auto;
+        padding: 1.5rem;
         background-color: #ffffff;
         border-radius: 1rem;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         border: 1px solid #f3f4f6;
+        animation: fadeUp 0.5s ease-out forwards;
+    }
+    
+    @media (min-width: 640px) {
+        .form-wrapper {
+            padding: 2.5rem;
+            margin: 3rem auto;
+        }
     }
     
     .form-title {
@@ -38,6 +52,12 @@
         font-size: 0.875rem;
         color: #374151;
         margin-bottom: 0.5rem;
+        transition: color 0.2s ease;
+    }
+
+    /* Interactive Focus Highlight for Labels */
+    .form-wrapper .form-group:focus-within .form-label {
+        color: #4f46e5;
     }
 
     /* Target all Django inputs automatically using CSS */
@@ -55,16 +75,26 @@
         background-color: #f9fafb;
         border: 1px solid #d1d5db;
         border-radius: 0.5rem;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         outline: none;
     }
 
+    /* Interactive Hover */
+    .form-wrapper input:hover,
+    .form-wrapper select:hover,
+    .form-wrapper textarea:hover {
+        background-color: #ffffff;
+        border-color: #9ca3af;
+    }
+
+    /* Interactive Focus */
     .form-wrapper input:focus,
     .form-wrapper select:focus,
     .form-wrapper textarea:focus {
         border-color: #4f46e5; /* Indigo 600 */
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         background-color: #ffffff;
+        transform: translateY(-1px);
     }
 
     .form-wrapper textarea {
@@ -95,8 +125,9 @@
     }
 
     .form-wrapper input[type="file"]::file-selector-button:hover {
-        background-color: #f9fafb;
+        background-color: #f3f4f6;
         border-color: #9ca3af;
+        transform: translateY(-1px);
     }
 
     .form-error {
@@ -107,6 +138,7 @@
         display: flex;
         align-items: center;
         gap: 0.25rem;
+        animation: fadeUp 0.3s ease-out;
     }
     
     .form-help {
@@ -126,22 +158,30 @@
         border: none;
         border-radius: 0.5rem;
         cursor: pointer;
-        transition: background-color 0.2s ease;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         margin-top: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
 
     .submit-btn:hover {
         background-color: #374151;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="px-4 sm:px-0 py-6">
+<div class="px-4 sm:px-0 py-4 sm:py-6">
     <div class="form-wrapper">
         <h1 class="form-title">Create a Request</h1>
         <p class="form-subtitle">Fill out the details below so the community can assist you.</p>
@@ -172,7 +212,7 @@
                 {% endfor %}
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 sm:gap-y-0">
                 <div class="form-group">
                     <label class="form-label" for="id_urgency">Urgency</label>
                     {{ form.urgency }}
@@ -189,7 +229,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 sm:gap-y-0">
                 <div class="form-group">
                     <label class="form-label" for="id_target_year">Target Year</label>
                     {{ form.target_year }}
