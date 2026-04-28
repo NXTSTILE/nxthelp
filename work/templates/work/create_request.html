@@ -111,7 +111,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="feed-container py-8 px-4 sm:px-0">
+<div class="feed-container py-4 md:py-8 px-4 sm:px-0">
     <div class="bg-white rounded-[2rem] border-0 shadow-2xl shadow-violet-100/50 overflow-hidden scale-in relative">
         <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400"></div>
         <div class="p-8 md:p-10 border-b border-slate-50 bg-gradient-to-b from-violet-50/50 to-white relative overflow-hidden">
@@ -119,15 +119,15 @@
             <div class="absolute -left-10 top-10 w-40 h-40 bg-violet-100 rounded-full blur-3xl opacity-50"></div>
             
             <h1 class="text-3xl md:text-4xl font-black text-slate-900 flex items-center gap-4 mb-3 tracking-tight relative z-10">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white flex items-center justify-center shadow-lg shadow-violet-200 transform -rotate-6 hover:rotate-0 transition-transform duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white flex items-center justify-center shadow-lg shadow-violet-200 transform -rotate-6 hover:rotate-0 transition-transform duration-300 flex-shrink-0">
                     <i class="fas fa-magic text-2xl"></i>
                 </div>
                 Create a Request
             </h1>
-            <p class="text-slate-500 text-base font-medium ml-[4.5rem] relative z-10">Post what you need help with. Detailed requests get better responses.</p>
+            <p class="text-slate-500 text-base font-medium md:ml-[4.5rem] relative z-10">Post what you need help with. Detailed requests get better responses.</p>
         </div>
 
-        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate class="p-8 md:p-10 relative z-10">
+        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate class="p-5 md:p-10 relative z-10">
             {% csrf_token %}
 
             <div class="form-group">
