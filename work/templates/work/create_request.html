@@ -25,15 +25,13 @@
     .form-label {
         display: flex;
         align-items: center;
-        font-weight: 800;
-        font-size: 0.85rem;
-        color: #475569;
-        margin-bottom: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #334155;
+        margin-bottom: 0.5rem;
     }
     .form-group {
-        margin-bottom: 1.75rem;
+        margin-bottom: 1.5rem;
         position: relative;
     }
     .form-help {
@@ -83,18 +81,6 @@
         cursor: pointer;
         z-index: 10;
     }
-    .cute-icon-box {
-        width: 2rem;
-        height: 2rem;
-        border-radius: 0.6rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 0.75rem;
-        font-size: 0.9rem;
-        color: white;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
     textarea.form-input {
         min-height: 120px;
         resize: vertical;
@@ -107,104 +93,46 @@
         background-size: 1.5em 1.5em;
         padding-right: 2.5rem;
     }
+    .form-section {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .form-section-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="feed-container py-4 md:py-8 px-4 sm:px-0">
-    <div class="bg-white rounded-[2rem] border-0 shadow-2xl shadow-violet-100/50 overflow-hidden scale-in relative">
-        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400"></div>
-        <div class="p-8 md:p-10 border-b border-slate-50 bg-gradient-to-b from-violet-50/50 to-white relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-fuchsia-100 rounded-full blur-3xl opacity-50"></div>
-            <div class="absolute -left-10 top-10 w-40 h-40 bg-violet-100 rounded-full blur-3xl opacity-50"></div>
+<div class="feed-container py-4 md:py-8 px-4 sm:px-0 max-w-4xl mx-auto">
+    <div class="bg-slate-50/50 rounded-[2.5rem] overflow-hidden scale-in relative">
+        <div class="p-8 md:p-10 text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-violet-200 rounded-full blur-3xl opacity-50"></div>
+            <div class="absolute -left-10 top-10 w-40 h-40 bg-fuchsia-200 rounded-full blur-3xl opacity-50"></div>
             
-            <h1 class="text-3xl md:text-4xl font-black text-slate-900 flex items-center gap-4 mb-3 tracking-tight relative z-10">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white flex items-center justify-center shadow-lg shadow-violet-200 transform -rotate-6 hover:rotate-0 transition-transform duration-300 flex-shrink-0">
-                    <i class="fas fa-magic text-2xl"></i>
-                </div>
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white flex items-center justify-center shadow-xl shadow-violet-200 transform -rotate-6 hover:rotate-0 transition-transform duration-300 mb-6 relative z-10">
+                <i class="fas fa-paper-plane text-3xl"></i>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight relative z-10">
                 Create a Request
             </h1>
-            <p class="text-slate-500 text-base font-medium md:ml-[4.5rem] relative z-10">Post what you need help with. Detailed requests get better responses.</p>
+            <p class="text-slate-500 text-lg font-medium max-w-xl mx-auto relative z-10">Fill out the details below so the community can best assist you with your needs.</p>
         </div>
 
-        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate class="p-5 md:p-10 relative z-10">
+        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate class="px-5 md:px-10 pb-10 relative z-10">
             {% csrf_token %}
-
-            <div class="form-group">
-                <label class="form-label" for="id_title">
-                    <span class="cute-icon-box bg-violet-500"><i class="fas fa-heading"></i></span> Request Title
-                </label>
-                {{ form.title }}
-                {% for error in form.title.errors %}
-                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="id_description">
-                    <span class="cute-icon-box bg-pink-500"><i class="fas fa-align-left"></i></span> Description
-                </label>
-                {{ form.description }}
-                <span class="form-help">Explain your problem clearly. E.g., "Need help setting up a React app with Vite and Tailwind."</span>
-                {% for error in form.description.errors %}
-                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                {% endfor %}
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <div class="form-group mb-0">
-                    <label class="form-label" for="id_urgency">
-                        <span class="cute-icon-box bg-amber-500"><i class="fas fa-fire"></i></span> Urgency
-                    </label>
-                    {{ form.urgency }}
-                    {% for error in form.urgency.errors %}
-                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-                <div class="form-group mb-0">
-                    <label class="form-label" for="id_request_type">
-                        <span class="cute-icon-box bg-sky-500"><i class="fas fa-folder-open"></i></span> Type
-                    </label>
-                    {{ form.request_type }}
-                    {% for error in form.request_type.errors %}
-                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
-                <div class="form-group mb-0">
-                    <label class="form-label" for="id_target_year">
-                        <span class="cute-icon-box bg-indigo-500"><i class="fas fa-graduation-cap"></i></span> Target Year
-                    </label>
-                    {{ form.target_year }}
-                    <span class="form-help">Who can help best?</span>
-                    {% for error in form.target_year.errors %}
-                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-                <div class="form-group mb-0">
-                    <label class="form-label" for="id_budget">
-                        <span class="cute-icon-box bg-emerald-500"><i class="fas fa-coins"></i></span> Budget / Pricing
-                    </label>
-                    {{ form.budget }}
-                    <span class="form-help">E.g., ₹500, Negotiable, Free</span>
-                    {% for error in form.budget.errors %}
-                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="form-group mt-6">
-                <label class="form-label" for="id_deadline">
-                    <span class="cute-icon-box bg-rose-500"><i class="fas fa-calendar-alt"></i></span> Deadline
-                </label>
-                {{ form.deadline }}
-                <span class="form-help">Optional. When do you need this completed?</span>
-                {% for error in form.deadline.errors %}
-                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                {% endfor %}
-            </div>
 
             {% if form.non_field_errors %}
             <div class="bg-rose-50 border-2 border-rose-200 text-rose-700 rounded-2xl p-5 mb-8 text-sm font-bold shadow-sm">
@@ -214,27 +142,164 @@
             </div>
             {% endif %}
 
-            <div class="form-group mt-8">
-                <label class="form-label" for="id_image">
-                    <span class="cute-icon-box bg-teal-500"><i class="fas fa-image"></i></span> Attach an Image
-                </label>
-                <div class="file-upload-wrapper mt-2 group">
-                    <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-teal-100 transition-colors">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-teal-400 group-hover:text-teal-500 transition-colors transform group-hover:-translate-y-1 duration-300"></i>
-                    </div>
-                    <p class="text-base font-bold text-slate-700 mb-1">Click to upload or drag and drop</p>
-                    <p class="text-sm font-medium text-slate-500">PNG, JPG or WebP (max. 10MB)</p>
-                    {{ form.image }}
+            <!-- Section 1: Basic Information -->
+            <div class="form-section">
+                <h2 class="form-section-title">
+                    <span class="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center text-sm"><i class="fas fa-info"></i></span>
+                    Basic Information
+                </h2>
+                
+                <div class="form-group">
+                    <label class="form-label" for="id_title">Request Title</label>
+                    {{ form.title }}
+                    {% for error in form.title.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
                 </div>
-                {% for error in form.image.errors %}
-                <span class="form-error mt-3"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                {% endfor %}
+
+                <div class="form-group mb-0">
+                    <label class="form-label" for="id_description">Description</label>
+                    {{ form.description }}
+                    <span class="form-help">Explain your problem clearly. Be as detailed as possible to get the best help.</span>
+                    {% for error in form.description.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
             </div>
 
-            <button type="submit" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white font-black text-xl py-5 rounded-2xl transition-all duration-300 shadow-xl shadow-violet-200/50 mt-8 flex items-center justify-center gap-3 transform hover:-translate-y-1 active:scale-[0.98]">
-                <i class="fas fa-paper-plane"></i> Post Request
+            <!-- Section 2: Request Details -->
+            <div class="form-section">
+                <h2 class="form-section-title">
+                    <span class="w-8 h-8 rounded-full bg-fuchsia-100 text-fuchsia-600 flex items-center justify-center text-sm"><i class="fas fa-list-ul"></i></span>
+                    Request Details
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label" for="id_urgency">Urgency Level</label>
+                        {{ form.urgency }}
+                        {% for error in form.urgency.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label" for="id_request_type">Category Type</label>
+                        {{ form.request_type }}
+                        {% for error in form.request_type.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-6">
+                    <div class="form-group mb-0">
+                        <label class="form-label" for="id_target_year">Target Audience Year</label>
+                        {{ form.target_year }}
+                        <span class="form-help">Who is best suited to help?</span>
+                        {% for error in form.target_year.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label" for="id_budget">Budget / Pricing</label>
+                        {{ form.budget }}
+                        <span class="form-help">E.g., ₹500, Negotiable, or Free</span>
+                        {% for error in form.budget.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group mt-6 mb-0">
+                    <label class="form-label" for="id_deadline">Deadline (Optional)</label>
+                    {{ form.deadline }}
+                    <span class="form-help">When do you need this completed by?</span>
+                    {% for error in form.deadline.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Section 3: Attachments -->
+            <div class="form-section mb-8">
+                <h2 class="form-section-title">
+                    <span class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-sm"><i class="fas fa-paperclip"></i></span>
+                    Attachments
+                </h2>
+                
+                <div class="form-group mb-0">
+                    <label class="form-label" for="id_image">Upload an Image (Optional)</label>
+                    <div class="file-upload-wrapper mt-2 group" id="file-drop-area">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-teal-50 transition-colors">
+                            <i class="fas fa-cloud-upload-alt text-2xl text-slate-400 group-hover:text-teal-500 transition-colors transform group-hover:-translate-y-1 duration-300"></i>
+                        </div>
+                        <p class="text-base font-bold text-slate-700 mb-1" id="file-name-display">Click to upload or drag and drop</p>
+                        <p class="text-sm font-medium text-slate-500">PNG, JPG or WebP (max. 10MB)</p>
+                        {{ form.image }}
+                    </div>
+                    {% for error in form.image.errors %}
+                    <span class="form-error mt-3"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black text-xl py-5 rounded-2xl transition-all duration-300 shadow-xl shadow-slate-900/20 flex items-center justify-center gap-3 transform hover:-translate-y-1 active:scale-[0.98]">
+                Submit Request <i class="fas fa-arrow-right"></i>
             </button>
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Add styling classes to Django form inputs dynamically
+        const inputs = document.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([type="checkbox"]), textarea, select');
+        inputs.forEach(input => {
+            input.classList.add('form-input');
+        });
+
+        // File upload UI interaction
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const dropArea = document.getElementById('file-drop-area');
+
+        if(fileInput && fileNameDisplay) {
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files.length > 0) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileNameDisplay.classList.add('text-teal-600');
+                } else {
+                    fileNameDisplay.textContent = 'Click to upload or drag and drop';
+                    fileNameDisplay.classList.remove('text-teal-600');
+                }
+            });
+
+            // Drag and drop styles
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropArea.classList.add('border-teal-400', 'bg-teal-50');
+            }
+
+            function unhighlight(e) {
+                dropArea.classList.remove('border-teal-400', 'bg-teal-50');
+            }
+        }
+    });
+</script>
 {% endblock %}
