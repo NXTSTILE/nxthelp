@@ -15,161 +15,11 @@
     <!-- FontAwesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- Legacy Cleanups (Loaded First so Tailwind can override) -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Instagram Classic CSS -->
+    <link rel="stylesheet" href="{% static 'css/ig-classic.css' %}">
     
-    <!-- Tailwind CDN (must load first to define the global) -->
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Custom Tailwind Config (must load after CDN script) -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f5f3ff',
-                            100: '#ede9fe',
-                            200: '#ddd6fe',
-                            300: '#c4b5fd',
-                            400: '#a78bfa',
-                            500: '#8b5cf6',
-                            600: '#7c3aed',
-                            700: '#6d28d9',
-                            800: '#5b21b6',
-                            900: '#4c1d95',
-                        },
-                        surface: {
-                            50: '#f8fafc',
-                            100: '#f1f5f9',
-                            200: '#e2e8f0',
-                            800: '#1e293b',
-                            900: '#0f172a',
-                        }
-                    },
-                    boxShadow: {
-                        'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',
-                        'soft': '0 10px 40px -10px rgba(0,0,0,0.04)',
-                        'soft-lg': '0 20px 40px -10px rgba(0,0,0,0.06)',
-                        'glow': '0 0 40px -10px rgba(124,58,237,0.25)',
-                        'glow-lg': '0 0 60px -10px rgba(124,58,237,0.35)',
-                    }
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .glass-panel {
-                @apply bg-white border-b border-slate-200 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.06)];
-            }
-            .text-display {
-                @apply font-display tracking-tight text-slate-900;
-            }
-            }
-            
-            /* Smooth Entrance Animations */
-            .fade-in-up {
-                animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            @keyframes fadeInUp {
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            .fade-in {
-                animation: fadeIn 0.5s ease forwards;
-                opacity: 0;
-            }
-            @keyframes fadeIn {
-                to { opacity: 1; }
-            }
-            .scale-in {
-                animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            @keyframes scaleIn {
-                to { opacity: 1; transform: scale(1); }
-            }
-            /* Staggered delays */
-            .delay-100 { animation-delay: 100ms; }
-            .delay-200 { animation-delay: 200ms; }
-            .delay-300 { animation-delay: 300ms; }
-            .delay-400 { animation-delay: 400ms; }
-            .delay-500 { animation-delay: 500ms; }
-    
-            /* Floating animation for background elements */
-            .float {
-                animation: float 8s ease-in-out infinite;
-            }
-            .float-delayed {
-                animation: float 10s ease-in-out infinite;
-                animation-delay: -3s;
-            }
-            @keyframes float {
-                0%, 100% { transform: translateY(0) rotate(0deg); }
-                50% { transform: translateY(-20px) rotate(2deg); }
-            }
-    
-            /* Pulse glow for CTAs */
-            .pulse-glow {
-                animation: pulseGlow 3s ease-in-out infinite;
-            }
-            @keyframes pulseGlow {
-                0%, 100% { box-shadow: 0 0 20px -5px rgba(124,58,237,0.3); }
-                50% { box-shadow: 0 0 35px -2px rgba(124,58,237,0.5); }
-            }
-    
-            /* Shimmer effect for loading states */
-            .shimmer {
-                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-                background-size: 200% 100%;
-                animation: shimmer 2s infinite;
-            }
-            @keyframes shimmer {
-                0% { background-position: -200% 0; }
-                100% { background-position: 200% 0; }
-            }
-    
-            /* Dropdown Toggle Rules */
-            #avatarDropdown.open > #dropdownMenu {
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: translateY(0) !important;
-            }
-            #avatarDropdown.open .dropdown-arrow {
-                transform: rotate(180deg) !important;
-            }
-            /* Cards Override */
-            .requests-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 !important; }
-            .request-card { @apply flex flex-col bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:-translate-y-1 hover:border-brand-200 hover:text-slate-800 transition-all duration-300 !important; }
-            .request-card-header { @apply flex items-start justify-between gap-4 mb-3 !important; }
-            .request-card-title { @apply text-display font-bold text-slate-800 leading-snug !important; }
-            .request-card-desc { @apply text-sm text-slate-500 mb-4 flex-grow !important; }
-            .request-card-meta { @apply flex flex-wrap items-center gap-3 text-xs font-medium text-slate-400 mt-auto border-t border-slate-50 pt-3 !important; }
-            
-            .badge { @apply inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider !important; }
-            .badge-open { @apply bg-emerald-50 text-emerald-600 !important; }
-            .badge-in_progress { @apply bg-amber-50 text-amber-600 !important; }
-            .badge-completed { @apply bg-indigo-50 text-indigo-600 !important; }
-            
-            .budget-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-100 !important; }
-            .deadline-tag { @apply flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-slate-600 font-semibold text-xs border border-slate-200 !important; }
-            .deadline-tag.overdue { @apply bg-rose-50 text-rose-600 border-rose-100 !important; }
-            
-            /* Buttons Override */
-            .btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-ghost { @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 !important; }
-            .btn-primary { @apply relative overflow-hidden bg-gradient-to-r from-brand-600 to-brand-500 text-white hover:from-brand-500 hover:to-brand-400 hover:shadow-[0_8px_20px_-6px_rgba(124,58,237,0.4)] hover:-translate-y-0.5 focus:ring-brand-500 border-none !important; }
-            .btn-secondary { @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-brand-600 hover:border-brand-200 hover:shadow-sm !important; }
-            .btn-sm { @apply px-3 py-1.5 text-xs rounded-lg !important; }
-        </style>
     
     <!-- HTMX for AJAX interactions -->
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
@@ -177,231 +27,117 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body hx-boost="true" class="antialiased min-h-screen bg-slate-50 text-slate-800 selection:bg-brand-100 selection:text-brand-900 relative">
+<body hx-boost="true" class="antialiased min-h-screen">
     
-    <!-- Vibrant, animated background accents — warm violet & teal feel -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-violet-200/30 blur-[100px] float"></div>
-        <div class="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-fuchsia-100/25 blur-[120px] float-delayed"></div>
-        <div class="absolute top-[40%] left-[60%] w-[400px] h-[400px] rounded-full bg-teal-100/20 blur-[120px] float"></div>
-        <div class="absolute top-[20%] left-[20%] w-[300px] h-[300px] rounded-full bg-purple-100/20 blur-[100px] float-delayed"></div>
-    </div>
-
     {% if user.is_authenticated %}
-    <!-- ─── Top Navbar ─── -->
-    <nav class="glass-panel sticky top-0 z-50 flex items-center h-16 w-full fade-in-up">
-        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <!-- Left: Brand & Links -->
-            <div class="flex items-center gap-8">
-                <!-- Brand -->
-                <a href="{% url 'dashboard' %}" class="text-display text-xl font-bold text-brand-600 flex items-center gap-2 hover:text-brand-500 transition-colors">
-                    <i class="fas fa-share-nodes text-brand-500"></i>UniConnect
-                </a>
+    <!-- ─── Desktop Sidebar (Hidden on Mobile) ─── -->
+    <aside class="ig-sidebar">
+        <a href="{% url 'dashboard' %}" class="ig-sidebar-item mb-4">
+            <span class="ig-sidebar-logo-text font-bold text-xl tracking-tighter">NxtHelp</span>
+            <i class="fas fa-share-nodes ig-sidebar-logo-icon hidden text-brand-600"></i>
+        </a>
+        
+        <nav class="flex flex-col gap-1 flex-grow">
+            <a href="{% url 'dashboard' %}" class="ig-sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}font-bold{% endif %}">
+                <i class="fas fa-home"></i>
+                <span class="ig-sidebar-text">Home</span>
+            </a>
+            <a href="{% url 'browse_requests' %}" class="ig-sidebar-item {% if request.resolver_match.url_name == 'browse_requests' %}font-bold{% endif %}">
+                <i class="fas fa-compass"></i>
+                <span class="ig-sidebar-text">Explore</span>
+            </a>
+            <a href="{% url 'my_chats' %}" class="ig-sidebar-item {% if request.resolver_match.url_name == 'my_chats' %}font-bold{% endif %}">
+                <i class="fas fa-comment-dots"></i>
+                <span class="ig-sidebar-text">Messages</span>
+            </a>
+            <a href="{% url 'notifications' %}" class="ig-sidebar-item {% if request.resolver_match.url_name == 'notifications' %}font-bold{% endif %}">
+                <i class="fas fa-heart"></i>
+                <span class="ig-sidebar-text">Notifications</span>
+            </a>
+            <a href="{% url 'create_help_request' %}" class="ig-sidebar-item">
+                <i class="fas fa-plus-square"></i>
+                <span class="ig-sidebar-text">Create</span>
+            </a>
+            <a href="{% url 'profile' %}" class="ig-sidebar-item {% if request.resolver_match.url_name == 'profile' %}font-bold{% endif %}">
+                <i class="fas fa-user-circle"></i>
+                <span class="ig-sidebar-text">Profile</span>
+            </a>
+        </nav>
 
-                <!-- Desktop Links -->
-                <div class="hidden md:flex items-center gap-1 bg-white/50 border border-slate-100 p-1 rounded-full shadow-sm" id="desktopNav">
-                    <a href="{% url 'dashboard' %}"
-                        class="px-5 py-2 rounded-full text-sm font-semibold transition-all {% if request.resolver_match.url_name == 'dashboard' %}bg-white text-brand-600 shadow-sm border border-slate-100{% else %}text-slate-500 hover:text-slate-900 hover:bg-white/50 border border-transparent{% endif %}">
-                        <i class="fas fa-th-large mr-1.5"></i> Dashboard
-                    </a>
-                    <a href="{% url 'browse_requests' %}"
-                        class="px-5 py-2 rounded-full text-sm font-semibold transition-all {% if request.resolver_match.url_name == 'browse_requests' %}bg-white text-brand-600 shadow-sm border border-slate-100{% else %}text-slate-500 hover:text-slate-900 hover:bg-white/50 border border-transparent{% endif %}">
-                        <i class="fas fa-compass mr-1.5"></i> Browse
-                    </a>
-                    <!-- Extraneous links removed: hidden behind Avatar Dropdown -->
-                </div>
-            </div>
+        <div class="mt-auto">
+            <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                {% csrf_token %}
+                <button type="submit" class="ig-sidebar-item w-full text-left">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="ig-sidebar-text">Log Out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
 
-            <!-- Right side -->
-            <div class="flex items-center gap-3">
-                <a href="{% url 'create_help_request' %}" class="hidden sm:flex px-5 py-2 rounded-full text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 shadow-[0_4px_12px_-4px_rgba(124,58,237,0.5)] hover:shadow-[0_8px_16px_-6px_rgba(124,58,237,0.6)] hover:-translate-y-0.5 transition-all duration-300 items-center gap-2 pulse-glow">
-                    <i class="fas fa-plus"></i> Post Request
-                </a>
-
-                {% if user.profile.balance is not None %}
-                <span class="px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-700 flex items-center gap-2 shadow-sm" id="walletBadge">
-                    <i class="fas fa-wallet text-amber-500"></i> ₹{{ user.profile.balance|floatformat:0 }}
-                </span>
-                {% endif %}
-
-                <!-- Notifications -->
-                <a href="{% url 'notifications' %}" class="relative w-10 h-10 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-brand-600 transition-colors" title="Notifications" id="notifBtn">
-                    <i class="fas fa-bell text-lg"></i>
-                    {% if unread_notification_count > 0 %}
-                    <span class="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center border border-white">{{ unread_notification_count }}</span>
-                    {% endif %}
-                </a>
-
-                <!-- Avatar Dropdown -->
-                <div class="relative" id="avatarDropdown">
-                    <button class="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-white transition-colors border border-transparent hover:border-slate-200 hover:shadow-sm" id="avatarBtn" type="button"
-                        aria-haspopup="true" aria-expanded="false">
-                        <span class="w-8 h-8 rounded-full text-white font-bold text-xs flex items-center justify-center uppercase shadow-sm" style="background: {{ user.profile.avatar_color }}">{{ user.profile.initials }}</span>
-                        <span class="text-sm font-semibold text-slate-700 max-w-[90px] truncate" id="navUsername">{{ user.first_name|default:user.username }}</span>
-                        <i class="fas fa-chevron-down text-[10px] text-slate-400 dropdown-arrow transition-transform"></i>
-                    </button>
-                    <div class="absolute right-0 top-[calc(100%+12px)] w-64 bg-white/95 backdrop-blur-xl border border-slate-100 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] opacity-0 invisible translate-y-2 transition-all duration-200 z-50 overflow-hidden" role="menu" id="dropdownMenu">
-                        <div class="p-2">
-                            <a href="{% url 'profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-user w-4 text-center"></i> My Profile</a>
-                            <a href="{% url 'my_requests' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-list-alt w-4 text-center"></i> My Requests</a>
-                            <a href="{% url 'my_applications' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-paper-plane w-4 text-center"></i> My Applications</a>
-                            <a href="{% url 'my_chats' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-comments w-4 text-center"></i> Chats</a>
-                            <a href="{% url 'edit_profile' %}" class="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition-colors"><i class="fas fa-cog w-4 text-center"></i> Settings</a>
-                        </div>
-                        <div class="h-px bg-slate-100 w-full mx-0"></div>
-                        <div class="p-2">
-                            <form method="post" action="{% url 'logout' %}" style="margin:0;">
-                                {% csrf_token %}
-                                <button type="submit" class="flex items-center gap-3 w-full px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer">
-                                    <i class="fas fa-sign-out-alt w-4 text-center"></i> Log Out
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+    <!-- ─── Mobile Top Header ─── -->
+    <header class="ig-top-nav md:hidden">
+        <div class="ig-top-nav-inner">
+            <a href="{% url 'dashboard' %}" class="ig-logo">NxtHelp</a>
+            <div class="flex items-center gap-4">
+                <a href="{% url 'my_chats' %}" class="text-2xl text-slate-800"><i class="fas fa-comment-dots"></i></a>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- ─── Mobile Bottom Nav ─── -->
-    <nav class="mobile-nav" aria-label="Mobile navigation">
-        <a href="{% url 'dashboard' %}"
-            class="mobile-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-            <i class="fas fa-th-large"></i><span>Home</span>
+    <nav class="ig-bottom-nav md:hidden">
+        <a href="{% url 'dashboard' %}" class="ig-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
         </a>
-        <a href="{% url 'browse_requests' %}"
-            class="mobile-nav-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
-            <i class="fas fa-compass"></i><span>Browse</span>
+        <a href="{% url 'browse_requests' %}" class="ig-nav-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
+            <i class="fas fa-compass"></i>
         </a>
-        <a href="{% url 'create_help_request' %}" class="mobile-nav-item post-btn">
-            <i class="fas fa-plus"></i><span>Post</span>
+        <a href="{% url 'create_help_request' %}" class="ig-nav-item">
+            <i class="fas fa-plus-square"></i>
         </a>
-        <a href="{% url 'my_chats' %}"
-            class="mobile-nav-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
-            <i class="fas fa-comments"></i><span>Chats</span>
+        <a href="{% url 'notifications' %}" class="ig-nav-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+            <i class="fas fa-heart"></i>
         </a>
-        <a href="{% url 'profile' %}"
-            class="mobile-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-            <i class="fas fa-user"></i><span>Profile</span>
+        <a href="{% url 'profile' %}" class="ig-nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="fas fa-user-circle"></i>
         </a>
     </nav>
     {% endif %}
 
+    <!-- ─── Main Content ─── -->
+    <main class="{% if user.is_authenticated %}main-content{% endif %}">
+        <div class="container mx-auto px-4">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
     <!-- ─── Toast Messages ─── -->
     {% if messages %}
-    <div class="toast-container-custom">
+    <div class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2 w-full max-w-sm px-4">
         {% for message in messages %}
-        <div class="toast-custom toast-{{ message.tags }}" onclick="this.remove()">
-            <div class="toast-icon">
-                {% if message.tags == 'success' %}<i class="fas fa-check-circle" style="color:#16a34a"></i>
-                {% elif message.tags == 'error' %}<i class="fas fa-exclamation-circle" style="color:#ef4444"></i>
-                {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle" style="color:#f59e0b"></i>
-                {% else %}<i class="fas fa-info-circle" style="color:#7c3aed"></i>{% endif %}
-            </div>
-            <span>{{ message }}</span>
-            <button onclick="this.parentElement.remove()"
-                style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:0 0 0 .5rem;flex-shrink:0;">
-                <i class="fas fa-times"></i>
-            </button>
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex justify-between items-center animate-bounce-in" onclick="this.remove()">
+            <span class="text-sm">{{ message }}</span>
+            <i class="fas fa-times text-xs opacity-50"></i>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- ─── Main Content ─── -->
-    <main class="{% if user.is_authenticated %}main-authenticated{% else %}main-public{% endif %}">
-        {% block content %}{% endblock %}
-    </main>
-
-    {% if user.is_authenticated %}
-    <footer>
-        <i class="fas fa-graduation-cap me-1" style="color:#7c3aed"></i>
-        &copy; 2026 UniConnect — University Help Marketplace
-    </footer>
-    {% endif %}
-
     <script>
-        // 1. --- ONE-TIME GLOBAL SETUP ---
-        if (!window.nxtInitialized) {
-            window.nxtInitialized = true;
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        });
 
-            // Set up Django CSRF token for HTMX requests
-            document.body.addEventListener('htmx:configRequest', (event) => {
-                event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        // Simple toast auto-dismiss
+        setTimeout(() => {
+            document.querySelectorAll('.animate-bounce-in').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.5s ease';
+                setTimeout(() => el.remove(), 500);
             });
-
-            // AJAX Polling for Real-Time Notification & Chat Counts
-            function pollUnreadCounts() {
-                // Ensure we only poll if user is authenticated (notifBtn exists)
-                if (document.getElementById('notifBtn')) {
-                    fetch('/api/unread-counts/', {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Network response was not ok');
-                        return res.json();
-                    })
-                    .then(data => {
-                        // Update Notification Bell Badge
-                        const notifBtn = document.getElementById('notifBtn');
-                        let notifBadge = notifBtn.querySelector('span');
-                        if (data.unread_notifications > 0) {
-                            if (!notifBadge) {
-                                notifBadge = document.createElement('span');
-                                notifBadge.className = 'absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center border border-white';
-                                notifBtn.appendChild(notifBadge);
-                            }
-                            notifBadge.textContent = data.unread_notifications > 99 ? '99+' : data.unread_notifications;
-                        } else if (notifBadge) {
-                            notifBadge.remove();
-                        }
-                        
-                        // Fire a custom event for other pages (like dashboard) to listen and update specific chat counts
-                        document.dispatchEvent(new CustomEvent('unreadCountsUpdated', { detail: data }));
-                    })
-                    .catch(err => console.log('Polling unread counts error:', err));
-                }
-            }
-            // Poll every 30 seconds
-            setInterval(pollUnreadCounts, 30000);
-
-            // Close avatar dropdown on outside click (Event Delegation)
-            document.addEventListener('click', function (e) {
-                var avatarDropdown = document.getElementById('avatarDropdown');
-                var avatarBtn = document.getElementById('avatarBtn');
-                
-                if (avatarDropdown && avatarBtn) {
-                    if (!avatarDropdown.contains(e.target) && !avatarBtn.contains(e.target)) {
-                        avatarDropdown.classList.remove('open');
-                        avatarBtn.setAttribute('aria-expanded', 'false');
-                    }
-                }
-            });
-        }
-
-        // 2. --- SETUP FOR NEWLY SWAPPED CONTENT ---
-        function initDynamicElements() {
-            // Auto-dismiss toasts
-            document.querySelectorAll('.toast-custom').forEach(function (t) {
-                setTimeout(function () { t.style.opacity = '0'; }, 4000);
-                setTimeout(function () { t.remove(); }, 4500);
-            });
-
-            // Avatar dropdown toggle
-            var avatarBtn = document.getElementById('avatarBtn');
-            var avatarDropdown = document.getElementById('avatarDropdown');
-            if (avatarBtn && avatarDropdown) {
-                avatarBtn.onclick = function (e) {
-                    e.stopPropagation();
-                    var isOpen = avatarDropdown.classList.toggle('open');
-                    avatarBtn.setAttribute('aria-expanded', isOpen);
-                };
-            }
-        }
-
-        // Run now for the initial page load, and HTMX handles subsequent runs automatically 
-        // when this script block is injected into the DOM on body swap.
-        initDynamicElements();
+        }, 4000);
     </script>
     {% block extra_js %}{% endblock %}
 </body>

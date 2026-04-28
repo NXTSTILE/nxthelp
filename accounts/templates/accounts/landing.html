@@ -216,103 +216,39 @@
 {% endblock %}
 
 {% block content %}
+<div class="min-h-[80vh] flex flex-col items-center justify-center text-center px-6">
+    <div class="mb-8">
+        <i class="fas fa-share-nodes text-6xl text-slate-900 mb-6 block"></i>
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 mb-4">NxtHelp</h1>
+        <p class="text-xl md:text-2xl text-slate-500 max-w-lg mx-auto leading-relaxed">
+            University help marketplace. <br class="hidden md:block"> Get help, give help, grow together.
+        </p>
+    </div>
 
-<!-- Public Navbar -->
-<nav class="landing-nav">
-    <div style="max-width:1100px;margin:0 auto;padding:0 1rem;display:flex;align-items:center;">
-        <a href="{% url 'landing' %}" style="font-size:1.2rem;font-weight:800;color:#fff;letter-spacing:-.3px;">
-            <i class="fas fa-share-nodes me-1"></i>UniConnect
-        </a>
-        <div style="margin-left:auto;display:flex;gap:.75rem;align-items:center;">
-            <a href="{% url 'login' %}" class="btn btn-outline-white btn-sm"><i class="fas fa-sign-in-alt"></i> Log
-                In</a>
-            <a href="{% url 'register' %}" class="btn btn-sm"
-                style="background:#fff;color:#7c3aed;border-radius:50px;font-weight:700;"><i class="fas fa-rocket"></i>
-                Sign Up</a>
+    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-md">
+        <a href="{% url 'register' %}" class="ig-btn-primary py-4 text-lg">Get Started</a>
+        <a href="{% url 'login' %}" class="font-bold text-slate-900 py-4 hover:bg-slate-50 rounded-xl transition-colors">Log In</a>
+    </div>
+
+    <div class="mt-20 grid grid-cols-3 gap-8 md:gap-16 border-t border-slate-100 pt-10">
+        <div class="flex flex-col">
+            <span class="text-2xl font-bold text-slate-900">{{ stats.users|default:"100" }}+</span>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Members</span>
+        </div>
+        <div class="flex flex-col">
+            <span class="text-2xl font-bold text-slate-900">{{ stats.requests_posted|default:"500" }}+</span>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Requests</span>
+        </div>
+        <div class="flex flex-col">
+            <span class="text-2xl font-bold text-slate-900">₹{{ stats.total_earned|default:"10k" }}</span>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Earned</span>
         </div>
     </div>
-</nav>
+</div>
 
-<!-- Hero -->
-<section class="landing-hero-section">
-    <div style="max-width:700px;margin:0 auto;">
-        <div class="pill-badge" style="color:#7c3aed;border-color:#c4b5fd;background:#f5f3ff;">🎓 Now live for
-            university students</div>
-        <h1 class="hero-h1">Get Help. Give Help.<br>All Within Your University.</h1>
-        <p class="hero-sub">Post your queries with pricing and deadlines. Anyone in the university can apply to help.
-            Choose the best applicant and connect via chat.</p>
-        <div class="hero-btns">
-            <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Join UniConnect</a>
-            <a href="{% url 'login' %}" class="btn btn-secondary btn-lg"><i class="fas fa-sign-in-alt"></i> Log In</a>
-        </div>
-        <!-- Stats Row -->
-        <div class="landing-stats">
-            <div class="text-center" style="animation: fadeInUp 0.6s 0.5s forwards; opacity:0;">
-                <div class="landing-stat-value">{{ stats.users }}+</div>
-                <div class="landing-stat-label">Members</div>
-            </div>
-            <div class="text-center" style="animation: fadeInUp 0.6s 0.65s forwards; opacity:0;">
-                <div class="landing-stat-value">{{ stats.requests_posted }}+</div>
-                <div class="landing-stat-label">Requests Posted</div>
-            </div>
-            <div class="text-center" style="animation: fadeInUp 0.6s 0.8s forwards; opacity:0;">
-                <div class="landing-stat-value" style="background: linear-gradient(135deg, #0d9488 0%, #16a34a 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ stats.requests_resolved }}+</div>
-                <div class="landing-stat-label">Resolved</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Features -->
-<section class="features-section">
-    <div style="max-width:900px;margin:0 auto;text-align:center;">
-        <h2 style="font-size:1.6rem;font-weight:800;color:#0f172a;">Everything you need in one hub.</h2>
-        <p style="color:#64748b;margin-top:.4rem;">A trusted peer-help marketplace built for your campus.</p>
-    </div>
-    <div class="features-grid">
-        <div class="feature-card" style="animation: fadeInUp 0.6s 0.2s forwards; opacity:0;">
-            <div class="feature-icon" style="background:linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);"><i class="fas fa-bullhorn" style="color:#7c3aed;"></i>
-            </div>
-            <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Post Your Query</h5>
-            <p style="color:#64748b;font-size:.88rem;margin:0;">Describe what you need help with, set your budget and
-                deadline.</p>
-        </div>
-        <div class="feature-card" style="animation: fadeInUp 0.6s 0.35s forwards; opacity:0;">
-            <div class="feature-icon" style="background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);"><i class="fas fa-users" style="color:#16a34a;"></i>
-            </div>
-            <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Get Applicants</h5>
-            <p style="color:#64748b;font-size:.88rem;margin:0;">University members apply to help. Review their profiles
-                and proposals.</p>
-        </div>
-        <div class="feature-card" style="animation: fadeInUp 0.6s 0.5s forwards; opacity:0;">
-            <div class="feature-icon" style="background:linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);"><i class="fas fa-comments" style="color:#7c3aed;"></i>
-            </div>
-            <h5 style="font-weight:700;color:#0f172a;margin-bottom:.4rem;">Connect & Chat</h5>
-            <p style="color:#64748b;font-size:.88rem;margin:0;">Choose the best applicant and connect via built-in chat.
-            </p>
-        </div>
-    </div>
-</section>
-
-<!-- CTA -->
-<section class="cta-section">
-    <div class="cta-card">
-        <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:.5rem;position:relative;z-index:1;">Ready to upgrade your university experience?
-        </h3>
-        <p style="opacity:.9;margin-bottom:1.75rem;position:relative;z-index:1;">Join students already helping each other on campus.</p>
-        <a href="{% url 'register' %}" class="btn"
-            style="background:#fff;color:#7c3aed;border-radius:50px;font-size:1rem;padding:.75rem 2.5rem;font-weight:700;position:relative;z-index:1;transition: all 0.3s ease;"
-            onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.15)';"
-            onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
-            <i class="fas fa-graduation-cap me-1"></i> Create Your Account
-        </a>
-    </div>
-</section>
-
-<!-- Footer -->
-<footer class="landing-footer">
-    <i class="fas fa-graduation-cap me-1" style="color:#7c3aed;"></i>
-    &copy; 2026 UniConnect — University Help Marketplace
+<footer class="py-10 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
+    &copy; 2026 NxtHelp &middot; University Network
 </footer>
+{% endblock %}
 
 {% endblock %}

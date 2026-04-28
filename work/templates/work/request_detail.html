@@ -1,316 +1,134 @@
-{% extends "base.html" %}
-{% block title %}{{ help_request.title }}{% endblock %}
-
 {% block content %}
-<div class="detail-layout">
-    <!-- Main Content -->
-    <div class="detail-main">
-        <div class="card card-static rounded-xl p-5 mb-4">
-            <!-- Status + action buttons row -->
-            <div class="flex items-start justify-between flex-wrap gap-3 mb-4">
-                <div class="flex flex-wrap gap-2">
-                    {% if is_owner %}
-                    <span class="badge badge-{{ help_request.status_css_class }}">
-                        {{ help_request.get_status_display }}
-                    </span>
-                    {% endif %}
-                    <span class="badge badge-urgency-{{ help_request.urgency }}">
-                        {{ help_request.get_urgency_display }}
-                    </span>
-                    {% if help_request.request_type %}
-                    <span class="badge" style="background:rgba(99,102,241,.1);color:#6366f1;">
-                        {{ help_request.get_request_type_display }}
-                    </span>
-                    {% endif %}
-                    {% if help_request.target_year != 'all' %}
-                    <span class="badge" style="background:rgba(14,165,233,.1);color:#0ea5e9;">
-                        {{ help_request.get_target_year_display }}
-                    </span>
-                    {% endif %}
-                </div>
-                {% if is_owner %}
-                <div class="flex flex-wrap gap-2">
-                    {% if help_request.status == 'open' or help_request.status == 'in_progress' %}
-                    <form method="POST" action="{% url 'resolve_request' pk=help_request.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-success btn-sm font-semibold">
-                            <i class="fas fa-check"></i> Resolve
-                        </button>
-                    </form>
-                    {% endif %}
-                    {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
-                    <form method="POST" action="{% url 'close_request' pk=help_request.pk %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm font-semibold">
-                            <i class="fas fa-times"></i> Close
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
-                {% endif %}
+<div class="feed-container">
+    <!-- Main Request Card -->
+    <article class="ig-detail-container">
+        <!-- Header: Poster info -->
+        <div class="ig-detail-header">
+            <div class="ig-post-avatar" style="background: {{ help_request.posted_by.profile.avatar_color }}; width: 40px; height: 40px;">
+                {{ help_request.posted_by.profile.initials }}
             </div>
-
-            <h1 class="detail-title font-bold text-slate-900 mb-2">{{ help_request.title }}</h1>
-            <div class="detail-description text-slate-700 leading-relaxed mb-4">{{ help_request.description }}</div>
-
-            {% if help_request.image %}
-            <div class="detail-image mb-4">
-                <img src="{{ help_request.image.url }}" alt="{{ help_request.title }}" class="rounded-xl w-full max-h-96 object-cover border border-slate-200">
+            <div class="flex flex-col">
+                <a href="{% url 'user_profile' username=help_request.posted_by.username %}" class="font-bold text-sm text-slate-900">
+                    {{ help_request.posted_by.profile.display_name }}
+                </a>
+                <span class="text-xs text-slate-500">{{ help_request.time_since_posted }}</span>
             </div>
-            {% endif %}
-
-            <!-- Meta grid -->
-            <div class="detail-meta-grid">
-                {% if help_request.category %}
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-tag me-1"></i>Category</span>
-                    <span class="detail-meta-value">
-                        <i class="{{ help_request.category.icon }}"
-                            style="color: {{ help_request.category.color }};"></i>
-                        {{ help_request.category.name }}
-                    </span>
-                </div>
-                {% endif %}
-
-                {% if help_request.request_type %}
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-folder me-1"></i>Type</span>
-                    <span class="detail-meta-value">{{ help_request.get_request_type_display }}</span>
-                </div>
-                {% endif %}
-
-                {% if help_request.target_year != 'all' %}
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-graduation-cap me-1"></i>Target Year</span>
-                    <span class="detail-meta-value">{{ help_request.get_target_year_display }}</span>
-                </div>
-                {% endif %}
-
-                {% if help_request.budget %}
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-coins me-1"></i>Budget</span>
-                    <span class="detail-meta-value text-green-600 font-bold">
-                        <i class="fas fa-coins"></i> {{ help_request.budget }}
-                    </span>
-                </div>
-                {% endif %}
-
-                {% if help_request.deadline %}
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-calendar-alt me-1"></i>Deadline</span>
-                    <span class="detail-meta-value{% if help_request.is_overdue %} text-red-600{% endif %} font-light">
-                        <i class="fas fa-calendar-alt"></i>
-                        {{ help_request.deadline|date:"M d, Y" }}
-                        {% if help_request.days_until_deadline is not None %}
-                        {% if help_request.is_overdue %}
-                        <span class="text-red-500 text-xs">(Overdue)</span>
-                        {% elif help_request.days_until_deadline == 0 %}
-                        <span class="text-amber-500 text-xs">(Today)</span>
-                        {% elif help_request.days_until_deadline == 1 %}
-                        <span class="text-amber-500 text-xs">(Tomorrow)</span>
-                        {% else %}
-                        <span class="text-slate-400 text-xs">({{ help_request.days_until_deadline }}d left)</span>
-                        {% endif %}
-                        {% endif %}
-                    </span>
-                </div>
-                {% endif %}
-
-                <div class="detail-meta-item">
-                    <span class="detail-meta-label font-medium"><i class="fas fa-clock me-1"></i>Posted</span>
-                    <span class="detail-meta-value font-light">{{ help_request.time_since_posted }}</span>
-                </div>
+            <div class="ml-auto">
+                <span class="ig-badge ig-badge-urgency-{{ help_request.urgency }}">{{ help_request.get_urgency_display }}</span>
             </div>
         </div>
 
-        <!-- Applicants with Chat Threads (visible to poster) -->
-        {% if is_owner %}
-        <div class="card card-static rounded-xl p-5 mb-4" id="applicants-section" hx-get="{% url 'help_request_detail' pk=help_request.pk %}" hx-trigger="every 15s" hx-select="#applicants-section" hx-swap="outerHTML">
-            <div class="card-header mb-4">
-                <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-users" style="color:#7c3aed"></i> Applicants ({{ applications|length }})
-                </h2>
+        <!-- Body: Title & Content -->
+        <div class="ig-detail-body">
+            <h1 class="ig-detail-title">{{ help_request.title }}</h1>
+            <div class="ig-detail-description">{{ help_request.description }}</div>
+            
+            {% if help_request.image %}
+            <div class="mb-6 rounded-lg overflow-hidden border border-slate-200">
+                <img src="{{ help_request.image.url }}" alt="{{ help_request.title }}" class="w-full h-auto">
             </div>
+            {% endif %}
 
-            {% if applications %}
+            {% if is_owner %}
+            <div class="flex gap-2 mb-4 pt-4 border-t border-slate-100">
+                {% if help_request.status == 'open' or help_request.status == 'in_progress' %}
+                <form method="POST" action="{% url 'resolve_request' pk=help_request.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="ig-btn-primary bg-emerald-600 hover:bg-emerald-700">Resolve Request</button>
+                </form>
+                {% endif %}
+                {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
+                <form method="POST" action="{% url 'close_request' pk=help_request.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs font-bold text-rose-600 px-4 py-2">Close Request</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Meta Info Row -->
+        <div class="ig-meta-row">
+            <div class="ig-meta-item">
+                <span class="ig-meta-label">Budget</span>
+                <span class="ig-meta-value text-emerald-600">₹{{ help_request.budget }}</span>
+            </div>
+            {% if help_request.category %}
+            <div class="ig-meta-item">
+                <span class="ig-meta-label">Category</span>
+                <span class="ig-meta-value">{{ help_request.category.name }}</span>
+            </div>
+            {% endif %}
+            {% if help_request.deadline %}
+            <div class="ig-meta-item">
+                <span class="ig-meta-label">Deadline</span>
+                <span class="ig-meta-value {% if help_request.is_overdue %}text-rose-600{% endif %}">
+                    {{ help_request.deadline|date:"M d" }}
+                </span>
+            </div>
+            {% endif %}
+            <div class="ig-meta-item">
+                <span class="ig-meta-label">Status</span>
+                <span class="ig-meta-value uppercase text-[10px]">{{ help_request.get_status_display }}</span>
+            </div>
+        </div>
+    </article>
+
+    <!-- Applicant Section (Owner View) -->
+    {% if is_owner %}
+    <div class="mb-8" id="applicants-section">
+        <h2 class="font-bold text-slate-500 text-sm uppercase tracking-wider mb-4 px-4">Applicants ({{ applications|length }})</h2>
+        {% if applications %}
             {% for app in applications %}
-            <div class="application-card rounded-xl p-4 mb-3">
-                <div class="application-header flex items-center gap-3 mb-3">
-                    <span class="avatar avatar-md" style="background: {{ app.applicant.profile.avatar_color }}">
+            <div class="ig-post mb-3">
+                <div class="p-4 flex items-center gap-3">
+                    <div class="ig-post-avatar" style="background: {{ app.applicant.profile.avatar_color }}">
                         {{ app.applicant.profile.initials }}
-                    </span>
-                    <div class="application-info flex-1">
-                        <a href="{% url 'user_profile' username=app.applicant.username %}"
-                            class="application-name font-semibold">
-                            {{ app.applicant.profile.display_name }}
-                        </a>
-                        {% if app.applicant.profile.profession %}
-                        <div class="application-profession text-sm text-slate-500">{{ app.applicant.profile.profession }}</div>
-                        {% endif %}
                     </div>
-                    {% if app.unread_count > 0 %}
-                    <span class="chat-unread-badge">{{ app.unread_count }}</span>
-                    {% endif %}
+                    <div class="flex-grow">
+                        <div class="flex items-center justify-between">
+                            <a href="{% url 'user_profile' username=app.applicant.username %}" class="font-bold text-sm">{{ app.applicant.profile.display_name }}</a>
+                            <span class="text-xs font-bold text-emerald-600">₹{{ app.proposed_budget|default:help_request.budget }}</span>
+                        </div>
+                        <p class="text-sm text-slate-600 line-clamp-1">{{ app.message }}</p>
+                    </div>
+                    <a href="{% url 'chat_room' pk=help_request.pk app_pk=app.pk %}" class="ig-btn-primary text-xs py-1.5">Chat</a>
                 </div>
-
-                <div class="application-message text-sm text-slate-600 mb-2">{{ app.message }}</div>
-
-                {% if app.proposed_budget %}
-                <div class="application-proposed text-sm mb-3">
-                    <i class="fas fa-coins me-1 text-green-500"></i>
-                    Proposed price: <span class="text-green-600 font-bold">{{ app.proposed_budget }}</span>
-                </div>
-                {% endif %}
-
-                {% if app.last_chat_content %}
-                <div class="text-xs text-slate-400 mb-3 flex items-center gap-1">
-                    <i class="fas fa-comment"></i>
-                    <span>{{ app.last_chat_sender_name }}: {{ app.last_chat_content|truncatewords:10 }}</span>
-                </div>
-                {% endif %}
-
-                <a href="{% url 'chat_room' pk=help_request.pk app_pk=app.pk %}" class="btn btn-primary btn-sm font-semibold">
-                    <i class="fas fa-comments"></i> Chat
-                    {% if app.unread_count > 0 %}({{ app.unread_count }} new){% endif %}
-                </a>
             </div>
             {% endfor %}
-            {% else %}
-            <div class="empty-state text-center py-6">
-                <i class="fas fa-inbox fa-2x mb-2" style="color:#cbd5e1"></i>
-                <h3 class="font-semibold text-slate-500 mb-1">No applicants yet</h3>
-                <p class="text-slate-400 font-light">Your request is visible to others. Applicants will appear here.</p>
+        {% else %}
+            <div class="text-center py-8 bg-white border border-dashed border-slate-300 rounded-xl mx-4">
+                <p class="text-slate-400 text-sm">No applicants yet.</p>
             </div>
-            {% endif %}
-        </div>
         {% endif %}
+    </div>
+    {% endif %}
 
-        <!-- Applicant's View -->
-        {% if not is_owner %}
+    <!-- Apply Section (Guest View) -->
+    {% if not is_owner %}
         {% if existing_application %}
-        <div class="card card-static rounded-xl p-5 mb-4">
-            <div class="card-header flex items-center justify-between mb-3">
-                <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-paper-plane" style="color:#7c3aed"></i> Your Application
-                </h2>
-                <span class="badge badge-{{ existing_application.status }}">{{ existing_application.get_status_display }}</span>
-            </div>
-            <div class="application-message text-sm text-slate-600 mb-2">{{ existing_application.message }}</div>
-            {% if existing_application.proposed_budget %}
-            <div class="application-proposed text-sm mb-3">
-                <i class="fas fa-coins me-1 text-green-500"></i>
-                Your proposed price: <span class="text-green-600 font-bold">{{ existing_application.proposed_budget }}</span>
-            </div>
-            {% endif %}
-
-            {% if existing_application.status != 'withdrawn' %}
-            <div class="flex flex-wrap gap-2">
-                <a href="{% url 'chat_room' pk=help_request.pk app_pk=existing_application.pk %}" class="btn btn-primary btn-sm font-semibold">
-                    <i class="fas fa-comments"></i> Chat with Poster
-                </a>
-                <form method="POST" action="{% url 'withdraw_application' pk=existing_application.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm font-semibold" onclick="return confirm('Withdraw your application?');">
-                        <i class="fas fa-trash-alt"></i> Withdraw
-                    </button>
-                </form>
-            </div>
-            {% endif %}
+        <div class="ig-post p-6 bg-sky-50 border-sky-200">
+            <h3 class="font-bold text-sky-800 mb-2">You've applied!</h3>
+            <p class="text-sm text-sky-700 mb-4">The poster will contact you via chat if they are interested.</p>
+            <a href="{% url 'chat_room' pk=help_request.pk app_pk=existing_application.pk %}" class="ig-btn-primary">Open Chat</a>
         </div>
         {% elif application_form %}
-        <div class="card card-static rounded-xl p-5 mb-4">
-            <div class="card-header mb-4">
-                <h2 class="card-title font-semibold flex items-center gap-2">
-                    <i class="fas fa-hand-paper" style="color:#7c3aed"></i> Apply to Help
-                </h2>
-            </div>
-            <form method="POST" action="{% url 'apply_to_help' pk=help_request.pk %}" novalidate>
+        <div class="ig-post p-6">
+            <h2 class="font-bold text-lg mb-4">Apply to Help</h2>
+            <form method="POST" action="{% url 'apply_to_help' pk=help_request.pk %}">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label class="form-label" for="id_message">How can you help?</label>
-                    {{ application_form.message }}
-                    {% for error in application_form.message.errors %}
-                    <span class="form-error">{{ error }}</span>
-                    {% endfor %}
+                <div class="ig-form-group">
+                    <label class="ig-meta-label mb-2 block">Message to Poster</label>
+                    <textarea name="message" class="ig-input" placeholder="Explain how you can help..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="id_proposed_budget">
-                        <i class="fas fa-coins me-1 text-green-500"></i>Your Proposed Price (optional)
-                    </label>
-                    {{ application_form.proposed_budget }}
-                    {% for error in application_form.proposed_budget.errors %}
-                    <span class="form-error">{{ error }}</span>
-                    {% endfor %}
+                <div class="ig-form-group">
+                    <label class="ig-meta-label mb-2 block">Your Proposed Price (₹)</label>
+                    <input type="number" name="proposed_budget" value="{{ help_request.budget }}" class="ig-input">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block font-semibold">
-                    <i class="fas fa-paper-plane"></i> Apply & Start Chatting
-                </button>
+                <button type="submit" class="ig-btn-primary w-full py-3">Submit Application</button>
             </form>
         </div>
         {% endif %}
-        {% endif %}
-    </div>
-
-    <!-- Sidebar -->
-    <div>
-        <!-- Posted By -->
-        <div class="sidebar-card rounded-xl p-4 mb-3">
-            <h3 class="card-title font-semibold mb-3 flex items-center gap-2">
-                <i class="fas fa-user" style="color:#7c3aed"></i> Posted By
-            </h3>
-            <div class="flex items-center gap-3">
-                <span class="avatar avatar-lg" style="background: {{ help_request.posted_by.profile.avatar_color }}">
-                    {{ help_request.posted_by.profile.initials }}
-                </span>
-                <div>
-                    <a href="{% url 'user_profile' username=help_request.posted_by.username %}"
-                        class="font-bold text-slate-800 text-base hover:text-blue-700 transition-colors">
-                        {{ help_request.posted_by.profile.display_name }}
-                    </a>
-                    {% if help_request.posted_by.profile.profession %}
-                    <div class="text-sm font-medium" style="color:#7c3aed">
-                        {{ help_request.posted_by.profile.profession }}
-                    </div>
-                    {% endif %}
-                    {% if help_request.posted_by.profile.department %}
-                    <div class="text-xs text-slate-400 font-light mt-0.5">
-                        <i class="fas fa-building me-1"></i>{{ help_request.posted_by.profile.department }}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Info -->
-        <div class="sidebar-card rounded-xl p-4 mb-3">
-            <h3 class="card-title font-semibold mb-3 flex items-center gap-2">
-                <i class="fas fa-info-circle" style="color:#7c3aed"></i> Quick Info
-            </h3>
-            <div class="flex flex-col gap-3 text-sm">
-                {% if is_owner %}
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 font-medium"><i class="fas fa-signal me-1"></i>Status</span>
-                    <span class="badge badge-{{ help_request.status_css_class }}">{{ help_request.get_status_display }}</span>
-                </div>
-                {% endif %}
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 font-medium"><i class="fas fa-users me-1"></i>Applicants</span>
-                    <span class="font-bold text-slate-800">{{ help_request.application_count }}</span>
-                </div>
-                {% if help_request.budget %}
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 font-medium"><i class="fas fa-wallet me-1"></i>Budget</span>
-                    <span class="text-green-600 font-bold">{{ help_request.budget }}</span>
-                </div>
-                {% endif %}
-                {% if help_request.deadline %}
-                <div class="flex justify-between items-center">
-                    <span class="text-slate-500 font-medium"><i class="fas fa-calendar-alt me-1"></i>Deadline</span>
-                    <span class="font-semibold text-slate-700">{{ help_request.deadline|date:"M d, Y" }}</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

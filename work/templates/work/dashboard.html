@@ -1,245 +1,91 @@
-{% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
-
 {% block content %}
-<!-- Welcome Header -->
-<div class="mb-8 fade-in-up">
-    <h1 class="text-display text-3xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-        Welcome back, {{ user.first_name|default:user.username }}! <span class="origin-bottom hover:animate-bounce inline-block">👋</span>
-    </h1>
-    <p class="text-sm font-medium text-slate-500">Here's an overview of your activity on the marketplace</p>
-</div>
+<div class="feed-container">
+    <!-- Quick Stats -->
+    <div class="flex gap-4 overflow-x-auto pb-6 px-4 md:px-0 scrollbar-hide">
+        <div class="flex-shrink-0 w-24 flex flex-col items-center gap-1">
+            <div class="w-16 h-16 rounded-full border-2 border-brand-500 p-0.5">
+                <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-xl text-brand-600">
+                    {{ total_posted }}
+                </div>
+            </div>
+            <span class="text-[10px] font-bold uppercase text-slate-500">Posted</span>
+        </div>
+        <div class="flex-shrink-0 w-24 flex flex-col items-center gap-1">
+            <div class="w-16 h-16 rounded-full border-2 border-emerald-500 p-0.5">
+                <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-xl text-emerald-600">
+                    {{ resolved_count }}
+                </div>
+            </div>
+            <span class="text-[10px] font-bold uppercase text-slate-500">Resolved</span>
+        </div>
+        <div class="flex-shrink-0 w-24 flex flex-col items-center gap-1">
+            <div class="w-16 h-16 rounded-full border-2 border-sky-500 p-0.5">
+                <div class="w-full h-full rounded-full bg-slate-100 flex items-center justify-center text-xl text-sky-600">
+                    {{ total_applied }}
+                </div>
+            </div>
+            <span class="text-[10px] font-bold uppercase text-slate-500">Applied</span>
+        </div>
+    </div>
 
-<!-- Stats Overview -->
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-    <!-- Stat 1 -->
-    <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:border-brand-200 hover:-translate-y-1 transition-all duration-300 group fade-in-up delay-100">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-violet-50 text-violet-600 group-hover:scale-110 group-hover:bg-violet-100 transition-all duration-300">
-                <i class="fas fa-bullhorn"></i>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800 leading-tight">{{ total_posted }}</div>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Requests Posted</div>
-            </div>
+    <!-- Active Applications / My Requests -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between px-4 md:px-0 mb-4">
+            <h2 class="font-bold text-sm uppercase tracking-wider text-slate-500">My Recent Requests</h2>
+            <a href="{% url 'my_requests' %}" class="text-xs font-bold text-sky-600">See All</a>
         </div>
-    </div>
-    
-    <!-- Stat 2 -->
-    <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:border-brand-200 hover:-translate-y-1 transition-all duration-300 group fade-in-up delay-200">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-emerald-50 text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-100 transition-all duration-300">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800 leading-tight">{{ resolved_count }}</div>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Resolved</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Stat 3 -->
-    <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:border-brand-200 hover:-translate-y-1 transition-all duration-300 group fade-in-up delay-300">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-fuchsia-50 text-fuchsia-600 group-hover:scale-110 group-hover:bg-fuchsia-100 transition-all duration-300">
-                <i class="fas fa-paper-plane"></i>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800 leading-tight">{{ total_applied }}</div>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Applications Sent</div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Stat 4 -->
-    <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-glow hover:border-brand-200 hover:-translate-y-1 transition-all duration-300 group fade-in-up delay-400">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 bg-amber-50 text-amber-600 group-hover:scale-110 group-hover:bg-amber-100 transition-all duration-300">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div>
-                <div class="text-2xl font-bold text-slate-800 leading-tight">{{ pending_on_my_requests }}</div>
-                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wide mt-1">Pending Reviews</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="dashboard-grid">
-    <!-- My Recent Requests -->
-    <div>
-        <div class="section-header flex items-center justify-between mb-3">
-            <h2 class="section-title font-semibold flex items-center gap-2">
-                <i class="fas fa-bullhorn" style="color:#7c3aed"></i> My Requests
-            </h2>
-            <a href="{% url 'my_requests' %}" class="section-link text-sm font-medium">
-                View All <i class="fas fa-arrow-right ms-1"></i>
-            </a>
-        </div>
-
+        
         {% if my_requests %}
-        <div class="requests-grid">
             {% for req in my_requests %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
-                <div class="request-card-header">
-                    <div class="request-card-title">{{ req.title }}</div>
-                    <span class="badge badge-{{ req.status_css_class }}">{{ req.get_status_display }}</span>
+            <div class="ig-post">
+                <div class="p-4 flex items-center justify-between">
+                    <div>
+                        <a href="{% url 'help_request_detail' pk=req.pk %}" class="font-bold text-sm block">{{ req.title }}</a>
+                        <span class="text-xs text-slate-500">{{ req.app_count }} applicant{{ req.app_count|pluralize }} · {{ req.get_status_display }}</span>
+                    </div>
+                    <a href="{% url 'help_request_detail' pk=req.pk %}" class="ig-btn-primary text-xs py-1.5">Manage</a>
                 </div>
-                <div class="request-card-meta">
-                    {% if req.budget %}
-                    <span class="budget-tag"><i class="fas fa-coins"></i> {{ req.budget }}</span>
-                    {% endif %}
-                    {% if req.deadline %}
-                    <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                        <i class="fas fa-calendar-alt"></i> {{ req.deadline|date:"M d" }}
-                    </span>
-                    {% endif %}
-                    <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize }}</span>
-                    <span class="meta-item"><i class="fas fa-clock"></i> {{ req.time_since_posted }}</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 hover:border-brand-200 transition-colors">
-            <div class="text-center py-6 fade-in-up">
-                <div class="w-16 h-16 mx-auto bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4">
-                    <i class="fas fa-bullhorn text-2xl"></i>
-                </div>
-                <h3 class="text-lg font-bold text-slate-800 mb-2">No requests yet</h3>
-                <p class="text-sm font-medium text-slate-500 mb-6 max-w-sm mx-auto">Post your first help request and get help from the community.</p>
-                <a href="{% url 'create_help_request' %}" class="btn btn-primary btn-sm mx-auto shadow-md shadow-brand-500/20">
-                    <i class="fas fa-plus"></i> Post a Request
-                </a>
             </div>
-        </div>
+            {% endfor %}
+        {% else %}
+            <div class="mx-4 p-8 border border-dashed border-slate-300 rounded-xl text-center">
+                <p class="text-sm text-slate-400 mb-4">You haven't posted any requests yet.</p>
+                <a href="{% url 'create_help_request' %}" class="ig-btn-primary text-xs">Create Request</a>
+            </div>
         {% endif %}
     </div>
 
-    <!-- Available Requests to Help With -->
-    <div>
-        <div class="section-header flex items-center justify-between mb-3">
-            <h2 class="section-title font-semibold flex items-center gap-2">
-                <i class="fas fa-compass" style="color:#7c3aed"></i> Help Others
-            </h2>
-            <a href="{% url 'browse_requests' %}" class="section-link text-sm font-medium">
-                Browse All <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+    <!-- Suggested to Help (Recommendations) -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between px-4 md:px-0 mb-4">
+            <h2 class="font-bold text-sm uppercase tracking-wider text-slate-500">Suggested to Help</h2>
+            <a href="{% url 'browse_requests' %}" class="text-xs font-bold text-sky-600">Explore More</a>
         </div>
-
+        
         {% if available_requests %}
-        <div class="requests-grid">
-            {% for req in available_requests %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card" style="overflow:hidden;">
-                {% if req.image %}
-                <div style="margin:-1px -1px 0; overflow:hidden; border-radius:inherit; border-bottom-left-radius:0; border-bottom-right-radius:0; max-height:180px;">
-                    <img src="{{ req.image.url }}" alt="Post image"
-                        style="width:100%; height:180px; object-fit:cover; display:block; transition:transform 0.3s ease;"
-                        onmouseover="this.style.transform='scale(1.03)'"
-                        onmouseout="this.style.transform='scale(1)'">
-                </div>
-                {% endif %}
-                <div class="request-card-header" style="{% if req.image %}padding-top:0.75rem;{% endif %}">
-                    <div class="request-card-title">{{ req.title }}</div>
-                    <span class="badge badge-urgency-{{ req.urgency }}">{{ req.get_urgency_display }}</span>
-                </div>
-                <div class="request-card-desc">{{ req.description|truncatewords:25 }}</div>
-                <div class="request-card-meta">
-                    <div class="poster-info">
-                        <span class="avatar avatar-sm"
-                            style="background: {{ req.posted_by.profile.avatar_color }}; width:22px; height:22px; font-size:0.55rem;">
-                            {{ req.posted_by.profile.initials }}
-                        </span>
-                        <span class="name font-medium">{{ req.posted_by.profile.display_name }}</span>
-                        {% if req.posted_by.profile.profession %}
-                        <span class="profession">· {{ req.posted_by.profile.profession }}</span>
-                        {% endif %}
+            {% for req in available_requests|slice:":5" %}
+            <div class="ig-post">
+                <div class="ig-post-header">
+                    <div class="ig-post-avatar" style="background: {{ req.posted_by.profile.avatar_color }}; width: 24px; height: 24px; font-size: 10px;">
+                        {{ req.posted_by.profile.initials }}
                     </div>
-                    {% if req.budget %}
-                    <span class="budget-tag"><i class="fas fa-coins"></i> {{ req.budget }}</span>
-                    {% endif %}
-                    {% if req.deadline %}
-                    <span class="deadline-tag {% if req.is_overdue %}overdue{% endif %}">
-                        <i class="fas fa-calendar-alt"></i> {{ req.deadline|date:"M d" }}
-                    </span>
-                    {% endif %}
+                    <a href="{% url 'user_profile' username=req.posted_by.username %}" class="ig-post-username text-xs">{{ req.posted_by.profile.display_name }}</a>
                 </div>
-            </a>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 hover:border-brand-200 transition-colors">
-            <div class="text-center py-6 fade-in-up">
-                <div class="w-16 h-16 mx-auto bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mb-4">
-                    <i class="fas fa-compass text-2xl"></i>
+                <div class="px-4 pb-3">
+                    <a href="{% url 'help_request_detail' pk=req.pk %}" class="font-bold text-sm block mb-1">{{ req.title }}</a>
+                    <p class="text-xs text-slate-600 line-clamp-2">{{ req.description }}</p>
                 </div>
-                <h3 class="text-lg font-bold text-slate-800 mb-2">All caught up!</h3>
-                <p class="text-sm font-medium text-slate-500 max-w-sm mx-auto">No open requests available right now. Check back later or post your own.</p>
+                <div class="ig-post-footer py-2">
+                    <span class="text-xs font-bold text-emerald-600">₹{{ req.budget }}</span>
+                    <a href="{% url 'help_request_detail' pk=req.pk %}" class="text-xs font-bold text-sky-600">Help Now</a>
+                </div>
             </div>
-        </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-8">
+                <p class="text-xs text-slate-400">No new suggestions for you.</p>
+            </div>
         {% endif %}
     </div>
-
-    <!-- My Applications -->
-    {% if my_applications %}
-    <div class="dashboard-full">
-        <div class="section-header flex items-center justify-between mb-3">
-            <h2 class="section-title font-semibold flex items-center gap-2">
-                <i class="fas fa-paper-plane" style="color:#7c3aed"></i> My Applications
-            </h2>
-            <a href="{% url 'my_applications' %}" class="section-link text-sm font-medium">
-                View All <i class="fas fa-arrow-right ms-1"></i>
-            </a>
-        </div>
-        <div class="requests-grid">
-            {% for app in my_applications %}
-            <a href="{% url 'help_request_detail' pk=app.help_request.pk %}" class="request-card">
-                <div class="request-card-header">
-                    <div class="request-card-title">{{ app.help_request.title }}</div>
-                    <span class="badge badge-{{ app.status }}">{{ app.get_status_display }}</span>
-                </div>
-                <div class="request-card-meta">
-                    <div class="poster-info">
-                        <i class="fas fa-user" style="color:#7c3aed"></i>
-                        <span class="name font-medium">by {{ app.help_request.posted_by.profile.display_name }}</span>
-                    </div>
-                    <span class="meta-item"><i class="fas fa-clock"></i> Applied {{ app.created_at|timesince }}
-                        ago</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Upcoming Deadlines -->
-    {% if upcoming_deadlines %}
-    <div class="dashboard-full">
-        <div class="section-header flex items-center justify-between mb-3">
-            <h2 class="section-title font-semibold flex items-center gap-2">
-                <i class="fas fa-calendar-alt" style="color:#7c3aed"></i> Upcoming Deadlines
-            </h2>
-        </div>
-        <div class="requests-grid">
-            {% for req in upcoming_deadlines %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
-                <div class="request-card-header">
-                    <div class="request-card-title">{{ req.title }}</div>
-                    <span class="deadline-tag">
-                        <i class="fas fa-calendar-alt"></i>
-                        {% if req.days_until_deadline == 0 %}Today
-                        {% elif req.days_until_deadline == 1 %}Tomorrow
-                        {% else %}{{ req.days_until_deadline }}d left{% endif %}
-                    </span>
-                </div>
-                <div class="request-card-meta">
-                    <span class="badge badge-{{ req.status_css_class }}">{{ req.get_status_display }}</span>
-                    <span class="meta-item"><i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize }}</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

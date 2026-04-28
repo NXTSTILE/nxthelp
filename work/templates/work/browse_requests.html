@@ -2,74 +2,47 @@
 {% block title %}Browse Requests{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
-<div class="page-header">
-    <h1 class="page-title">
-        <i class="fas fa-compass me-2" style="color:#7c3aed"></i>Browse Help Requests
-    </h1>
-    <p class="page-subtitle">Find requests you can help with</p>
-</div>
-
-<!-- Filters -->
-<form method="GET" action="{% url 'browse_requests' %}" id="filter-form">
-    <div class="filters-bar">
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" name="q" value="{{ search_query }}" placeholder="Search requests...">
-        </div>
-        <select name="category" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Categories</option>
-            {% for cat in categories %}
-            <option value="{{ cat.slug }}" {% if current_category == cat.slug %}selected{% endif %}>
-                {{ cat.name }}
-            </option>
-            {% endfor %}
-        </select>
-        <select name="urgency" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Urgency</option>
-            <option value="low" {% if current_urgency == 'low' %}selected{% endif %}>Low</option>
-            <option value="medium" {% if current_urgency == 'medium' %}selected{% endif %}>Medium</option>
-            <option value="high" {% if current_urgency == 'high' %}selected{% endif %}>High</option>
-        </select>
-        <select name="request_type" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Types</option>
-            <option value="personal" {% if current_request_type == 'personal' %}selected{% endif %}>Personal</option>
-            <option value="academic" {% if current_request_type == 'academic' %}selected{% endif %}>Academic</option>
-            <option value="non_academic" {% if current_request_type == 'non_academic' %}selected{% endif %}>Non-Academic</option>
-        </select>
-        <select name="target_year" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Years</option>
-            <option value="1" {% if current_target_year == '1' %}selected{% endif %}>1st Year</option>
-            <option value="2" {% if current_target_year == '2' %}selected{% endif %}>2nd Year</option>
-            <option value="3" {% if current_target_year == '3' %}selected{% endif %}>3rd Year</option>
-            <option value="4" {% if current_target_year == '4' %}selected{% endif %}>4th Year</option>
-            <option value="5" {% if current_target_year == '5' %}selected{% endif %}>5th Year</option>
-        </select>
-        <button type="submit" class="btn btn-primary btn-sm font-semibold">
-            <i class="fas fa-search"></i> Search
-        </button>
+<div class="feed-container">
+    <!-- Clean Minimalist Filters -->
+    <div class="mb-6 px-4 md:px-0">
+        <form method="GET" action="{% url 'browse_requests' %}" id="filter-form" class="flex flex-col gap-3">
+            <div class="ig-search-container w-full">
+                <i class="fas fa-search text-slate-400"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search help requests..." class="ig-search-input">
+            </div>
+            
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <select name="category" class="text-sm border border-slate-200 rounded-lg px-3 py-1 bg-white focus:outline-none" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if current_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="urgency" class="text-sm border border-slate-200 rounded-lg px-3 py-1 bg-white focus:outline-none" onchange="this.form.submit()">
+                    <option value="">Urgency</option>
+                    <option value="low" {% if current_urgency == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if current_urgency == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if current_urgency == 'high' %}selected{% endif %}>High</option>
+                </select>
+            </div>
+        </form>
     </div>
-</form>
 
-<div id="requests-list-container" class="transition-opacity duration-200">
-    {% include "work/partials/requests_list.html" %}
+    <div id="requests-list-container" class="transition-opacity duration-200">
+        {% include "work/partials/requests_list.html" %}
+    </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const filterForm = document.getElementById('filter-form');
     const container = document.getElementById('requests-list-container');
-    const filterSelects = filterForm.querySelectorAll('.filter-select');
     const searchInput = filterForm.querySelector('input[name="q"]');
     let searchTimeout = null;
 
     function fetchRequests(url) {
         container.style.opacity = '0.5';
-        fetch(url, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(response => response.text())
         .then(html => {
             container.innerHTML = html;
@@ -85,21 +58,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const url = new URL(filterForm.action, window.location.origin);
         const formData = new FormData(filterForm);
         for (const [key, value] of formData.entries()) {
-            if (value) {
-                url.searchParams.append(key, value);
-            }
+            if (value) url.searchParams.append(key, value);
         }
         window.history.pushState({}, '', url);
         fetchRequests(url);
     }
 
-    // Attach event listeners
-    filterSelects.forEach(select => {
-        select.removeAttribute('onchange'); // Remove inline onchange from HTML
-        select.addEventListener('change', updateResults);
-    });
-
-    // Debounce search input
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(updateResults, 300);
@@ -110,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateResults();
     });
 
-    // Handle pagination clicks dynamically
     container.addEventListener('click', function(e) {
         const link = e.target.closest('.ajax-page-link');
         if (link) {
@@ -123,14 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     });
-
-    // Real-time polling for new requests every 15 seconds
-    setInterval(() => {
-        // Only update if user is not actively typing a search to avoid interruption
-        if (document.activeElement !== searchInput) {
-            updateResults();
-        }
-    }, 15000);
 });
 </script>
 {% endblock %}
