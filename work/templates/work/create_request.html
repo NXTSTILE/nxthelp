@@ -1,234 +1,232 @@
 {% extends "base.html" %}
-{% block title %}New Request{% endblock %}
+{% block title %}Post a Request{% endblock %}
 
 {% block extra_head %}
 <style>
-    /* Minimalist Instagram-like styling */
-    .insta-input {
-        width: 100%;
-        padding: 1rem 0;
-        border: none;
-        border-bottom: 1px solid #e5e7eb; /* gray-200 */
-        background-color: transparent;
-        font-size: 1rem;
-        color: #111827; /* gray-900 */
-        outline: none;
-        transition: border-color 0.2s;
-    }
-    .insta-input:focus {
-        border-bottom-color: #000000; /* black */
-    }
-    .insta-input::placeholder {
-        color: #9ca3af; /* gray-400 */
+    /* Clean, modern, drama-free static form */
+    .form-wrapper {
+        max-width: 640px;
+        margin: 2.5rem auto;
+        padding: 2.5rem;
+        background-color: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        border: 1px solid #f3f4f6;
     }
     
-    textarea.insta-input {
-        min-height: 80px;
-        resize: vertical;
-        padding-top: 1rem;
+    .form-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #111827;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
     }
     
-    select.insta-input {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 0 center;
-        background-repeat: no-repeat;
-        background-size: 1.5em 1.5em;
-        padding-right: 1.5rem;
-        color: #4b5563;
+    .form-subtitle {
+        font-size: 0.95rem;
+        color: #6b7280;
+        margin-bottom: 2rem;
     }
 
-    .image-upload-area {
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Target all Django inputs automatically using CSS */
+    .form-wrapper input[type="text"],
+    .form-wrapper input[type="number"],
+    .form-wrapper input[type="email"],
+    .form-wrapper input[type="date"],
+    .form-wrapper input[type="password"],
+    .form-wrapper select,
+    .form-wrapper textarea {
         width: 100%;
-        height: 300px;
-        background-color: #f9fafb; /* gray-50 */
-        border-bottom: 1px solid #e5e7eb;
-        position: relative;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        color: #111827;
+        background-color: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+        outline: none;
+    }
+
+    .form-wrapper input:focus,
+    .form-wrapper select:focus,
+    .form-wrapper textarea:focus {
+        border-color: #4f46e5; /* Indigo 600 */
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        background-color: #ffffff;
+    }
+
+    .form-wrapper textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    /* Elegant standard file upload */
+    .form-wrapper input[type="file"] {
+        display: block;
+        width: 100%;
+        font-size: 0.9rem;
+        color: #6b7280;
+        padding: 0.5rem 0;
+    }
+
+    .form-wrapper input[type="file"]::file-selector-button {
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.5rem;
+        border: 1px solid #d1d5db;
+        background-color: #ffffff;
+        color: #374151;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 1rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .form-wrapper input[type="file"]::file-selector-button:hover {
+        background-color: #f9fafb;
+        border-color: #9ca3af;
+    }
+
+    .form-error {
+        color: #dc2626;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 0.4rem;
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .form-help {
+        color: #6b7280;
+        font-size: 0.85rem;
+        margin-top: 0.4rem;
+        display: block;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 0.875rem 1.5rem;
+        background-color: #111827; /* Dark modern button */
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-top: 1.5rem;
+        display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        overflow: hidden;
+        gap: 0.5rem;
     }
-    
-    .image-upload-area input[type="file"] {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        z-index: 10;
-    }
-    
-    .image-preview {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        z-index: 5;
-        display: none;
-    }
-    
-    .field-wrapper {
-        position: relative;
-    }
-    
-    /* Error styling */
-    .errorlist {
-        color: #ef4444;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-        list-style: none;
-        padding-left: 0;
+
+    .submit-btn:hover {
+        background-color: #374151;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-lg mx-auto bg-white sm:rounded-2xl sm:border border-gray-200 overflow-hidden sm:my-8 sm:shadow-lg relative">
-    
-    <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate id="request-form">
-        {% csrf_token %}
+<div class="px-4 sm:px-0 py-6">
+    <div class="form-wrapper">
+        <h1 class="form-title">Create a Request</h1>
+        <p class="form-subtitle">Fill out the details below so the community can assist you.</p>
         
-        <!-- Header -->
-        <div class="border-b border-gray-100 p-4 flex items-center justify-between sticky top-0 bg-white z-20">
-            <div class="flex items-center gap-3">
-                <a href="javascript:history.back()" class="text-gray-900 hover:text-gray-600 transition-colors">
-                    <i class="fas fa-arrow-left text-xl"></i>
-                </a>
-                <h1 class="text-lg font-bold text-gray-900 tracking-tight">New Request</h1>
+        <form method="POST" action="{% url 'create_help_request' %}" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-700 p-4 rounded-lg mb-6 text-sm border border-red-200 font-medium">
+                {{ form.non_field_errors }}
             </div>
-            <button type="submit" class="text-blue-500 font-bold hover:text-blue-600 transition-colors">
-                Share
-            </button>
-        </div>
+            {% endif %}
 
-        {% if form.non_field_errors %}
-        <div class="bg-red-50 p-3 text-red-600 text-sm border-b border-red-100 font-medium">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-
-        <!-- Image Upload (Top, prominently featured) -->
-        <div class="image-upload-area" id="image-drop-area">
-            <i class="fas fa-camera text-4xl text-gray-300 mb-3" id="camera-icon"></i>
-            <span class="text-sm font-semibold text-gray-500" id="upload-text">Add a Photo</span>
-            <img id="image-preview" class="image-preview" src="" alt="Preview">
-            {{ form.image }}
-        </div>
-        {% if form.image.errors %}
-        <div class="px-5 pt-2">
-            {{ form.image.errors }}
-        </div>
-        {% endif %}
-
-        <!-- Form Fields -->
-        <div class="px-5 pb-8">
-            
-            <!-- Title -->
-            <div class="field-wrapper">
+            <div class="form-group">
+                <label class="form-label" for="id_title">Request Title</label>
                 {{ form.title }}
-                {{ form.title.errors }}
+                {% for error in form.title.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                {% endfor %}
             </div>
 
-            <!-- Description -->
-            <div class="field-wrapper">
+            <div class="form-group">
+                <label class="form-label" for="id_description">Description</label>
                 {{ form.description }}
-                {{ form.description.errors }}
+                <span class="form-help">Explain your problem clearly. E.g., "Need help setting up a React app."</span>
+                {% for error in form.description.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                {% endfor %}
             </div>
 
-            <!-- Grid for shorter inputs -->
-            <div class="grid grid-cols-2 gap-x-6 mt-2">
-                <div class="field-wrapper">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-5 mb-1">Urgency</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                <div class="form-group">
+                    <label class="form-label" for="id_urgency">Urgency</label>
                     {{ form.urgency }}
-                    {{ form.urgency.errors }}
+                    {% for error in form.urgency.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
                 </div>
-                <div class="field-wrapper">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-5 mb-1">Category</span>
+                <div class="form-group">
+                    <label class="form-label" for="id_request_type">Type</label>
                     {{ form.request_type }}
-                    {{ form.request_type.errors }}
+                    {% for error in form.request_type.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-x-6 mt-2">
-                <div class="field-wrapper">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-5 mb-1">Target Year</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                <div class="form-group">
+                    <label class="form-label" for="id_target_year">Target Year</label>
                     {{ form.target_year }}
-                    {{ form.target_year.errors }}
+                    {% for error in form.target_year.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
                 </div>
-                <div class="field-wrapper">
-                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-5 mb-1">Budget</span>
+                <div class="form-group">
+                    <label class="form-label" for="id_budget">Budget / Pricing</label>
                     {{ form.budget }}
-                    {{ form.budget.errors }}
+                    <span class="form-help">E.g., Free, ₹500</span>
+                    {% for error in form.budget.errors %}
+                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                    {% endfor %}
                 </div>
             </div>
 
-            <div class="field-wrapper mt-2">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mt-5 mb-1">Deadline (Optional)</span>
+            <div class="form-group">
+                <label class="form-label" for="id_deadline">Deadline (Optional)</label>
                 {{ form.deadline }}
-                {{ form.deadline.errors }}
+                {% for error in form.deadline.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                {% endfor %}
             </div>
-            
-            <!-- Submit Button (Bottom fallback for desktop) -->
-            <button type="submit" class="w-full mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-colors hidden sm:block">
-                Share Request
+
+            <div class="form-group">
+                <label class="form-label" for="id_image">Attach an Image (Optional)</label>
+                {{ form.image }}
+                {% for error in form.image.errors %}
+                    <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Post Request <i class="fas fa-arrow-right text-sm ml-1"></i>
             </button>
-            
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Apply minimalist styles to inputs
-        const inputs = document.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([type="checkbox"]), textarea, select');
-        inputs.forEach(input => {
-            input.classList.add('insta-input');
-            
-            // Set placeholders based on field name
-            if (!input.placeholder) {
-                const name = input.name || '';
-                if (name === 'title') input.placeholder = 'Write a title...';
-                if (name === 'description') input.placeholder = 'Explain what you need help with...';
-                if (name === 'budget') input.placeholder = 'e.g., Free, ₹500...';
-            }
-        });
-
-        // Image Preview Logic
-        const fileInput = document.querySelector('input[type="file"]');
-        const imagePreview = document.getElementById('image-preview');
-        const cameraIcon = document.getElementById('camera-icon');
-        const uploadText = document.getElementById('upload-text');
-        const dropArea = document.getElementById('image-drop-area');
-
-        if(fileInput && imagePreview) {
-            fileInput.addEventListener('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.style.display = 'block';
-                        cameraIcon.style.display = 'none';
-                        uploadText.style.display = 'none';
-                        dropArea.style.backgroundColor = '#000'; // dark background for images
-                    }
-                    reader.readAsDataURL(file);
-                } else {
-                    imagePreview.src = '';
-                    imagePreview.style.display = 'none';
-                    cameraIcon.style.display = 'block';
-                    uploadText.style.display = 'block';
-                    dropArea.style.backgroundColor = '#f9fafb';
-                }
-            });
-        }
-    });
-</script>
 {% endblock %}
