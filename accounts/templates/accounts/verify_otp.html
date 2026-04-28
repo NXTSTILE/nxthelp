@@ -2,50 +2,45 @@
 {% block title %}Verify Email{% endblock %}
 
 {% block content %}
-<div class="auth-page">
-    <div class="auth-card fade-in rounded-xl p-6 shadow-md" style="max-width:420px;margin:0 auto;">
-        <div class="auth-header text-center mb-4">
-            <h1 class="text-xl font-bold text-slate-800 mb-1">Verify Your Email</h1>
-            <p class="text-slate-400 font-light text-sm">
-                We sent a 6-digit code to <strong>{{ email }}</strong>. Please enter it below.
+<div class="feed-container flex items-center justify-center min-h-[80vh]">
+    <div class="w-full max-w-[350px] bg-white border border-slate-300 p-8 flex flex-col items-center mx-4 md:mx-0 rounded-sm">
+        <h1 class="text-3xl font-bold mb-6 tracking-tight text-slate-900" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">NxtHelp</h1>
+        
+        <div class="text-center mb-6">
+            <h2 class="font-semibold text-slate-900 mb-2">Verify Your Email</h2>
+            <p class="text-sm text-slate-500">
+                We sent a 6-digit code to <br><strong class="text-slate-800">{{ email }}</strong>.
             </p>
         </div>
 
-        <form method="POST" action="{% url 'verify_otp' %}" novalidate>
+        <form method="POST" action="{% url 'verify_otp' %}" novalidate class="w-full flex flex-col gap-4">
             {% csrf_token %}
-
-            <div class="form-group text-center">
-                <label class="form-label font-semibold" for="otp">
-                    <i class="fas fa-key me-1" style="color:#7c3aed"></i> Verification Code
-                </label>
-                <input type="text" name="otp" id="otp" class="form-input text-center font-mono" 
-                       style="font-size: 1.5rem; letter-spacing: 0.25rem; padding: 10px;"
+            <div>
+                <input type="text" name="otp" id="otp" class="w-full bg-slate-50 border border-slate-300 rounded-sm px-2 py-2 text-sm text-center tracking-widest outline-none focus:border-slate-400" 
                        placeholder="XXXXXX" autocomplete="off" maxlength="6" required>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-block btn-lg font-semibold" style="margin-top:1.5rem;">
-                <i class="fas fa-check-circle"></i> Verify Code
+            <button type="submit" class="w-full bg-[#0095f6] hover:bg-[#1877f2] text-white font-semibold rounded-lg py-1.5 text-sm transition-colors mt-2">
+                Verify Code
             </button>
         </form>
 
-        <!-- Resend OTP form -->
-        <div id="resend-form" style="margin-top:1.5rem;padding:1rem 1.25rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-align:center;">
-            <p style="font-size:.87rem;color:#64748b;margin:0 0 .75rem;">
-                Didn't receive the code? Check your spam folder or resend it.
-            </p>
-            <form method="POST" action="{% url 'resend_verification' %}">
-                {% csrf_token %}
-                <input type="hidden" name="email" value="{{ email }}">
-                <button type="submit" class="btn btn-sm font-semibold"
-                    style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:.5rem 1rem;border-radius:8px;cursor:pointer;font-size:.85rem;">
-                    <i class="fas fa-redo me-1"></i> Resend Code
-                </button>
-            </form>
+        <div class="flex items-center gap-3 w-full my-6">
+            <div class="h-px bg-slate-300 flex-1"></div>
+            <div class="text-[13px] font-semibold text-slate-500 uppercase">OR</div>
+            <div class="h-px bg-slate-300 flex-1"></div>
         </div>
 
-        <div class="auth-footer text-center mt-4 text-sm">
-            Entered the wrong email? <a href="{% url 'register' %}" class="font-semibold" style="color:#7c3aed;">Sign up again</a>
-        </div>
+        <form method="POST" action="{% url 'resend_verification' %}" class="w-full">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}">
+            <button type="submit" class="w-full text-[#00376b] hover:text-slate-900 text-sm font-semibold flex items-center justify-center gap-1">
+                <i class="fas fa-redo text-xs"></i> Resend Code
+            </button>
+        </form>
     </div>
+</div>
+
+<div class="w-full max-w-[350px] bg-white border border-slate-300 p-4 text-center text-sm mx-auto mt-4 rounded-sm">
+    Wrong email? <a href="{% url 'register' %}" class="text-[#0095f6] font-semibold">Sign up again</a>
 </div>
 {% endblock %}

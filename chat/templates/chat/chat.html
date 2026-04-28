@@ -2,55 +2,59 @@
 {% block title %}Chat — {{ help_request.title }}{% endblock %}
 
 {% block content %}
-<div class="chat-container" id="chatContainer">
-    <div class="chat-header">
-        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-ghost btn-sm"
-            style="padding: 0.5rem;" hx-boost="false">
-            <i class="fas fa-arrow-left"></i>
+<div class="feed-container h-[calc(100vh-var(--nav-height))] flex flex-col md:h-[calc(100vh-40px)] md:mt-4 md:border md:border-slate-200 md:bg-white md:rounded-lg overflow-hidden relative">
+    
+    <!-- Chat Header -->
+    <div class="flex items-center px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="mr-4 text-slate-900" hx-boost="false">
+            <i class="fas fa-arrow-left text-xl"></i>
         </a>
-        <span class="avatar avatar-md" style="background: {{ other_user.profile.avatar_color }}">
+        <div class="ig-post-avatar mr-3 flex-shrink-0" style="background: {{ other_user.profile.avatar_color }}">
             {{ other_user.profile.initials }}
-        </span>
-        <div class="chat-header-info">
-            <div class="chat-header-name">{{ other_user.profile.display_name }}</div>
-            <div class="chat-header-sub">
+        </div>
+        <div class="flex flex-col flex-1 overflow-hidden whitespace-nowrap">
+            <div class="font-bold text-[15px] text-slate-900 leading-tight truncate">{{ other_user.profile.display_name }}</div>
+            <div class="text-xs text-slate-500 truncate">
                 {% if other_user.profile.profession %}{{ other_user.profile.profession }} · {% endif %}
-                Re: {{ help_request.title|truncatewords:8 }}
+                {{ help_request.title }}
             </div>
         </div>
-        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-secondary btn-sm" hx-boost="false">
-            <i class="fas fa-info-circle"></i> Details
+        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="text-sky-500 text-sm font-semibold ml-2 flex-shrink-0" hx-boost="false">
+            Details
         </a>
     </div>
 
-    <div class="chat-messages" id="chatMessages">
+    <!-- Chat Messages -->
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2" id="chatMessages" style="background-color: #fff;">
         {% if not chat_messages %}
-        <div class="empty-state" style="margin: auto;">
-            <i class="fas fa-comments"></i>
-            <h3>Start the conversation!</h3>
-            <p>Say hello and discuss how you can work together.</p>
+        <div class="flex flex-col items-center justify-center h-full text-slate-500 empty-state">
+            <i class="far fa-paper-plane text-4xl mb-2"></i>
+            <h3 class="font-bold text-slate-800">Direct Messages</h3>
+            <p class="text-sm">Send a message to start the chat.</p>
         </div>
         {% endif %}
         {% for msg in chat_messages %}
-        <div class="chat-bubble {% if msg.sender == request.user %}mine{% else %}theirs{% endif %}"
-            data-msg-id="{{ msg.id }}">
-            {% if msg.sender != request.user %}
-            <div class="bubble-sender">{{ msg.sender.profile.display_name }}</div>
-            {% endif %}
-            {{ msg.content }}
-            <div class="bubble-time">{{ msg.created_at|date:"h:i A" }}</div>
+        <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %} chat-bubble w-full" data-msg-id="{{ msg.id }}">
+            <div class="max-w-[75%] px-4 py-2 text-[15px] {% if msg.sender == request.user %}bg-[#3797f0] text-white rounded-[22px] rounded-br-sm{% else %}bg-[#efefef] text-slate-900 rounded-[22px] rounded-bl-sm{% endif %}" style="word-wrap: break-word;">
+                {% if msg.sender != request.user %}
+                <div class="text-[11px] font-semibold mb-0.5 opacity-60">{{ msg.sender.profile.display_name }}</div>
+                {% endif %}
+                {{ msg.content }}
+                <div class="text-[10px] mt-1 {% if msg.sender == request.user %}text-blue-100{% else %}text-slate-500{% endif %} {% if msg.sender == request.user %}text-right{% else %}text-left{% endif %}">{{ msg.created_at|date:"h:i A" }}</div>
+            </div>
         </div>
         {% endfor %}
     </div>
 
-    <div class="chat-input-area">
+    <!-- Chat Input -->
+    <div class="p-3 bg-white border-t border-slate-200">
         <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk app_pk=application.pk %}"
-            hx-boost="false" style="display: flex; gap: 0.75rem; width: 100%;">
+            hx-boost="false" class="flex items-center gap-2 border border-slate-300 rounded-[22px] px-4 py-1.5 bg-white">
             {% csrf_token %}
-            <input type="text" name="content" id="chatInput" placeholder="Type a message..." autocomplete="off"
-                required>
-            <button type="submit" class="chat-send-btn" title="Send" id="chatSendBtn">
-                <i class="fas fa-paper-plane"></i>
+            <input type="text" name="content" id="chatInput" placeholder="Message..." autocomplete="off"
+                required class="flex-1 bg-transparent outline-none text-[15px] py-1">
+            <button type="submit" id="chatSendBtn" class="text-[#3797f0] font-semibold text-sm">
+                Send
             </button>
         </form>
     </div>
@@ -127,18 +131,22 @@
         if (emptyState) emptyState.remove();
 
         const bubble = document.createElement('div');
-        bubble.className = `chat-bubble ${isMine ? 'mine' : 'theirs'}`;
+        bubble.className = `flex ${isMine ? 'justify-end' : 'justify-start'} chat-bubble w-full`;
         bubble.dataset.msgId = msg.id;
 
-        let html = '';
+        const innerClass = `max-w-[75%] px-4 py-2 text-[15px] ${isMine ? 'bg-[#3797f0] text-white rounded-[22px] rounded-br-sm' : 'bg-[#efefef] text-slate-900 rounded-[22px] rounded-bl-sm'}`;
+        const timeClass = `text-[10px] mt-1 ${isMine ? 'text-blue-100 text-right' : 'text-slate-500 text-left'}`;
+
+        let html = `<div class="${innerClass}" style="word-wrap: break-word;">`;
         if (!isMine) {
-            html += `<div class="bubble-sender">${escapeHtml(msg.sender)}</div>`;
+            html += `<div class="text-[11px] font-semibold mb-0.5 opacity-60">${escapeHtml(msg.sender)}</div>`;
         }
-        // Use textContent for content to prevent XSS; wrapper div preserves styling
+        
         const contentDiv = document.createElement('div');
         contentDiv.textContent = msg.content;
-        html += contentDiv.outerHTML;
-        html += `<div class="bubble-time">${escapeHtml(msg.time)}</div>`;
+        html += contentDiv.innerHTML;
+        
+        html += `<div class="${timeClass}">${escapeHtml(msg.time)}</div></div>`;
         bubble.innerHTML = html;
 
         chatMessages.appendChild(bubble);

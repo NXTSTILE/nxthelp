@@ -290,7 +290,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 268px;
+    width: 100%;
 }
 
 .ig-search-input {
