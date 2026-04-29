@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count, OuterRef, Subquery
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
+from django_ratelimit.decorators import ratelimit
 import razorpay
 import json
 import re
@@ -244,6 +246,7 @@ def my_requests(request):
 # ─── Applications ────────────────────────────────────────────────
 
 @login_required
+@ratelimit(key='user', rate='10/d', block=True)
 def apply_to_help(request, pk):
     """User applies to help — redirected to chat thread after applying."""
     help_req = get_object_or_404(HelpRequest, pk=pk)
@@ -626,7 +629,7 @@ def mark_notification_read(request, pk):
     notif = get_object_or_404(Notification, pk=pk, recipient=request.user)
     notif.is_read = True
     notif.save()
-    if notif.link:
+    if notif.link and url_has_allowed_host_and_scheme(notif.link, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
         return redirect(notif.link)
     return redirect('notifications')
 

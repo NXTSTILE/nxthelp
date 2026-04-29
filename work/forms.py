@@ -44,6 +44,12 @@ class HelpRequestForm(forms.ModelForm):
         self.fields['image'].required = False
         self.fields['image'].label = 'Attach an Image (optional)'
 
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image and hasattr(image, 'size') and image.size > 5 * 1024 * 1024:
+            raise forms.ValidationError('Image must be smaller than 5MB.')
+        return image
+
 
 class ApplicationForm(forms.ModelForm):
     """Form for any user to apply to help with a request."""

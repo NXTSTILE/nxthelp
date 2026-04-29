@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 from collections import OrderedDict
+import bleach
 from .models import ChatMessage
 from work.models import HelpRequest, Application, Notification
 
@@ -54,7 +55,9 @@ def send_message(request, pk, app_pk):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
     if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
+        raw_content = request.POST.get('content', '').strip()
+        # Strip all HTML tags — chat is plain text only
+        content = bleach.clean(raw_content, tags=[], strip=True)
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
         if not content:

@@ -63,10 +63,8 @@ class UserRegisterForm(UserCreationForm):
         }
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('An account with this email already exists.')
-        return email
+        # Don't reveal if email exists — IntegrityError in the view handles duplicates
+        return self.cleaned_data.get('email')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

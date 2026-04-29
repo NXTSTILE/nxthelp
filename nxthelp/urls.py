@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('nxt-admin-panel/', admin.site.urls),  # Obscured from default /admin/
     path('', include('accounts.urls')),
     path('', include('work.urls')),
     path('', include('chat.urls')),

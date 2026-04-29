@@ -57,6 +57,7 @@ class OTPToken(models.Model):
     """6-digit OTP sent to users to verify their email address on registration."""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='otp_token')
     otp_code = models.CharField(max_length=6)
+    attempts = models.PositiveSmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def is_expired(self):

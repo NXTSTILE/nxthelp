@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils import timezone
 from datetime import timedelta
+from django_ratelimit.decorators import ratelimit
 from .models import Profile, OTPToken
 from .forms import UserRegisterForm, ProfileUpdateForm, EmailOrUsernameAuthForm
 
@@ -93,6 +94,7 @@ def landing_page(request):
     return render(request, 'accounts/landing.html', {'stats': stats})
 
 
+@ratelimit(key='ip', rate='10/h', block=True)
 def register_view(request):
     """User registration — triggers OTP email verification."""
     if request.user.is_authenticated:
@@ -142,14 +144,8 @@ def verify_otp_view(request):
     if not user or user.is_active:
         return redirect('login')
 
-    attempts_key = f'otp_attempts_{user.pk}'
 
     if request.method == 'POST':
-        attempts = request.session.get(attempts_key, 0)
-        if attempts >= 5:
-            messages.error(request, 'Too many failed attempts. Please request a new code.')
-            return redirect('verify_otp')
-
         submitted_otp = request.POST.get('otp', '').strip()
         otp_obj = OTPToken.objects.filter(user=user).first()
 
@@ -157,43 +153,41 @@ def verify_otp_view(request):
             messages.error(request, 'No OTP generated for this account. Please request a new one.')
             return redirect('verify_otp')
 
+        # Server-side attempt tracking — session clearing won't help the attacker
+        if otp_obj.attempts >= 5:
+            otp_obj.delete()
+            messages.error(request, 'Too many failed attempts. Please register again or request a new code.')
+            return redirect('register')
+
         if otp_obj.is_expired():
             otp_obj.delete()
-            request.session.pop(attempts_key, None)
             _send_otp_email(request, user)
-            messages.warning(
-                request,
-                'Your OTP has expired. We\'ve sent a new one to your email.'
-            )
+            messages.warning(request, 'Your OTP has expired. We\'ve sent a new one to your email.')
             return redirect('verify_otp')
 
         if otp_obj.otp_code == submitted_otp:
-            # Activate the user
             user.is_active = True
             user.save()
             otp_obj.delete()
-            
-            # Clear session
             request.session.pop('verification_email', None)
-            request.session.pop(attempts_key, None)
-
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(
-                request,
-                f'🎉 Welcome to NxtHelp, {user.first_name or user.username}! Your email has been verified.'
-            )
+            messages.success(request, f'🎉 Welcome to NxtHelp, {user.first_name or user.username}! Your email has been verified.')
             return redirect('dashboard')
         else:
-            request.session[attempts_key] = attempts + 1
-            remaining = 5 - (attempts + 1)
+            otp_obj.attempts += 1
+            otp_obj.save()
+            remaining = 5 - otp_obj.attempts
             if remaining > 0:
                 messages.error(request, f'Invalid verification code. {remaining} attempt{"s" if remaining != 1 else ""} remaining.')
             else:
-                messages.error(request, 'Invalid verification code. Too many failed attempts. Please request a new code.')
+                otp_obj.delete()
+                messages.error(request, 'Too many failed attempts. Please register again.')
+                return redirect('register')
 
     return render(request, 'accounts/verify_otp.html', {'email': email})
 
 
+@ratelimit(key='ip', rate='5/h', block=True)
 def resend_verification(request):
     """Resend the verification OTP for the currently registered or logged‑in (inactive) user."""
     if request.method == 'POST':
@@ -218,6 +212,7 @@ def resend_verification(request):
         return redirect('login')
 
 
+@ratelimit(key='ip', rate='20/h', block=True)
 def login_view(request):
     """User login."""
     if request.user.is_authenticated:
