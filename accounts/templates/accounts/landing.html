@@ -1,252 +1,80 @@
 {% extends "base.html" %}
-{% block title %}Welcome{% endblock %}
-
-{% block extra_head %}
-<style>
-    .landing-nav {
-        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-        padding: .7rem 0;
-        box-shadow: 0 2px 8px rgba(124, 58, 237, .25);
-    }
-
-    .landing-hero-section {
-        padding: 3rem 1rem 2rem;
-        text-align: center;
-        background: linear-gradient(180deg, #f5f3ff 0%, #f8fafc 50%, #ffffff 100%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .landing-hero-section::before {
-        content: '';
-        position: absolute;
-        top: -20%;
-        right: -10%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: float 10s ease-in-out infinite;
-    }
-
-    .landing-hero-section::after {
-        content: '';
-        position: absolute;
-        bottom: -10%;
-        left: -5%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(13,148,136,0.06) 0%, transparent 70%);
-        border-radius: 50%;
-        animation: float 12s ease-in-out infinite reverse;
-    }
-
-    @media (min-width: 768px) {
-        .landing-hero-section {
-            padding: 5rem 1rem 3rem;
-        }
-    }
-
-    .hero-h1 {
-        font-size: clamp(2rem, 6vw, 4rem);
-        font-weight: 900;
-        color: #0f172a;
-        letter-spacing: -1.5px;
-        line-height: 1.15;
-        margin: 1.25rem 0;
-        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0;
-    }
-
-    .hero-sub {
-        font-size: clamp(.95rem, 2.5vw, 1.15rem);
-        color: #64748b;
-        max-width: 560px;
-        margin: 0 auto 2rem;
-        line-height: 1.7;
-        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-        opacity: 0;
-    }
-
-    .hero-btns {
-        display: flex;
-        justify-content: center;
-        gap: .75rem;
-        flex-wrap: wrap;
-        margin-bottom: 2.5rem;
-        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        opacity: 0;
-    }
-
-    .landing-stats {
-        display: flex;
-        justify-content: center;
-        gap: 2.5rem;
-        flex-wrap: wrap;
-        padding: 1.5rem 0;
-        border-top: 1px solid #e2e8f0;
-        border-bottom: 1px solid #e2e8f0;
-        margin-bottom: 0;
-        animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s forwards;
-        opacity: 0;
-    }
-
-    .landing-stat-value {
-        font-size: 2rem;
-        font-weight: 800;
-        line-height: 1.1;
-        background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .landing-stat-label {
-        font-size: .85rem;
-        color: #64748b;
-        margin-top: .15rem;
-    }
-
-    .features-section {
-        padding: 3rem 1rem;
-        background: #fff;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 1rem;
-        max-width: 900px;
-        margin: 1.5rem auto 0;
-    }
-
-    @media (min-width: 640px) {
-        .features-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    .feature-card {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 1.75rem 1.5rem;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .feature-card:hover {
-        box-shadow: 0 12px 40px rgba(124, 58, 237, .14);
-        transform: translateY(-6px) scale(1.02);
-        border-color: #c4b5fd;
-    }
-
-    .feature-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: .75rem;
-        font-size: 1.4rem;
-        transition: transform 0.3s ease;
-    }
-
-    .feature-card:hover .feature-icon {
-        transform: scale(1.1) rotate(-4deg);
-    }
-
-    .cta-section {
-        padding: 3rem 1rem;
-        background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%);
-    }
-
-    .cta-card {
-        max-width: 700px;
-        margin: 0 auto;
-        background: linear-gradient(135deg, #7c3aed 0%, #db2777 50%, #7c3aed 100%);
-        background-size: 200% 200%;
-        animation: gradientShift 8s ease infinite;
-        border-radius: 20px;
-        padding: 3rem 2rem;
-        text-align: center;
-        color: #fff;
-        box-shadow: 0 12px 50px rgba(124, 58, 237, .3);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .cta-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-        animation: float 15s ease-in-out infinite;
-    }
-
-    .landing-footer {
-        text-align: center;
-        padding: 1.5rem 1rem;
-        color: #94a3b8;
-        font-size: .82rem;
-        border-top: 1px solid #e2e8f0;
-        background: #f8fafc;
-    }
-
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(24px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(2deg); }
-    }
-</style>
-{% endblock %}
+{% block title %}Welcome to NxtHelp{% endblock %}
 
 {% block content %}
-<div class="min-h-[80vh] flex flex-col items-center justify-center text-center px-6">
-    <div class="mb-8">
-        <i class="fas fa-share-nodes text-6xl text-slate-900 mb-6 block"></i>
-        <h1 class="text-5xl md:text-7xl font-bold tracking-tighter text-slate-900 mb-4">NxtHelp</h1>
-        <p class="text-xl md:text-2xl text-slate-500 max-w-lg mx-auto leading-relaxed">
-            University help marketplace. <br class="hidden md:block"> Get help, give help, grow together.
+<div class="min-h-[85vh] flex flex-col items-center justify-center text-center px-4 relative overflow-hidden">
+    <!-- Subtle Background Element -->
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-100 via-white to-white"></div>
+    <div class="absolute top-0 w-full h-[500px] bg-gradient-to-b from-indigo-50/50 to-transparent -z-10"></div>
+
+    <div class="mb-10 max-w-3xl mx-auto mt-12 md:mt-20">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200 text-sm font-semibold text-slate-600 mb-8 backdrop-blur-sm shadow-sm">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+            </span>
+            Premium Student Network
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
+            Master your studies <br class="hidden md:block">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">together.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed mb-10">
+            NxtHelp is the exclusive marketplace for university students. Post requests, offer your expertise, and elevate your academic journey with your peers.
         </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'register' %}" class="w-full sm:w-auto px-8 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-semibold text-lg transition-all shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 hover:-translate-y-0.5">
+                Start for free
+            </a>
+            <a href="{% url 'login' %}" class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl font-semibold text-lg transition-all shadow-sm">
+                Log into account
+            </a>
+        </div>
     </div>
 
-    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-md">
-        <a href="{% url 'register' %}" class="ig-btn-primary py-4 text-lg">Get Started</a>
-        <a href="{% url 'login' %}" class="font-bold text-slate-900 py-4 hover:bg-slate-50 rounded-xl transition-colors">Log In</a>
+    <div class="mt-16 md:mt-24 mb-16 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
+        <div class="p-8 rounded-3xl bg-white border border-slate-100 shadow-xl shadow-slate-200/40 text-left transition-transform hover:-translate-y-1">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-6">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Instant Help</h3>
+            <p class="text-slate-500 leading-relaxed">Connect with peers immediately to solve academic bottlenecks and save time.</p>
+        </div>
+        <div class="p-8 rounded-3xl bg-white border border-slate-100 shadow-xl shadow-slate-200/40 text-left transition-transform hover:-translate-y-1">
+            <div class="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl mb-6">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Earn While Learning</h3>
+            <p class="text-slate-500 leading-relaxed">Leverage your expertise to assist others and get compensated for your valuable time.</p>
+        </div>
+        <div class="p-8 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl shadow-slate-900/40 text-left transition-transform hover:-translate-y-1 text-white relative overflow-hidden group">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full group-hover:bg-indigo-500/30 transition-colors"></div>
+            <div class="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center text-xl mb-6 backdrop-blur-sm border border-white/10">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Track Progress</h3>
+            <p class="text-slate-400 leading-relaxed">Monitor your requests, manage collaborations, and watch your success grow.</p>
+        </div>
     </div>
-
-    <div class="mt-20 grid grid-cols-3 gap-8 md:gap-16 border-t border-slate-100 pt-10">
+    
+    <div class="grid grid-cols-3 gap-8 md:gap-16 border-t border-slate-100 pt-12 pb-16 w-full max-w-3xl mx-auto">
         <div class="flex flex-col">
-            <span class="text-2xl font-bold text-slate-900">{{ stats.users|default:"100" }}+</span>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Members</span>
+            <span class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-1">{{ stats.users|default:"100" }}+</span>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Active Students</span>
         </div>
         <div class="flex flex-col">
-            <span class="text-2xl font-bold text-slate-900">{{ stats.requests_posted|default:"500" }}+</span>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Requests</span>
+            <span class="text-3xl md:text-4xl font-extrabold text-slate-900 mb-1">{{ stats.requests_posted|default:"500" }}+</span>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Requests Resolved</span>
         </div>
         <div class="flex flex-col">
-            <span class="text-2xl font-bold text-slate-900">₹{{ stats.total_earned|default:"10k" }}</span>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Earned</span>
+            <span class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600 mb-1">₹{{ stats.total_earned|default:"10k" }}</span>
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Earned by Peers</span>
         </div>
     </div>
 </div>
 
-<footer class="py-10 text-center text-slate-400 text-xs font-bold uppercase tracking-widest">
-    &copy; 2026 NxtHelp &middot; University Network
+<footer class="py-8 text-center border-t border-slate-100 text-slate-400 text-sm font-medium">
+    &copy; 2026 NxtHelp &middot; Empowering University Networks
 </footer>
 {% endblock %}
