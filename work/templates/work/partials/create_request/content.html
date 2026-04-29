@@ -31,74 +31,79 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group">
-                    <label class="form-label" for="id_title">Request Title</label>
-                    {{ form.title }}
-                    {% for error in form.title.errors %}
-                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="id_description">Detailed Description</label>
-                    {{ form.description }}
-                    <span class="form-help">Provide context, specific problems, and what a successful outcome looks like.</span>
-                    {% for error in form.description.errors %}
-                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                <section class="form-section">
+                    <h2 class="form-section-title">Request Details</h2>
                     <div class="form-group">
-                        <label class="form-label" for="id_urgency">Urgency Level</label>
-                        {{ form.urgency }}
-                        {% for error in form.urgency.errors %}
+                        <label class="form-label" for="id_title">Request Title</label>
+                        {{ form.title }}
+                        {% for error in form.title.errors %}
                             <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
                         {% endfor %}
                     </div>
+
                     <div class="form-group">
-                        <label class="form-label" for="id_request_type">Request Type</label>
-                        {{ form.request_type }}
-                        {% for error in form.request_type.errors %}
+                        <label class="form-label" for="id_description">Detailed Description</label>
+                        {{ form.description }}
+                        <span class="form-help">Provide context, specific problems, and what a successful outcome looks like.</span>
+                        {% for error in form.description.errors %}
                             <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
                         {% endfor %}
                     </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                        <div class="form-group">
+                            <label class="form-label" for="id_urgency">Urgency Level</label>
+                            {{ form.urgency }}
+                            {% for error in form.urgency.errors %}
+                                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="id_request_type">Request Type</label>
+                            {{ form.request_type }}
+                            {% for error in form.request_type.errors %}
+                                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2 class="form-section-title">Requirements & Timeline</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
+                        <div class="form-group">
+                            <label class="form-label" for="id_target_year">Target Audience Year</label>
+                            {{ form.target_year }}
+                            {% for error in form.target_year.errors %}
+                                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="id_budget">Budget Compensation</label>
+                            {{ form.budget }}
+                            <span class="form-help">State 'Free' or specific amount (e.g., ₹500)</span>
+                            {% for error in form.budget.errors %}
+                                <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label class="form-label" for="id_target_year">Target Audience Year</label>
-                        {{ form.target_year }}
-                        {% for error in form.target_year.errors %}
+                        <label class="form-label" for="id_deadline">Deadline (Optional)</label>
+                        {{ form.deadline }}
+                        {% for error in form.deadline.errors %}
                             <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
                         {% endfor %}
                     </div>
+
                     <div class="form-group">
-                        <label class="form-label" for="id_budget">Budget Compensation</label>
-                        {{ form.budget }}
-                        <span class="form-help">State 'Free' or specific amount (e.g., ₹500)</span>
-                        {% for error in form.budget.errors %}
+                        <label class="form-label" for="id_image">Supporting Material (Optional)</label>
+                        {{ form.image }}
+                        <span class="form-help">Upload screenshots or documents that clarify your request.</span>
+                        {% for error in form.image.errors %}
                             <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
                         {% endfor %}
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="id_deadline">Deadline (Optional)</label>
-                    {{ form.deadline }}
-                    {% for error in form.deadline.errors %}
-                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="id_image">Supporting Material (Optional)</label>
-                    {{ form.image }}
-                    <span class="form-help">Upload screenshots or documents that clarify your request.</span>
-                    {% for error in form.image.errors %}
-                        <span class="form-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</span>
-                    {% endfor %}
-                </div>
+                </section>
 
                 <button type="submit" class="premium-submit-btn">
                     Publish Request <i class="fas fa-paper-plane ml-1"></i>
