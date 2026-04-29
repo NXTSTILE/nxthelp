@@ -2,10 +2,10 @@
 {% block title %}Chat — {{ help_request.title }}{% endblock %}
 
 {% block content %}
-<div class="feed-container h-[calc(100vh-var(--nav-height))] flex flex-col md:h-[calc(100vh-40px)] md:mt-4 md:border md:border-slate-200 md:bg-white md:rounded-lg overflow-hidden relative">
+<div class="feed-container flex flex-col md:mt-4 md:rounded-lg overflow-hidden relative">
     
     <!-- Chat Header -->
-    <div class="flex items-center px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10">
+    <div class="flex items-center px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10 chat-header">
         <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="mr-4 text-slate-900" hx-boost="false">
             <i class="fas fa-arrow-left text-xl"></i>
         </a>
@@ -25,7 +25,7 @@
     </div>
 
     <!-- Chat Messages -->
-    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2" id="chatMessages" style="background-color: #fff;">
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2" id="chatMessages">
         {% if not chat_messages %}
         <div class="flex flex-col items-center justify-center h-full text-slate-500 empty-state">
             <i class="far fa-paper-plane text-4xl mb-2"></i>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Chat Input -->
-    <div class="p-3 bg-white border-t border-slate-200">
+    <div class="p-3 bg-white border-t border-slate-200 chat-input-area">
         <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk app_pk=application.pk %}"
             hx-boost="false" class="flex items-center gap-2 border border-slate-300 rounded-[22px] px-4 py-1.5 bg-white">
             {% csrf_token %}

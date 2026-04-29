@@ -2517,4 +2517,240 @@ footer {
     font-weight: 700;
     color: var(--green);
     font-size: 0.9rem;
-}
+}
+
+/* ==========================================================================
+   Dark Instagram-like UI Overrides (single source of truth)
+   ========================================================================== */
+
+:root {
+    --ig-bg: #0b0f14;
+    --ig-surface: #121821;
+    --ig-surface-2: #171f2b;
+    --ig-elevated: #1d2635;
+    --ig-border: #2a3446;
+    --ig-text: #e7ecf5;
+    --ig-text-muted: #9aa8bf;
+    --ig-accent: #7c8cff;
+    --ig-accent-2: #5f73ff;
+    --ig-success: #2fbf71;
+    --ig-danger: #ff5c7a;
+}
+
+body.ig-dark {
+    background: var(--ig-bg);
+    color: var(--ig-text);
+}
+
+body.ig-dark a {
+    color: inherit;
+}
+
+/* Shell positioning */
+body.ig-dark .ig-sidebar {
+    background: var(--ig-surface);
+    border-right: 1px solid var(--ig-border);
+}
+
+body.ig-dark .main-content {
+    max-width: 980px;
+}
+
+body.ig-dark .feed-container {
+    max-width: 720px;
+}
+
+body.ig-dark .ig-top-nav,
+body.ig-dark .ig-bottom-nav {
+    background: var(--ig-surface);
+    border-color: var(--ig-border);
+}
+
+/* Shared cards/components */
+body.ig-dark .card,
+body.ig-dark .card-static,
+body.ig-dark .sidebar-card,
+body.ig-dark .auth-card,
+body.ig-dark .request-card,
+body.ig-dark .ig-post,
+body.ig-dark .ig-detail-container,
+body.ig-dark .notification-card,
+body.ig-dark .chat-list-item,
+body.ig-dark .stat-card {
+    background: var(--ig-surface);
+    border-color: var(--ig-border);
+    box-shadow: none;
+}
+
+body.ig-dark .request-card:hover,
+body.ig-dark .ig-post:hover,
+body.ig-dark .chat-list-item:hover,
+body.ig-dark .stat-card:hover,
+body.ig-dark .notification-card:hover {
+    background: var(--ig-surface-2);
+    border-color: #3a4760;
+    transform: translateY(-1px);
+}
+
+/* Typography */
+body.ig-dark .page-title,
+body.ig-dark .detail-title,
+body.ig-dark .request-card-title,
+body.ig-dark .notification-title,
+body.ig-dark .chat-list-name,
+body.ig-dark .ig-detail-title,
+body.ig-dark .ig-post-title,
+body.ig-dark .stat-value {
+    color: var(--ig-text) !important;
+}
+
+body.ig-dark .page-subtitle,
+body.ig-dark .request-card-desc,
+body.ig-dark .notification-message,
+body.ig-dark .notification-time,
+body.ig-dark .detail-description,
+body.ig-dark .ig-detail-description,
+body.ig-dark .ig-meta-label,
+body.ig-dark .meta-item,
+body.ig-dark .poster-info .profession,
+body.ig-dark .chat-list-preview,
+body.ig-dark .stat-label {
+    color: var(--ig-text-muted) !important;
+}
+
+/* Forms */
+body.ig-dark .form-input,
+body.ig-dark .form-control,
+body.ig-dark .ig-input,
+body.ig-dark input[type="text"],
+body.ig-dark input[type="password"],
+body.ig-dark input[type="email"],
+body.ig-dark input[type="number"],
+body.ig-dark input[type="date"],
+body.ig-dark textarea,
+body.ig-dark select {
+    background: var(--ig-elevated);
+    border-color: var(--ig-border);
+    color: var(--ig-text);
+}
+
+body.ig-dark .form-input::placeholder,
+body.ig-dark .form-control::placeholder,
+body.ig-dark .ig-input::placeholder,
+body.ig-dark input::placeholder,
+body.ig-dark textarea::placeholder {
+    color: #7f8da5;
+}
+
+body.ig-dark .form-input:focus,
+body.ig-dark .form-control:focus,
+body.ig-dark .ig-input:focus,
+body.ig-dark input:focus,
+body.ig-dark textarea:focus,
+body.ig-dark select:focus {
+    border-color: var(--ig-accent);
+    box-shadow: 0 0 0 3px rgba(124, 140, 255, 0.18);
+}
+
+/* Buttons and badges */
+body.ig-dark .btn-primary,
+body.ig-dark .ig-btn-primary {
+    background: linear-gradient(135deg, var(--ig-accent), var(--ig-accent-2));
+    color: #fff !important;
+}
+
+body.ig-dark .btn-secondary,
+body.ig-dark .btn-ghost,
+body.ig-dark .filter-tab,
+body.ig-dark .tag {
+    background: #1a2432;
+    color: var(--ig-text-muted) !important;
+    border-color: var(--ig-border);
+}
+
+body.ig-dark .btn-secondary:hover,
+body.ig-dark .btn-ghost:hover,
+body.ig-dark .filter-tab:hover {
+    background: #233045;
+    color: var(--ig-text) !important;
+}
+
+body.ig-dark .filter-tab.active {
+    background: var(--ig-accent);
+    color: #fff !important;
+}
+
+/* Chat */
+body.ig-dark .chat-container,
+body.ig-dark .chat-header,
+body.ig-dark .chat-input-area,
+body.ig-dark #chatMessages {
+    background: var(--ig-surface);
+    border-color: var(--ig-border);
+}
+
+body.ig-dark .chat-bubble.theirs {
+    background: #222d3f;
+    color: var(--ig-text);
+}
+
+body.ig-dark .chat-bubble.mine {
+    background: var(--ig-accent);
+}
+
+/* Hard override Tailwind utility palette used across templates */
+body.ig-dark .bg-white { background: var(--ig-surface) !important; }
+body.ig-dark .bg-slate-50 { background: var(--ig-surface-2) !important; }
+body.ig-dark .bg-slate-100 { background: #202a3a !important; }
+body.ig-dark .bg-slate-900 { background: var(--ig-bg) !important; }
+body.ig-dark .border-slate-100,
+body.ig-dark .border-slate-200,
+body.ig-dark .border-slate-300 { border-color: var(--ig-border) !important; }
+body.ig-dark .text-slate-900,
+body.ig-dark .text-slate-800,
+body.ig-dark .text-slate-700 { color: var(--ig-text) !important; }
+body.ig-dark .text-slate-600,
+body.ig-dark .text-slate-500,
+body.ig-dark .text-slate-400 { color: var(--ig-text-muted) !important; }
+
+/* Landing/auth pages */
+body.ig-dark footer {
+    border-color: var(--ig-border);
+    color: var(--ig-text-muted);
+}
+
+/* Core page positioning refinements */
+body.ig-dark .feed-container {
+    padding: 1.25rem 0.5rem 2rem;
+}
+
+@media (min-width: 768px) {
+    body.ig-dark .feed-container {
+        padding: 1.75rem 0 2.5rem;
+    }
+}
+
+body.ig-dark .chat-header,
+body.ig-dark .chat-input-area {
+    background: var(--ig-surface);
+}
+
+body.ig-dark #chatMessages {
+    min-height: calc(100vh - 240px);
+}
+
+@media (min-width: 768px) {
+    body.ig-dark #chatMessages {
+        min-height: calc(100vh - 260px);
+    }
+}
+
+/* Unified surface tone for status/filters */
+body.ig-dark .filter-tabs,
+body.ig-dark .filters-bar,
+body.ig-dark .ig-search-container,
+body.ig-dark .ig-meta-row,
+body.ig-dark .chat-group-header:hover {
+    background: var(--ig-surface-2);
+    border-color: var(--ig-border);
+}

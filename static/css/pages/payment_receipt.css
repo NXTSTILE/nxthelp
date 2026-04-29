@@ -45,3 +45,31 @@
 .receipt-status-badge { background: rgba(6, 214, 160, 0.12); color: #059669; }
 .receipt-method-badge { background: rgba(124, 58, 237, 0.08); color: #7c3aed; }
 .receipt-mono { font-family: "Courier New", monospace; font-size: 0.8rem; }
+
+body.ig-dark .receipt-card {
+    background: #121821;
+    border-color: #2a3446;
+    box-shadow: none;
+}
+
+body.ig-dark .receipt-body,
+body.ig-dark .receipt-users,
+body.ig-dark .receipt-txn-id {
+    background: #121821;
+}
+
+body.ig-dark .receipt-row {
+    border-color: #2a3446;
+}
+
+body.ig-dark .receipt-row-label,
+body.ig-dark .receipt-user-label,
+body.ig-dark .receipt-section-title {
+    color: #9aa8bf;
+}
+
+body.ig-dark .receipt-row-value,
+body.ig-dark .receipt-user-name,
+body.ig-dark .receipt-note-text {
+    color: #e7ecf5;
+}

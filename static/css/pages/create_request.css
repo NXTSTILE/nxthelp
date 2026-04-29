@@ -139,3 +139,31 @@
 }
 .premium-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5); }
 .premium-submit-btn:active { transform: translateY(1px); box-shadow: 0 5px 10px -5px rgba(99, 102, 241, 0.4); }
+
+body.ig-dark .premium-form-container {
+    background: #121821;
+    border-color: #2a3446;
+    box-shadow: none;
+}
+
+body.ig-dark .premium-form-content {
+    background: #121821;
+}
+
+body.ig-dark .form-label,
+body.ig-dark .form-help {
+    color: #9aa8bf;
+}
+
+body.ig-dark .premium-form-content input[type="text"],
+body.ig-dark .premium-form-content input[type="number"],
+body.ig-dark .premium-form-content input[type="email"],
+body.ig-dark .premium-form-content input[type="date"],
+body.ig-dark .premium-form-content input[type="password"],
+body.ig-dark .premium-form-content select,
+body.ig-dark .premium-form-content textarea {
+    background: #1d2635;
+    border-color: #2a3446;
+    color: #e7ecf5;
+    box-shadow: none;
+}

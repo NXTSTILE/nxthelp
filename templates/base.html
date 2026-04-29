@@ -20,11 +20,12 @@
     
     <!-- HTMX for AJAX interactions -->
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
 
-<body hx-boost="true" class="antialiased min-h-screen">
+<body hx-boost="true" class="antialiased min-h-screen ig-dark">
     
     {% if user.is_authenticated %}
     <!-- ─── Desktop Sidebar (Hidden on Mobile) ─── -->
