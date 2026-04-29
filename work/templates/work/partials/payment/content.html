@@ -1,0 +1,138 @@
+<div class="payment-layout">
+    <div>
+        <div class="payment-hero">
+            <div class="payment-hero-icon">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <h1>Send Payment</h1>
+            <p>Pay {{ helper.profile.display_name }} for "{{ help_request.title }}"</p>
+        </div>
+
+        {% if existing_payment %}
+        <div class="payment-card">
+            <div class="already-paid">
+                <div class="already-paid-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Payment Already Sent!</h2>
+                <p>You have already paid &#8377;{{ existing_payment.amount }} to {{ helper.profile.display_name }}</p>
+                <a href="{% url 'payment_receipt' pk=help_request.pk %}" class="btn btn-primary">
+                    <i class="fas fa-receipt"></i> View Receipt
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div id="error-msg" class="error-msg"></div>
+
+        <div class="payment-card" style="margin-bottom: 1rem;">
+            <div class="payment-card-title">
+                <i class="fas fa-rupee-sign"></i> Payment Amount
+            </div>
+            <div class="amount-input-wrapper">
+                <span class="amount-prefix">&#8377;</span>
+                <input type="number" id="amount-input" class="amount-input" placeholder="Enter amount" min="1"
+                    step="0.01" value="{{ default_amount }}" required>
+            </div>
+
+            {% if help_request.budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Listed Budget</span>
+                <span class="payment-detail-value text-green-600 font-bold">{{ help_request.budget }}</span>
+            </div>
+            {% endif %}
+
+            {% if accepted_application and accepted_application.proposed_budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Helper's Proposed Price</span>
+                <span class="payment-detail-value" style="color: var(--accent-primary);">{{ accepted_application.proposed_budget }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="payment-card" style="margin-bottom: 1rem;">
+            <div class="payment-card-title">
+                <i class="fas fa-sticky-note"></i> Note (Optional)
+            </div>
+            <textarea id="payment-note" class="note-textarea"
+                placeholder="Add a message for the helper... (e.g. 'Great work! Thank you for the help.')"></textarea>
+        </div>
+
+        <button type="button" class="pay-btn font-semibold" id="pay-btn" onclick="initiatePayment()">
+            <i class="fas fa-wallet"></i> Pay with Razorpay
+        </button>
+
+        <div class="razorpay-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Payments are secured and verified by Razorpay. UPI, Cards, Netbanking and Wallets accepted.</span>
+        </div>
+
+        <form id="payment-confirm-form" method="POST" action="{% url 'confirm_payment' pk=help_request.pk %}"
+            style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="razorpay_payment_id" id="rz-payment-id">
+            <input type="hidden" name="razorpay_order_id" id="rz-order-id">
+            <input type="hidden" name="razorpay_signature" id="rz-signature">
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="payment-sidebar">
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-handshake"></i> Paying To</h3>
+            <div class="helper-info">
+                <span class="avatar avatar-lg" style="background: {{ helper_profile.avatar_color }}">
+                    {{ helper_profile.initials }}
+                </span>
+                <div class="helper-details">
+                    <h3>{{ helper.profile.display_name }}</h3>
+                    {% if helper_profile.profession %}
+                    <p style="color: var(--accent-primary); font-weight: 500;">{{ helper_profile.profession }}</p>
+                    {% endif %}
+                    {% if helper_profile.department %}
+                    <p><i class="fas fa-building"></i> {{ helper_profile.department }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-file-alt"></i> Request Details</h3>
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Request</span>
+                <span class="payment-detail-value" style="font-size: 0.82rem; max-width: 160px; text-align: right;">{{ help_request.title|truncatechars:40 }}</span>
+            </div>
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Status</span>
+                <span class="badge badge-{{ help_request.status_css_class }}">{{ help_request.get_status_display }}</span>
+            </div>
+            {% if help_request.budget %}
+            <div class="payment-detail-row">
+                <span class="payment-detail-label">Budget</span>
+                <span class="payment-detail-value text-green-600 font-bold">{{ help_request.budget }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="card-title" style="margin-bottom: 0.75rem;"><i class="fas fa-info-circle"></i> How It Works</h3>
+            <div class="payment-how-it-works">
+                <div class="payment-step">
+                    <span class="payment-step-index">1</span>
+                    <span>Enter the payment amount</span>
+                </div>
+                <div class="payment-step">
+                    <span class="payment-step-index">2</span>
+                    <span>Click "Pay with Razorpay" to open the secure checkout</span>
+                </div>
+                <div class="payment-step">
+                    <span class="payment-step-index">3</span>
+                    <span>Pay via UPI, Card, Netbanking, or Wallet</span>
+                </div>
+                <div class="payment-step">
+                    <span class="payment-step-index payment-step-done">&#10003;</span>
+                    <span>Payment is verified and receipt is generated</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,117 @@
+<div class="receipt-container">
+    <div class="receipt-card">
+        <div class="receipt-header">
+            <div class="receipt-check">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1>Payment Successful!</h1>
+            <div class="receipt-amount">₹{{ payment.amount }}</div>
+            <p>{{ payment.created_at|date:"M d, Y · h:i A" }}</p>
+        </div>
+
+        <div class="receipt-body">
+            <div class="receipt-users">
+                <div class="receipt-user">
+                    <span class="avatar avatar-md" style="background: {{ payment.payer.profile.avatar_color }}">
+                        {{ payment.payer.profile.initials }}
+                    </span>
+                    <div class="receipt-user-name">{{ payment.payer.profile.display_name }}</div>
+                    <div class="receipt-user-label">Sender</div>
+                </div>
+                <div class="receipt-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="receipt-user">
+                    <span class="avatar avatar-md" style="background: {{ payment.payee.profile.avatar_color }}">
+                        {{ payment.payee.profile.initials }}
+                    </span>
+                    <div class="receipt-user-name">{{ payment.payee.profile.display_name }}</div>
+                    <div class="receipt-user-label">Receiver</div>
+                </div>
+            </div>
+
+            <div class="receipt-txn-id">
+                <div class="receipt-txn-label">Transaction ID</div>
+                <div class="receipt-txn-value">{{ payment.transaction_id }}</div>
+            </div>
+
+            {% if payment.note %}
+            <div class="receipt-note">
+                <div class="receipt-note-label"><i class="fas fa-sticky-note"></i> Note</div>
+                <div class="receipt-note-text">{{ payment.note }}</div>
+            </div>
+            {% endif %}
+
+            <div class="receipt-section">
+                <div class="receipt-section-title">
+                    <i class="fas fa-info-circle"></i> Payment Details
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Amount</span>
+                    <span class="receipt-row-value text-green-600 font-bold" style="font-size: 1rem;">₹{{ payment.amount }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Method</span>
+                    <span class="receipt-method-badge">
+                        {% if payment.payment_method == 'razorpay' %}
+                        <i class="fas fa-credit-card"></i> Razorpay
+                        {% elif payment.payment_method == 'upi' %}
+                        <i class="fas fa-qrcode"></i> UPI
+                        {% else %}
+                        <i class="fas fa-mobile-alt"></i> Phone
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Paid To</span>
+                    <span class="receipt-row-value">{{ payment.masked_address }}</span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Status</span>
+                    <span class="receipt-status-badge">
+                        <i class="fas fa-check-circle"></i> {{ payment.get_status_display }}
+                    </span>
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Date & Time</span>
+                    <span class="receipt-row-value">{{ payment.completed_at|date:"M d, Y · h:i A" }}</span>
+                </div>
+                {% if payment.razorpay_payment_id %}
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Razorpay ID</span>
+                    <span class="receipt-row-value receipt-mono">{{ payment.razorpay_payment_id }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="receipt-section">
+                <div class="receipt-section-title">
+                    <i class="fas fa-file-alt"></i> Request Details
+                </div>
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Request</span>
+                    <span class="receipt-row-value">{{ help_request.title|truncatechars:40 }}</span>
+                </div>
+                {% if help_request.category %}
+                <div class="receipt-row">
+                    <span class="receipt-row-label">Category</span>
+                    <span class="receipt-row-value">
+                        <i class="{{ help_request.category.icon }}"
+                            style="color: {{ help_request.category.color }}; margin-right: 0.25rem;"></i>
+                        {{ help_request.category.name }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="receipt-actions">
+                <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="btn btn-secondary" style="flex: 1;">
+                    <i class="fas fa-arrow-left"></i> Back to Request
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary" style="flex: 1;">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

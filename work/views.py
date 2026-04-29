@@ -15,6 +15,8 @@ import re
 from .models import HelpRequest, Application, Notification, Category, Payment
 from .forms import HelpRequestForm, ApplicationForm
 from chat.models import ChatMessage
+from .services.notification_service import notify_payment_received
+from .services.payment_service import resolve_backend_payment_amount
 
 # ─── Razorpay lazy client ────────────────────────────────────────
 # Initialized on first use so the server doesn't crash at startup
@@ -408,26 +410,8 @@ def payment_page(request, pk):
         status='completed'
     ).first()
 
-    # Get accepted application for proposed budget
-    accepted_app = Application.objects.filter(
-        help_request=help_req,
-        applicant=helper,
-        status='accepted'
-    ).first()
-
-    # Determine default amount (from accepted application or budget)
-    default_amount = 0
-    if accepted_app and accepted_app.proposed_budget:
-        # Try to extract number from proposed budget
-        budget_str = accepted_app.proposed_budget
-        numbers = re.findall(r'[\d]+\.?[\d]*', budget_str.replace(',', ''))
-        if numbers:
-            default_amount = float(numbers[0])
-
-    if not default_amount and help_req.budget:
-        numbers = re.findall(r'[\d]+\.?[\d]*', help_req.budget.replace(',', ''))
-        if numbers:
-            default_amount = float(numbers[0])
+    amount_decimal, accepted_app = resolve_backend_payment_amount(help_req)
+    default_amount = float(amount_decimal)
 
     context = {
         'help_request': help_req,
@@ -458,29 +442,11 @@ def create_razorpay_order(request, pk):
         data = json.loads(request.body)
         note = data.get('note', '').strip()
 
-        # Securely calculate amount on backend
-        accepted_app = Application.objects.filter(
-            help_request=help_req,
-            applicant=help_req.selected_helper,
-            status='accepted'
-        ).first()
-
-        backend_amount = 0
-        if accepted_app and accepted_app.proposed_budget:
-            budget_str = accepted_app.proposed_budget
-            numbers = re.findall(r'[\d]+\.?[\d]*', budget_str.replace(',', ''))
-            if numbers:
-                backend_amount = float(numbers[0])
-
-        if not backend_amount and help_req.budget:
-            numbers = re.findall(r'[\d]+\.?[\d]*', help_req.budget.replace(',', ''))
-            if numbers:
-                backend_amount = float(numbers[0])
+        backend_amount, _ = resolve_backend_payment_amount(help_req)
 
         if backend_amount <= 0:
             return JsonResponse({'error': 'Cannot determine valid payment amount from request budget.'}, status=400)
-
-        amount = Decimal(str(backend_amount))
+        amount = backend_amount
 
     except (json.JSONDecodeError, InvalidOperation, ValueError):
         return JsonResponse({'error': 'Invalid request data'}, status=400)
@@ -574,14 +540,7 @@ def confirm_payment(request, pk):
     help_req.status = 'resolved'
     help_req.save()
 
-    # Notify helper about payment
-    Notification.objects.create(
-        recipient=help_req.selected_helper,
-        notification_type='payment_received',
-        title='Payment received! 💰',
-        message=f'{request.user.profile.display_name} sent you ₹{payment.amount} for "{help_req.title}" via Razorpay.',
-        link=f'/request/{help_req.pk}/payment/receipt/',
-    )
+    notify_payment_received(help_req, request.user, payment)
 
     messages.success(request, f'Payment of ₹{payment.amount} confirmed! The request has been marked as resolved.')
     return redirect('payment_receipt', pk=help_req.pk)

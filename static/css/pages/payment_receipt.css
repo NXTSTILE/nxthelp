@@ -1,0 +1,47 @@
+:root {
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent-primary: #7c3aed;
+    --shadow-md: 0 4px 24px rgba(0, 0, 0, .08);
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-xl: 18px;
+    --radius-full: 9999px;
+}
+
+.receipt-container { max-width: 600px; margin: 0 auto; }
+.receipt-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md); }
+.receipt-header { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); padding: 2.5rem 2rem; text-align: center; color: white; position: relative; overflow: hidden; }
+.receipt-header::before { content: ''; position: absolute; top: -60%; left: -30%; width: 160%; height: 160%; background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 55%); }
+.receipt-check { width: 80px; height: 80px; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); display: inline-flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 1rem; position: relative; z-index: 1; animation: popIn 0.5s ease-out; }
+@keyframes popIn { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+.receipt-header h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; position: relative; z-index: 1; }
+.receipt-header p { opacity: 0.9; font-size: 0.9rem; position: relative; z-index: 1; }
+.receipt-amount { font-size: 3rem; font-weight: 800; margin: 0.75rem 0; position: relative; z-index: 1; letter-spacing: -0.02em; }
+.receipt-body { padding: 2rem; }
+.receipt-section { margin-bottom: 1.5rem; }
+.receipt-section-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.4rem; }
+.receipt-row { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.88rem; }
+.receipt-row:last-child { border-bottom: none; }
+.receipt-row-label { color: var(--text-muted); font-weight: 500; }
+.receipt-row-value { font-weight: 600; color: var(--text-primary); text-align: right; max-width: 60%; word-break: break-all; }
+.receipt-users { display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding: 1.25rem; background: #f8fafc; border-radius: var(--radius-md); }
+.receipt-user { text-align: center; }
+.receipt-user-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin-top: 0.5rem; }
+.receipt-user-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+.receipt-arrow { width: 40px; height: 40px; border-radius: var(--radius-full); background: #7c3aed; color: white; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25); }
+.receipt-txn-id { text-align: center; padding: 1rem; background: #f8fafc; border-radius: var(--radius-sm); margin-bottom: 1rem; }
+.receipt-txn-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem; }
+.receipt-txn-value { font-size: 0.82rem; font-weight: 600; color: var(--accent-primary); font-family: "Courier New", monospace; word-break: break-all; }
+.receipt-note { padding: 0.75rem 1rem; background: rgba(124, 58, 237, 0.04); border: 1px solid rgba(124, 58, 237, 0.12); border-radius: var(--radius-sm); margin-bottom: 1.5rem; }
+.receipt-note-label { font-size: 0.75rem; font-weight: 600; color: #7c3aed; margin-bottom: 0.25rem; }
+.receipt-note-text { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; }
+.receipt-actions { display: flex; gap: 0.75rem; }
+.receipt-status-badge, .receipt-method-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.8rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+.receipt-status-badge { background: rgba(6, 214, 160, 0.12); color: #059669; }
+.receipt-method-badge { background: rgba(124, 58, 237, 0.08); color: #7c3aed; }
+.receipt-mono { font-family: "Courier New", monospace; font-size: 0.8rem; }
