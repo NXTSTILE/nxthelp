@@ -112,13 +112,9 @@
     {% endif %}
 
     <main class="{% if user.is_authenticated %}main-content{% endif %}">
-        {% if user.is_authenticated %}
-        <div class="container mx-auto px-4">
-            {% block content %}{% endblock %}
-        </div>
-        {% else %}
-            {% block content %}{% endblock %}
-        {% endif %}
+        {% if user.is_authenticated %}<div class="container mx-auto px-4">{% endif %}
+        {% block content %}{% endblock %}
+        {% if user.is_authenticated %}</div>{% endif %}
     </main>
 
     <!-- ─── Toast Messages ─── -->
