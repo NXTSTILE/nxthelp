@@ -2,96 +2,141 @@
 {% block title %}{{ profile.display_name }}{% endblock %}
 
 {% block content %}
-<div class="feed-container">
-    <!-- Instagram-style Profile Header -->
-    <div class="px-4 py-6 flex items-start gap-6 border-b border-slate-200 bg-white md:bg-transparent md:border-none">
+
+<!-- Profile Header Card -->
+<div class="stat-card profile-header-card">
+    <div class="profile-header-row">
         <!-- Avatar -->
-        <div class="w-20 h-20 md:w-36 md:h-36 rounded-full flex-shrink-0 flex items-center justify-center text-white text-3xl md:text-5xl font-bold" style="background: {{ profile.avatar_color }}">
+        <div class="profile-avatar" style="background: {{ profile.avatar_color }};">
             {{ profile.initials }}
         </div>
-        
-        <!-- Info -->
-        <div class="flex-1 flex flex-col">
-            <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-3 md:mb-4">
-                <h1 class="text-xl md:text-2xl font-normal text-slate-900">{{ profile.display_name }}</h1>
+
+        <!-- Details -->
+        <div class="profile-details">
+            <div class="profile-name-row">
+                <h1 class="serif-display profile-display-name">{{ profile.display_name }}</h1>
                 {% if profile_user == request.user %}
-                <a href="{% url 'edit_profile' %}" class="bg-gray-100 hover:bg-gray-200 text-slate-900 font-semibold px-4 py-1.5 rounded-lg text-sm text-center md:text-left transition-colors">
-                    Edit Profile
+                <a href="{% url 'edit_profile' %}" class="btn btn-ghost profile-edit-btn">
+                    <i class="fas fa-pen"></i><span>Edit Profile</span>
                 </a>
                 {% endif %}
             </div>
-            
-            <div class="hidden md:flex gap-6 mb-4">
-                <div class="text-[15px]"><span class="font-semibold">{{ posted_requests|length }}</span> requests</div>
-                <div class="text-[15px]"><span class="font-semibold">{{ helped_requests|length }}</span> helped</div>
-            </div>
-            
-            <div class="text-sm">
-                <div class="font-semibold text-slate-900 mb-0.5">{% if profile.profession %}{{ profile.profession }}{% endif %}</div>
-                <div class="text-slate-800 whitespace-pre-wrap">{{ profile.bio }}</div>
-                
-                <div class="mt-2 text-xs text-slate-500 flex flex-col gap-1">
-                    {% if profile.department %}<div class="flex items-center gap-1.5"><i class="fas fa-building w-4 text-center"></i> {{ profile.department }}</div>{% endif %}
-                    {% if profile.year %}<div class="flex items-center gap-1.5"><i class="fas fa-graduation-cap w-4 text-center"></i> {{ profile.get_year_display }}</div>{% endif %}
-                    <div class="flex items-center gap-1.5"><i class="fas fa-envelope w-4 text-center"></i> {{ profile_user.email }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Mobile Stats Row -->
-    <div class="flex md:hidden border-b border-slate-200 py-3 bg-white">
-        <div class="flex-1 text-center flex flex-col">
-            <span class="font-semibold text-slate-900">{{ posted_requests|length }}</span>
-            <span class="text-[13px] text-slate-500">requests</span>
-        </div>
-        <div class="flex-1 text-center flex flex-col">
-            <span class="font-semibold text-slate-900">{{ helped_requests|length }}</span>
-            <span class="text-[13px] text-slate-500">helped</span>
-        </div>
-    </div>
 
-    <!-- Tabs/Grid -->
-    <div class="mt-4 bg-white md:bg-transparent">
-        <!-- Tab Navigation -->
-        <div class="flex justify-center border-b border-slate-200 mb-1 px-4 md:px-0">
-            <div class="flex gap-12">
-                <div class="uppercase text-xs font-semibold tracking-widest text-slate-900 border-t-2 border-slate-900 pt-3 md:pt-4 -mt-px flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-border-all"></i> POSTED
-                </div>
-                <!-- You could add JS to switch tabs, for now just show both or just one -->
-                <!-- <div class="uppercase text-xs font-semibold tracking-widest text-slate-400 pt-3 md:pt-4 flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-handshake"></i> HELPED
-                </div> -->
-            </div>
-        </div>
+            {% if profile.profession %}
+            <div class="profile-profession">{{ profile.profession }}</div>
+            {% endif %}
 
-        <!-- Grid of requests -->
-        <div class="grid grid-cols-3 gap-1 md:gap-6 pb-12 mt-4 md:mt-6">
-            {% for req in posted_requests %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="aspect-square bg-white border border-slate-200 md:rounded-md flex flex-col p-3 md:p-4 hover:opacity-90 relative group overflow-hidden">
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all z-10 flex items-center justify-center">
-                    <div class="opacity-0 group-hover:opacity-100 flex gap-4 text-white font-bold drop-shadow-md">
-                        <span class="flex items-center gap-1.5"><i class="fas fa-paper-plane"></i> {{ req.app_count|default:0 }}</span>
-                    </div>
-                </div>
-                <div class="font-semibold text-[11px] md:text-sm text-slate-900 line-clamp-3 md:mb-2 leading-snug">{{ req.title }}</div>
-                <div class="hidden md:block text-[13px] text-slate-500 line-clamp-3 flex-1 mt-1 leading-snug">{{ req.description }}</div>
-                <div class="mt-auto flex justify-between items-end w-full">
-                    <span class="text-[11px] md:text-sm font-bold text-emerald-600">₹{{ req.budget }}</span>
-                    <span class="hidden md:inline text-[10px] uppercase font-bold text-slate-400">{{ req.get_status_display }}</span>
-                </div>
-            </a>
-            {% endfor %}
-            {% if not posted_requests %}
-            <div class="col-span-3 text-center py-16 text-slate-400">
-                <div class="w-16 h-16 rounded-full border-2 border-slate-300 flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-camera text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800 mb-1">No Posts Yet</h3>
+            {% if profile.bio %}
+            <div class="profile-bio">{{ profile.bio }}</div>
+            {% endif %}
+
+            <div class="profile-meta-row">
+                {% if profile.department %}
+                <span><i class="fas fa-building"></i>{{ profile.department }}</span>
+                {% endif %}
+                {% if profile.year %}
+                <span><i class="fas fa-graduation-cap"></i>{{ profile.get_year_display }}</span>
+                {% endif %}
+                <span><i class="fas fa-envelope"></i>{{ profile_user.email }}</span>
+            </div>
+
+            {% if profile.skills %}
+            <div class="profile-skills-row">
+                {% for skill in profile.get_skills_list %}
+                <span class="badge cat-code">{{ skill }}</span>
+                {% endfor %}
             </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Stats Row -->
+<div class="grid-2 mb-24">
+    <div class="stat-card text-center">
+        <div class="stat-label">Requests Posted</div>
+        <div class="stat-value">{{ posted_requests|length }}</div>
+        <div class="stat-subtext">Total requests</div>
+    </div>
+    <div class="stat-card text-center">
+        <div class="stat-label">Times Helped</div>
+        <div class="stat-value">{{ helped_requests|length }}</div>
+        <div class="stat-subtext">Accepted applications</div>
+    </div>
+</div>
+
+<!-- Posted Requests Section -->
+<div class="stat-card profile-section-card">
+    <div class="profile-section-header">
+        <h2 class="serif-display profile-section-title">
+            Posted <i>Requests</i>
+        </h2>
+        <span class="badge cat-math">{{ posted_requests|length }} post{{ posted_requests|length|pluralize }}</span>
+    </div>
+
+    {% if posted_requests %}
+    <div class="profile-requests-list">
+        {% for req in posted_requests %}
+        <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card profile-request-item">
+            <div class="card-left">
+                <div class="badge status-{% if req.status == 'open' %}open{% elif req.status == 'in_progress' %}progress{% else %}completed{% endif %}">
+                    {{ req.get_status_display }}
+                </div>
+                <div class="card-title">{{ req.title }}</div>
+                {% if req.description %}
+                <div class="card-meta">{{ req.description|truncatechars:80 }}</div>
+                {% endif %}
+                <div class="card-tags">
+                    {% if req.category %}<span class="badge cat-code">{{ req.category }}</span>{% endif %}
+                </div>
+            </div>
+            <div class="card-right">
+                <div class="card-price">₹{{ req.budget }}</div>
+                <div class="card-meta">{{ req.created_at|timesince }} ago</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="profile-empty-state">
+        <i class="fas fa-inbox profile-empty-icon"></i>
+        <div class="profile-empty-title">No Posts Yet</div>
+        {% if profile_user == request.user %}
+        <a href="{% url 'create_help_request' %}" class="btn btn-primary" hx-boost="false">
+            <i class="fas fa-plus"></i>Create First Request
+        </a>
+        {% else %}
+        <div class="profile-empty-sub">This user hasn't posted any requests yet.</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Helped Requests Section -->
+{% if helped_requests %}
+<div class="stat-card profile-section-card" style="margin-top: 20px;">
+    <div class="profile-section-header">
+        <h2 class="serif-display profile-section-title">
+            Helped <i>Others</i>
+        </h2>
+        <span class="badge status-open">{{ helped_requests|length }} task{{ helped_requests|length|pluralize }}</span>
+    </div>
+
+    <div class="profile-requests-list">
+        {% for app in helped_requests %}
+        <a href="{% url 'help_request_detail' pk=app.help_request.pk %}" class="request-card profile-request-item">
+            <div class="card-left">
+                <div class="badge status-open">Accepted</div>
+                <div class="card-title">{{ app.help_request.title }}</div>
+                <div class="card-meta">Helped {{ app.help_request.posted_by.profile.display_name }}</div>
+            </div>
+            <div class="card-right">
+                <div class="card-price">₹{{ app.help_request.budget }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

@@ -59,8 +59,8 @@ def dashboard(request):
         applicant=request.user
     ).select_related('help_request', 'help_request__posted_by', 'help_request__posted_by__profile', 'help_request__category')
 
-    # Open requests I can help with (not my own, not already applied)
-    available_requests = HelpRequest.objects.filter(
+    # Feed: other users' open requests (not my own, not already applied)
+    feed_requests = HelpRequest.objects.filter(
         status='open'
     ).exclude(
         posted_by=request.user
@@ -68,7 +68,7 @@ def dashboard(request):
         applications__applicant=request.user
     ).select_related(
         'posted_by', 'posted_by__profile', 'category'
-    ).annotate(app_count=Count('applications'))[:6]
+    ).annotate(app_count=Count('applications')).order_by('-created_at')[:12]
 
     # Unread chat count
     unread_chats = ChatMessage.objects.filter(
@@ -78,14 +78,12 @@ def dashboard(request):
 
     context = {
         'profile': profile,
-        # My requests stats
-        'my_requests': my_requests[:5],
+        # Stats (aggregate counts only — poster's posts are on their profile)
         'total_posted': my_requests.count(),
         'open_count': my_requests.filter(status='open').count(),
         'in_progress_count': my_requests.filter(status='in_progress').count(),
         'resolved_count': my_requests.filter(status='resolved').count(),
         # My applications stats
-        'my_applications': my_applications[:5],
         'total_applied': my_applications.count(),
         'pending_apps': my_applications.filter(status='pending').count(),
         'accepted_apps': my_applications.filter(status='accepted').count(),
@@ -94,14 +92,8 @@ def dashboard(request):
             help_request__posted_by=request.user,
             status='pending'
         ).count(),
-        # Available to help
-        'available_requests': available_requests,
-        # Upcoming deadlines
-        'upcoming_deadlines': my_requests.filter(
-            deadline__isnull=False,
-            deadline__gte=today,
-            status__in=['open', 'in_progress']
-        ).order_by('deadline')[:5],
+        # Feed of other users' posts
+        'feed_requests': feed_requests,
         # Notifications
         'recent_notifications': Notification.objects.filter(
             recipient=request.user, is_read=False
@@ -174,7 +166,9 @@ def help_request_detail(request, pk):
 @login_required
 def browse_requests(request):
     """Browse all open help requests."""
-    requests_qs = HelpRequest.objects.filter(status='open').select_related(
+    requests_qs = HelpRequest.objects.filter(status='open').exclude(
+        posted_by=request.user
+    ).select_related(
         'posted_by', 'posted_by__profile', 'category'
     ).annotate(app_count=Count('applications'))
 
@@ -438,6 +432,12 @@ def create_razorpay_order(request, pk):
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
 
+    if help_req.status not in ('completed', 'in_progress'):
+        return JsonResponse({'error': 'Payment is not applicable for this request.'}, status=400)
+
+    if not help_req.selected_helper:
+        return JsonResponse({'error': 'No helper assigned to this request.'}, status=400)
+
     try:
         data = json.loads(request.body)
         note = data.get('note', '').strip()
@@ -501,6 +501,14 @@ def confirm_payment(request, pk):
     if request.method != 'POST':
         return redirect('payment_page', pk=pk)
 
+    if help_req.status not in ('completed', 'in_progress'):
+        messages.warning(request, 'Payment is not applicable for this request.')
+        return redirect('help_request_detail', pk=pk)
+
+    if not help_req.selected_helper:
+        messages.error(request, 'No helper assigned to this request.')
+        return redirect('help_request_detail', pk=pk)
+
     razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
     razorpay_order_id = request.POST.get('razorpay_order_id', '')
     razorpay_signature = request.POST.get('razorpay_signature', '')
@@ -514,6 +522,14 @@ def confirm_payment(request, pk):
 
     if not payment:
         messages.error(request, 'Payment record not found.')
+        return redirect('payment_page', pk=pk)
+
+    # Ensure amount matches what the backend expects at confirmation time
+    expected_amount, _ = resolve_backend_payment_amount(help_req)
+    if expected_amount <= 0 or payment.amount != expected_amount:
+        payment.status = 'failed'
+        payment.save(update_fields=['status'])
+        messages.error(request, 'Payment amount mismatch. Please contact support.')
         return redirect('payment_page', pk=pk)
 
     # Verify signature with Razorpay
