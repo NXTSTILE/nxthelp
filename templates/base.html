@@ -3,13 +3,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}NxtHelp{% endblock %} | Refined Academic Luxury</title>
 
     <!-- Google Fonts: Instrument Serif & DM Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
@@ -31,41 +34,67 @@
         </div>
         
         {% if user.is_authenticated %}
-        <nav class="nav-center">
+        <nav class="nav-center desktop-only">
             <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Home</a>
             <a href="{% url 'browse_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">Explore</a>
             <a href="{% url 'my_chats' %}" class="nav-link {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">Messages</a>
         </nav>
         
         <div class="nav-right">
-            <a href="{% url 'profile' %}" class="btn btn-ghost">Profile</a>
-            <a href="{% url 'create_help_request' %}" class="btn btn-primary" hx-boost="false">New Post</a>
+            <a href="{% url 'profile' %}" class="btn btn-ghost desktop-only">Profile</a>
+            <!-- New Post Button (Always visible on mobile & desktop in nav) -->
+            <a href="{% url 'create_help_request' %}" class="btn btn-primary" hx-boost="false">
+                <i class="fas fa-plus desktop-hidden" style="margin-right: 6px;"></i> 
+                <span>New Post</span>
+            </a>
         </div>
         {% else %}
         <div class="nav-right">
-            <a href="{% url 'login' %}" class="btn btn-ghost">Log In</a>
+            <a href="{% url 'login' %}" class="btn btn-ghost desktop-only">Log In</a>
             <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
         </div>
         {% endif %}
     </header>
 
+    {% if user.is_authenticated %}
+    <!-- Mobile Bottom Navigation (Hidden on Desktop) -->
+    <nav class="mobile-bottom-nav">
+        <a href="{% url 'dashboard' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'browse_requests' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
+            <i class="fas fa-search"></i>
+            <span>Explore</span>
+        </a>
+        <a href="{% url 'my_chats' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
+            <i class="fas fa-envelope"></i>
+            <span>Inbox</span>
+        </a>
+        <a href="{% url 'profile' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    {% endif %}
+
     <div class="app-layout">
         {% if user.is_authenticated %}
-        <!-- Dashboard Sidebar -->
+        <!-- Desktop Dashboard Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-section">
                 <div class="sidebar-label">Menu</div>
                 <a href="{% url 'dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <span>Overview</span>
+                    <span><i class="fas fa-chart-pie mr-2" style="width: 20px;"></i> Overview</span>
                 </a>
                 <a href="{% url 'browse_requests' %}" class="sidebar-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
-                    <span>Requests</span>
+                    <span><i class="fas fa-compass mr-2" style="width: 20px;"></i> Requests</span>
                 </a>
                 <a href="{% url 'my_chats' %}" class="sidebar-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
-                    <span>Inbox</span>
+                    <span><i class="fas fa-envelope mr-2" style="width: 20px;"></i> Inbox</span>
                 </a>
                 <a href="{% url 'notifications' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
-                    <span>Notifications</span>
+                    <span><i class="fas fa-bell mr-2" style="width: 20px;"></i> Notifications</span>
                 </a>
             </div>
 
@@ -73,7 +102,7 @@
                 <form method="post" action="{% url 'logout' %}" style="margin:0;">
                     {% csrf_token %}
                     <button type="submit" class="sidebar-item" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;">
-                        <span>Log Out</span>
+                        <span><i class="fas fa-sign-out-alt mr-2" style="width: 20px;"></i> Log Out</span>
                     </button>
                 </form>
             </div>
@@ -88,7 +117,7 @@
         </main>
     </div>
 
-    <!-- Toast Notifications -->
+    <!-- Toast Notifications (Now at the top) -->
     {% if messages %}
     <div class="toast-container">
         {% for message in messages %}
@@ -96,7 +125,6 @@
             <div class="toast-dot blue"></div>
             <div class="toast-content">
                 <div class="toast-text">{{ message }}</div>
-                <div class="toast-time">Just now</div>
             </div>
         </div>
         {% endfor %}
@@ -108,11 +136,11 @@
             event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         });
 
-        // Auto-dismiss toasts
+        // Auto-dismiss toasts (fade UP instead of DOWN)
         setTimeout(() => {
             document.querySelectorAll('.toast').forEach(el => {
                 el.style.opacity = '0';
-                el.style.transform = 'translateY(10px)';
+                el.style.transform = 'translateY(-10px)';
                 el.style.transition = 'all 0.3s ease-out';
                 setTimeout(() => el.remove(), 300);
             });
