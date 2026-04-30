@@ -2,131 +2,95 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="feed-container py-6 px-4 md:px-0">
+<div style="margin-bottom: 48px;">
+    <h1 class="serif-display" style="font-size: 32px; margin-bottom: 24px;">Welcome back, <i>{{ request.user.profile.display_name|default:request.user.username }}</i></h1>
+    
     <!-- Quick Stats -->
-    <div class="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-visible pb-4 md:pb-0 scrollbar-hide snap-x mb-8 md:mb-10 -mx-4 px-4 md:mx-0 md:px-0">
-        <div class="min-w-[150px] flex-1 snap-center bg-gradient-to-br from-pink-400 to-rose-500 rounded-[2rem] p-5 text-white shadow-xl shadow-pink-200 transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-            <div class="flex flex-col items-center justify-center relative z-10">
-                <div class="bg-white/20 p-3 rounded-2xl mb-2 backdrop-blur-sm">
-                    <i class="fas fa-paper-plane text-2xl"></i>
-                </div>
-                <span class="text-3xl md:text-4xl font-black tracking-tight">{{ total_posted }}</span>
-                <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-90 mt-1">Posted</span>
-            </div>
+    <div class="grid-3 mb-24">
+        <div class="stat-card">
+            <div class="stat-label">Requests Posted</div>
+            <div class="stat-value">{{ total_posted }}</div>
+            <div class="stat-subtext">Active & Past</div>
         </div>
-        
-        <div class="min-w-[150px] flex-1 snap-center bg-gradient-to-br from-emerald-400 to-teal-500 rounded-[2rem] p-5 text-white shadow-xl shadow-emerald-200 transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-            <div class="flex flex-col items-center justify-center relative z-10">
-                <div class="bg-white/20 p-3 rounded-2xl mb-2 backdrop-blur-sm">
-                    <i class="fas fa-check-circle text-2xl"></i>
-                </div>
-                <span class="text-3xl md:text-4xl font-black tracking-tight">{{ resolved_count }}</span>
-                <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-90 mt-1">Resolved</span>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Tasks Resolved</div>
+            <div class="stat-value">{{ resolved_count }}</div>
+            <div class="stat-subtext">Completed work</div>
         </div>
-
-        <div class="min-w-[150px] flex-1 snap-center bg-gradient-to-br from-violet-400 to-indigo-500 rounded-[2rem] p-5 text-white shadow-xl shadow-violet-200 transform transition-all duration-300 hover:scale-105 hover:-translate-y-2 cursor-pointer relative overflow-hidden group">
-            <div class="absolute -right-4 -top-4 w-20 h-20 bg-white opacity-20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
-            <div class="flex flex-col items-center justify-center relative z-10">
-                <div class="bg-white/20 p-3 rounded-2xl mb-2 backdrop-blur-sm">
-                    <i class="fas fa-handshake text-2xl"></i>
-                </div>
-                <span class="text-3xl md:text-4xl font-black tracking-tight">{{ total_applied }}</span>
-                <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-90 mt-1">Applied</span>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Applications Sent</div>
+            <div class="stat-value">{{ total_applied }}</div>
+            <div class="stat-subtext">Pending & Accepted</div>
         </div>
     </div>
+</div>
 
-    <!-- Active Applications / My Requests -->
-    <div class="mb-10">
-        <div class="flex items-center justify-between mb-5">
-            <h2 class="font-extrabold text-lg md:text-xl text-slate-800 flex items-center gap-2">
-                <span class="bg-amber-100 text-amber-500 w-8 h-8 rounded-xl flex items-center justify-center"><i class="fas fa-star"></i></span>
-                My Requests
-            </h2>
-            <a href="{% url 'my_requests' %}" class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-200 hover:text-slate-800 transition-colors">See All</a>
+<div class="grid-2">
+    <!-- My Requests Column -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="serif-display" style="font-size: 24px;">My <i>Requests</i></h2>
+            <a href="{% url 'my_requests' %}" style="font-size: 13px; font-weight: 500; color: var(--accent);">View All</a>
         </div>
         
-        <div class="grid gap-4">
         {% if my_requests %}
             {% for req in my_requests %}
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="block bg-white rounded-3xl border-2 border-transparent p-5 shadow-sm hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-300 group">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-base text-slate-800 group-hover:text-amber-600 transition-colors">{{ req.title }}</h3>
-                        <div class="flex items-center gap-3 mt-2">
-                            <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg bg-sky-50 text-sky-600">
-                                <i class="fas fa-users"></i> {{ req.app_count }} applicant{{ req.app_count|pluralize }}
-                            </span>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg {% if req.status == 'open' %}bg-emerald-50 text-emerald-600{% else %}bg-slate-100 text-slate-600{% endif %}">
-                                <i class="fas fa-circle text-[8px]"></i> {{ req.get_status_display }}
-                            </span>
-                        </div>
+            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+                <div class="card-left">
+                    <div class="badge status-{% if req.status == 'open' %}open{% elif req.status == 'in_progress' %}progress{% else %}completed{% endif %}">
+                        {{ req.get_status_display }}
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors text-slate-400">
-                        <i class="fas fa-chevron-right"></i>
+                    <div class="card-title">{{ req.title }}</div>
+                    <div class="card-meta">
+                        {{ req.app_count }} applicant{{ req.app_count|pluralize }}
                     </div>
+                    <div class="card-tags">
+                        <span class="badge cat-code">{{ req.category|default:"General" }}</span>
+                    </div>
+                </div>
+                <div class="card-right">
+                    <div class="card-price">${{ req.budget }}</div>
                 </div>
             </a>
             {% endfor %}
         {% else %}
-            <div class="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-slate-300 text-2xl">
-                    <i class="fas fa-ghost"></i>
-                </div>
-                <p class="text-sm font-medium text-slate-500 mb-4">You haven't posted any requests yet.</p>
-                <a href="{% url 'create_help_request' %}" class="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-xl font-bold text-sm transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-violet-200">
-                    <i class="fas fa-plus"></i> Create Request
-                </a>
+            <div class="stat-card text-center" style="padding: 32px;">
+                <div class="stat-label mb-16">No Active Requests</div>
+                <a href="{% url 'create_help_request' %}" class="btn btn-primary" hx-boost="false">Create Post</a>
             </div>
         {% endif %}
-        </div>
     </div>
 
-    <!-- Suggested to Help (Recommendations) -->
-    <div class="mb-10">
-        <div class="flex items-center justify-between mb-5">
-            <h2 class="font-extrabold text-lg md:text-xl text-slate-800 flex items-center gap-2">
-                <span class="bg-sky-100 text-sky-500 w-8 h-8 rounded-xl flex items-center justify-center"><i class="fas fa-compass"></i></span>
-                Suggested for You
-            </h2>
-            <a href="{% url 'browse_requests' %}" class="px-4 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-200 hover:text-slate-800 transition-colors">Explore</a>
+    <!-- Suggested for You Column -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="serif-display" style="font-size: 24px;">Suggested for <i>You</i></h2>
+            <a href="{% url 'browse_requests' %}" style="font-size: 13px; font-weight: 500; color: var(--accent);">Explore</a>
         </div>
         
-        <div class="grid gap-4 md:grid-cols-2">
         {% if available_requests %}
             {% for req in available_requests|slice:":4" %}
-            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col relative group">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div class="p-5 flex-1">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md" style="background: {{ req.posted_by.profile.avatar_color }};">
-                            {{ req.posted_by.profile.initials }}
-                        </div>
-                        <a href="{% url 'user_profile' username=req.posted_by.username %}" class="font-bold text-xs text-slate-600 hover:text-sky-600 transition-colors">{{ req.posted_by.profile.display_name }}</a>
+            <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+                <div class="card-left">
+                    <div class="badge status-open">Open</div>
+                    <div class="card-title">{{ req.title }}</div>
+                    <div class="card-meta">
+                        By {{ req.posted_by.profile.display_name|default:req.posted_by.username }}
                     </div>
-                    <a href="{% url 'help_request_detail' pk=req.pk %}" class="font-extrabold text-base text-slate-900 block mb-2 leading-tight group-hover:text-sky-600 transition-colors">{{ req.title }}</a>
-                    <p class="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4">{{ req.description }}</p>
+                    <div class="card-tags">
+                        <span class="badge cat-math">{{ req.category|default:"General" }}</span>
+                    </div>
                 </div>
-                <div class="px-5 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between mt-auto">
-                    <span class="inline-flex items-center gap-1.5 text-sm font-black text-emerald-600 bg-emerald-100/50 px-3 py-1 rounded-lg">
-                        <i class="fas fa-rupee-sign text-xs"></i> {{ req.budget }}
-                    </span>
-                    <a href="{% url 'help_request_detail' pk=req.pk %}" class="font-bold text-sm text-sky-600 bg-sky-50 hover:bg-sky-100 px-4 py-1.5 rounded-xl transition-colors">Help Now</a>
+                <div class="card-right">
+                    <div class="card-price">${{ req.budget }}</div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         {% else %}
-            <div class="col-span-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-slate-300 text-2xl">
-                    <i class="fas fa-bed"></i>
-                </div>
-                <p class="text-sm font-medium text-slate-500">No new suggestions right now. Check back later!</p>
+            <div class="stat-card text-center" style="padding: 32px;">
+                <div class="stat-label">No New Suggestions</div>
             </div>
         {% endif %}
-        </div>
     </div>
 </div>
 {% endblock %}

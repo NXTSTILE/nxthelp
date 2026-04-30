@@ -2,61 +2,52 @@
 {% block title %}Chat — {{ help_request.title }}{% endblock %}
 
 {% block content %}
-<div class="feed-container flex flex-col md:mt-4 md:rounded-lg overflow-hidden relative">
+<div class="container" style="max-width: 800px; height: calc(100vh - 120px); display: flex; flex-direction: column;">
     
-    <!-- Chat Header -->
-    <div class="flex items-center px-4 py-3 border-b border-slate-200 bg-white sticky top-0 z-10 chat-header">
-        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="mr-4 text-slate-900" hx-boost="false">
-            <i class="fas fa-arrow-left text-xl"></i>
-        </a>
-        <div class="ig-post-avatar mr-3 flex-shrink-0" style="background: {{ other_user.profile.avatar_color }}">
-            {{ other_user.profile.initials }}
-        </div>
-        <div class="flex flex-col flex-1 overflow-hidden whitespace-nowrap">
-            <div class="font-bold text-[15px] text-slate-900 leading-tight truncate">{{ other_user.profile.display_name }}</div>
-            <div class="text-xs text-slate-500 truncate">
-                {% if other_user.profile.profession %}{{ other_user.profile.profession }} · {% endif %}
-                {{ help_request.title }}
+    <div class="chat-window">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <a href="{% url 'help_request_detail' pk=help_request.pk %}" style="color: var(--ink2); font-size: 14px;" hx-boost="false">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: white; display: flex; justify-content: center; align-items: center; font-size: 12px; font-weight: 500;">
+                {{ other_user.profile.initials }}
+            </div>
+            <div style="flex-grow: 1;">
+                <div style="font-size: 14px; font-weight: 500;">{{ other_user.profile.display_name }}</div>
+                <div style="font-size: 11px; color: var(--success);">● Online</div>
             </div>
         </div>
-        <a href="{% url 'help_request_detail' pk=help_request.pk %}" class="text-sky-500 text-sm font-semibold ml-2 flex-shrink-0" hx-boost="false">
-            Details
-        </a>
-    </div>
 
-    <!-- Chat Messages -->
-    <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-2" id="chatMessages">
-        {% if not chat_messages %}
-        <div class="flex flex-col items-center justify-center h-full text-slate-500 empty-state">
-            <i class="far fa-paper-plane text-4xl mb-2"></i>
-            <h3 class="font-bold text-slate-800">Direct Messages</h3>
-            <p class="text-sm">Send a message to start the chat.</p>
-        </div>
-        {% endif %}
-        {% for msg in chat_messages %}
-        <div class="flex {% if msg.sender == request.user %}justify-end{% else %}justify-start{% endif %} chat-bubble w-full" data-msg-id="{{ msg.id }}">
-            <div class="max-w-[75%] px-4 py-2 text-[15px] {% if msg.sender == request.user %}bg-[#3797f0] text-white rounded-[22px] rounded-br-sm{% else %}bg-[#efefef] text-slate-900 rounded-[22px] rounded-bl-sm{% endif %}" style="word-wrap: break-word;">
+        <!-- Chat Messages -->
+        <div class="chat-messages" id="chatMessages">
+            {% if not chat_messages %}
+            <div style="text-align: center; color: var(--ink3); padding: 32px; font-size: 13px;" class="empty-state">
+                Send a message to start the chat.
+            </div>
+            {% endif %}
+            
+            {% for msg in chat_messages %}
+            <div class="chat-bubble w-full {% if msg.sender == request.user %}msg-sent{% else %}msg-received{% endif %}" data-msg-id="{{ msg.id }}">
                 {% if msg.sender != request.user %}
-                <div class="text-[11px] font-semibold mb-0.5 opacity-60">{{ msg.sender.profile.display_name }}</div>
+                <div style="font-size: 10px; font-weight: 500; opacity: 0.7; margin-bottom: 2px;">{{ msg.sender.profile.display_name }}</div>
                 {% endif %}
-                {{ msg.content }}
-                <div class="text-[10px] mt-1 {% if msg.sender == request.user %}text-blue-100{% else %}text-slate-500{% endif %} {% if msg.sender == request.user %}text-right{% else %}text-left{% endif %}">{{ msg.created_at|date:"h:i A" }}</div>
+                <div style="word-wrap: break-word;">{{ msg.content }}</div>
+                <div style="font-size: 9px; opacity: 0.6; margin-top: 4px; text-align: {% if msg.sender == request.user %}right{% else %}left{% endif %};">{{ msg.created_at|date:"h:i A" }}</div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- Chat Input -->
-    <div class="p-3 bg-white border-t border-slate-200 chat-input-area">
-        <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk app_pk=application.pk %}"
-            hx-boost="false" class="flex items-center gap-2 border border-slate-300 rounded-[22px] px-4 py-1.5 bg-white">
-            {% csrf_token %}
-            <input type="text" name="content" id="chatInput" placeholder="Message..." autocomplete="off"
-                required class="flex-1 bg-transparent outline-none text-[15px] py-1">
-            <button type="submit" id="chatSendBtn" class="text-[#3797f0] font-semibold text-sm">
-                Send
-            </button>
-        </form>
+        <!-- Chat Input -->
+        <div class="chat-input-bar">
+            <form id="chatForm" method="POST" action="{% url 'send_message' pk=help_request.pk app_pk=application.pk %}" hx-boost="false" style="display: flex; width: 100%; gap: 12px; margin: 0;">
+                {% csrf_token %}
+                <input type="text" name="content" id="chatInput" placeholder="Message..." autocomplete="off" required class="chat-input">
+                <button type="submit" id="chatSendBtn" class="btn btn-primary" style="padding: 8px 16px;">
+                    Send
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -72,24 +63,20 @@
     const csrfToken = '{{ csrf_token }}';
     let isSending = false;
 
-    // Scroll to bottom
     function scrollToBottom() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     scrollToBottom();
 
-    // Get last message ID
     function getLastMsgId() {
         const bubbles = chatMessages.querySelectorAll('.chat-bubble[data-msg-id]');
         if (bubbles.length === 0) return 0;
         return parseInt(bubbles[bubbles.length - 1].dataset.msgId);
     }
 
-    // Send message via AJAX — guard against double submit
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         e.stopImmediatePropagation();
-
         if (isSending) return;
 
         const content = chatInput.value.trim();
@@ -123,7 +110,6 @@
         }
     });
 
-    // Append message bubble — strict dedup by ID
     function appendMessage(msg, isMine) {
         if (chatMessages.querySelector(`[data-msg-id="${msg.id}"]`)) return;
 
@@ -131,36 +117,31 @@
         if (emptyState) emptyState.remove();
 
         const bubble = document.createElement('div');
-        bubble.className = `flex ${isMine ? 'justify-end' : 'justify-start'} chat-bubble w-full`;
+        bubble.className = `chat-bubble w-full ${isMine ? 'msg-sent' : 'msg-received'}`;
         bubble.dataset.msgId = msg.id;
 
-        const innerClass = `max-w-[75%] px-4 py-2 text-[15px] ${isMine ? 'bg-[#3797f0] text-white rounded-[22px] rounded-br-sm' : 'bg-[#efefef] text-slate-900 rounded-[22px] rounded-bl-sm'}`;
-        const timeClass = `text-[10px] mt-1 ${isMine ? 'text-blue-100 text-right' : 'text-slate-500 text-left'}`;
-
-        let html = `<div class="${innerClass}" style="word-wrap: break-word;">`;
+        let html = '';
         if (!isMine) {
-            html += `<div class="text-[11px] font-semibold mb-0.5 opacity-60">${escapeHtml(msg.sender)}</div>`;
+            html += `<div style="font-size: 10px; font-weight: 500; opacity: 0.7; margin-bottom: 2px;">${escapeHtml(msg.sender)}</div>`;
         }
         
         const contentDiv = document.createElement('div');
         contentDiv.textContent = msg.content;
-        html += contentDiv.innerHTML;
+        html += `<div style="word-wrap: break-word;">${contentDiv.innerHTML}</div>`;
         
-        html += `<div class="${timeClass}">${escapeHtml(msg.time)}</div></div>`;
+        html += `<div style="font-size: 9px; opacity: 0.6; margin-top: 4px; text-align: ${isMine ? 'right' : 'left'};">${escapeHtml(msg.time)}</div>`;
         bubble.innerHTML = html;
 
         chatMessages.appendChild(bubble);
         scrollToBottom();
     }
 
-    // Escape HTML entities to prevent XSS injection via innerHTML
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // Poll for new messages every 1.5 seconds
     async function pollMessages() {
         try {
             const lastId = getLastMsgId();
@@ -176,10 +157,7 @@
         }
     }
 
-    // Poll every 1.5s for near real-time updates
     setInterval(pollMessages, 1500);
-
-    // Focus input
     chatInput.focus();
 </script>
 {% endblock %}

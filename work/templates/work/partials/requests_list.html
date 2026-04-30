@@ -1,78 +1,43 @@
 {% if help_requests %}
-<div class="flex flex-col">
+<div class="grid-2">
     {% for req in help_requests %}
-    <div class="ig-post">
-        <!-- Header: User info -->
-        <div class="ig-post-header">
-            <div class="ig-post-avatar" style="background: {{ req.posted_by.profile.avatar_color }};">
-                {{ req.posted_by.profile.initials }}
+    <a href="{% url 'help_request_detail' pk=req.pk %}" class="request-card">
+        <div class="card-left">
+            <div class="badge status-{% if req.status == 'open' %}open{% elif req.status == 'in_progress' %}progress{% else %}completed{% endif %}">
+                {{ req.get_status_display }}
             </div>
-            <div class="flex flex-col">
-                <a href="{% url 'profile' %}" class="ig-post-username">{{ req.posted_by.profile.display_name }}</a>
+            <div class="card-title">{{ req.title }}</div>
+            <div class="card-meta">
+                By {{ req.posted_by.profile.display_name|default:req.posted_by.username }}
+            </div>
+            <div class="card-tags">
                 {% if req.category %}
-                <span class="ig-post-category"><i class="{{ req.category.icon }} mr-1"></i>{{ req.category.name }}</span>
+                <span class="badge cat-code">{{ req.category.name }}</span>
                 {% endif %}
-            </div>
-            <div class="ml-auto">
-                <span class="ig-badge ig-badge-urgency-{{ req.urgency }}">{{ req.get_urgency_display }}</span>
+                <span class="badge" style="background: var(--surface3); color: var(--ink3);">{{ req.get_urgency_display }}</span>
             </div>
         </div>
-
-        <!-- Content: Title & Desc -->
-        <a href="{% url 'help_request_detail' pk=req.pk %}" class="block ig-post-content hover:opacity-90 transition-opacity">
-            <span class="ig-post-title text-slate-900">{{ req.title }}</span>
-            <p class="ig-post-description text-slate-600">
-                {{ req.description|truncatewords:40 }}
-            </p>
-            
-            <div class="flex gap-2 mt-2">
-                {% if req.request_type %}
-                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100 uppercase tracking-tight">
-                    {{ req.get_request_type_display }}
-                </span>
-                {% endif %}
-                {% if req.target_year != 'all' %}
-                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-600 border border-sky-100 uppercase tracking-tight">
-                    Year {{ req.target_year }}
-                </span>
-                {% endif %}
-            </div>
-        </a>
-
-        <!-- Footer: Action & Stats -->
-        <div class="ig-post-footer">
-            <div class="ig-post-meta">
-                <span class="ig-post-budget">₹{{ req.budget }}</span>
-                <span><i class="far fa-clock mr-1"></i>{{ req.time_since_posted }}</span>
-                <span><i class="far fa-paper-plane mr-1"></i>{{ req.app_count|default:0 }} bids</span>
-            </div>
-            <a href="{% url 'help_request_detail' pk=req.pk %}" class="ig-btn-primary">
-                View & Apply
-            </a>
+        <div class="card-right">
+            <div class="card-price">${{ req.budget }}</div>
         </div>
-    </div>
+    </a>
     {% endfor %}
 </div>
 
-<!-- Pagination -->
 {% if help_requests.has_other_pages %}
-<div class="py-6 flex justify-center border-t border-slate-200 mt-4">
-    <div class="flex gap-4">
-        {% if help_requests.has_previous %}
-        <a href="#" class="text-sm font-semibold text-sky-600 ajax-page-link" data-page="{{ help_requests.previous_page_number }}">Newer Posts</a>
-        {% endif %}
-        
-        {% if help_requests.has_next %}
-        <a href="#" class="text-sm font-semibold text-sky-600 ajax-page-link" data-page="{{ help_requests.next_page_number }}">Older Posts</a>
-        {% endif %}
-    </div>
+<div style="margin-top: 32px; display: flex; gap: 16px; justify-content: center;">
+    {% if help_requests.has_previous %}
+    <a href="?page={{ help_requests.previous_page_number }}" class="btn btn-ghost">Newer</a>
+    {% endif %}
+    {% if help_requests.has_next %}
+    <a href="?page={{ help_requests.next_page_number }}" class="btn btn-ghost">Older</a>
+    {% endif %}
 </div>
 {% endif %}
 
 {% else %}
-<div class="ig-post p-12 text-center">
-    <div class="text-slate-400 mb-2"><i class="fas fa-search fa-2x"></i></div>
-    <h3 class="font-bold text-slate-800">No requests found</h3>
-    <p class="text-sm text-slate-500">Try adjusting your filters.</p>
+<div class="stat-card text-center" style="padding: 64px 32px;">
+    <div class="stat-label">No requests found</div>
+    <div class="stat-subtext" style="color: var(--ink3);">Try adjusting your filters</div>
 </div>
 {% endif %}

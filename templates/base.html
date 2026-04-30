@@ -1,130 +1,103 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="UniConnect — University help marketplace. Post your queries, set pricing &amp; deadlines, and connect with helpers.">
-    <title>{% block title %}UniConnect{% endblock %} | University Help Marketplace</title>
+    <title>{% block title %}NxtHelp{% endblock %} | Refined Academic Luxury</title>
 
-    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Instrument Serif & DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
     
-    <!-- FontAwesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- HTMX for AJAX interactions -->
+    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.11"></script>
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_head %}{% endblock %}
 </head>
+<body hx-boost="true">
 
-<body hx-boost="true" class="antialiased min-h-screen ig-dark">
-    
-    {% if user.is_authenticated %}
-    <!-- ─── Desktop Sidebar (Hidden on Mobile) ─── -->
-    <aside class="ig-sidebar border-r border-slate-200 bg-white">
-        <a href="{% url 'dashboard' %}" class="flex items-center gap-3 p-3 mb-6 mt-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-900 group">
-            <div class="w-10 h-10 rounded-lg bg-violet-600 text-white flex items-center justify-center shadow-md shadow-violet-200 group-hover:scale-105 transition-transform">
-                <i class="fas fa-graduation-cap text-xl"></i>
-            </div>
-            <span class="font-bold text-xl tracking-tight hidden lg:block">NxtHelp</span>
-        </a>
+    <!-- Top Navigation Bar -->
+    <header class="nav-bar">
+        <div class="nav-left">
+            <a href="{% url 'dashboard' %}" style="display: flex; align-items: center; gap: 12px;">
+                <div class="logo-mark">N</div>
+                <div class="wordmark">NxtHelp</div>
+            </a>
+        </div>
         
-        <nav class="flex flex-col gap-2 flex-grow">
-            <a href="{% url 'dashboard' %}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 {% if request.resolver_match.url_name == 'dashboard' %}bg-violet-50 text-violet-700 font-semibold{% endif %}">
-                <i class="fas fa-home text-xl w-6 text-center"></i>
-                <span class="hidden lg:block">Home</span>
-            </a>
-            <a href="{% url 'browse_requests' %}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 {% if request.resolver_match.url_name == 'browse_requests' %}bg-violet-50 text-violet-700 font-semibold{% endif %}">
-                <i class="fas fa-search text-xl w-6 text-center"></i>
-                <span class="hidden lg:block">Explore</span>
-            </a>
-            <a href="{% url 'my_chats' %}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 {% if request.resolver_match.url_name == 'my_chats' %}bg-violet-50 text-violet-700 font-semibold{% endif %}">
-                <i class="fas fa-envelope text-xl w-6 text-center"></i>
-                <span class="hidden lg:block">Messages</span>
-            </a>
-            <a href="{% url 'notifications' %}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 {% if request.resolver_match.url_name == 'notifications' %}bg-violet-50 text-violet-700 font-semibold{% endif %}">
-                <i class="fas fa-bell text-xl w-6 text-center"></i>
-                <span class="hidden lg:block">Notifications</span>
-            </a>
-            <a href="{% url 'create_help_request' %}" hx-boost="false" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 mt-2">
-                <i class="fas fa-plus-circle text-xl w-6 text-center"></i>
-                <span class="hidden lg:block font-semibold">Create Post</span>
-            </a>
-            <a href="{% url 'profile' %}" class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 text-slate-700 hover:bg-slate-50 hover:text-violet-600 {% if request.resolver_match.url_name == 'profile' %}bg-violet-50 text-violet-700 font-semibold{% endif %}">
-                <i class="fas fa-user text-xl w-6 text-center"></i>
-                <span class="hidden lg:block">Profile</span>
-            </a>
+        {% if user.is_authenticated %}
+        <nav class="nav-center">
+            <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Home</a>
+            <a href="{% url 'browse_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">Explore</a>
+            <a href="{% url 'my_chats' %}" class="nav-link {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">Messages</a>
         </nav>
-
-        <div class="mt-auto">
-            <form method="post" action="{% url 'logout' %}" style="margin:0;">
-                {% csrf_token %}
-                <button type="submit" class="flex items-center gap-4 p-3 w-full text-left rounded-xl transition-all duration-200 text-slate-500 hover:bg-red-50 hover:text-red-600">
-                    <i class="fas fa-sign-out-alt text-xl w-6 text-center"></i>
-                    <span class="hidden lg:block font-medium">Log Out</span>
-                </button>
-            </form>
+        
+        <div class="nav-right">
+            <a href="{% url 'profile' %}" class="btn btn-ghost">Profile</a>
+            <a href="{% url 'create_help_request' %}" class="btn btn-primary" hx-boost="false">New Post</a>
         </div>
-    </aside>
-
-    <!-- ─── Mobile Top Header ─── -->
-    <header class="ig-top-nav md:hidden border-b border-slate-200 bg-white">
-        <div class="ig-top-nav-inner flex justify-between items-center h-full px-4 w-full">
-            <a href="{% url 'dashboard' %}" class="font-bold text-xl text-slate-900 tracking-tight flex items-center gap-2">
-                <div class="w-7 h-7 rounded-md bg-violet-600 text-white flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-[14px]"></i>
-                </div>
-                NxtHelp
-            </a>
-            <div class="flex items-center gap-4">
-                <a href="{% url 'my_chats' %}" class="text-xl text-slate-700 hover:text-violet-600 transition-colors"><i class="fas fa-envelope"></i></a>
-            </div>
+        {% else %}
+        <div class="nav-right">
+            <a href="{% url 'login' %}" class="btn btn-ghost">Log In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary">Sign Up</a>
         </div>
+        {% endif %}
     </header>
 
-    <!-- ─── Mobile Bottom Nav ─── -->
-    <nav class="ig-bottom-nav md:hidden border-t border-slate-200 bg-white pb-safe">
-        <a href="{% url 'dashboard' %}" class="flex-1 flex justify-center py-3 text-slate-500 hover:text-violet-600 transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-violet-600{% endif %}">
-            <i class="fas fa-home text-2xl"></i>
-        </a>
-        <a href="{% url 'browse_requests' %}" class="flex-1 flex justify-center py-3 text-slate-500 hover:text-violet-600 transition-colors {% if request.resolver_match.url_name == 'browse_requests' %}text-violet-600{% endif %}">
-            <i class="fas fa-search text-2xl"></i>
-        </a>
-        <a href="{% url 'create_help_request' %}" hx-boost="false" class="flex-1 flex justify-center py-3">
-            <div class="w-10 h-10 rounded-full bg-violet-600 text-white flex items-center justify-center -mt-4 shadow-lg shadow-violet-200 active:scale-95 transition-transform">
-                <i class="fas fa-plus text-lg"></i>
+    <div class="app-layout">
+        {% if user.is_authenticated %}
+        <!-- Dashboard Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-label">Menu</div>
+                <a href="{% url 'dashboard' %}" class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <span>Overview</span>
+                </a>
+                <a href="{% url 'browse_requests' %}" class="sidebar-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
+                    <span>Requests</span>
+                </a>
+                <a href="{% url 'my_chats' %}" class="sidebar-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
+                    <span>Inbox</span>
+                </a>
+                <a href="{% url 'notifications' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                    <span>Notifications</span>
+                </a>
             </div>
-        </a>
-        <a href="{% url 'notifications' %}" class="flex-1 flex justify-center py-3 text-slate-500 hover:text-violet-600 transition-colors {% if request.resolver_match.url_name == 'notifications' %}text-violet-600{% endif %}">
-            <i class="fas fa-bell text-2xl"></i>
-        </a>
-        <a href="{% url 'profile' %}" class="flex-1 flex justify-center py-3 text-slate-500 hover:text-violet-600 transition-colors {% if request.resolver_match.url_name == 'profile' %}text-violet-600{% endif %}">
-            <i class="fas fa-user text-2xl"></i>
-        </a>
-    </nav>
-    {% endif %}
 
-    <main class="{% if user.is_authenticated %}main-content{% endif %}">
-        {% if user.is_authenticated %}<div class="container mx-auto px-4">{% endif %}
-        {% block content %}{% endblock %}
-        {% if user.is_authenticated %}</div>{% endif %}
-    </main>
+            <div class="sidebar-section" style="margin-top: auto;">
+                <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-item" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left; font-family: 'DM Sans', sans-serif;">
+                        <span>Log Out</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+        {% endif %}
 
-    <!-- ─── Toast Messages ─── -->
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
     {% if messages %}
-    <div class="fixed bottom-20 left-1/2 -translate-x-1/2 z-[200] flex flex-col gap-2 w-full max-w-sm px-4">
+    <div class="toast-container">
         {% for message in messages %}
-        <div class="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg flex justify-between items-center animate-bounce-in" onclick="this.remove()">
-            <span class="text-sm">{{ message }}</span>
-            <i class="fas fa-times text-xs opacity-50"></i>
+        <div class="toast animate-fade-in" onclick="this.remove()" style="cursor: pointer;">
+            <div class="toast-dot blue"></div>
+            <div class="toast-content">
+                <div class="toast-text">{{ message }}</div>
+                <div class="toast-time">Just now</div>
+            </div>
         </div>
         {% endfor %}
     </div>
@@ -135,17 +108,16 @@
             event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         });
 
-        // Simple toast auto-dismiss
+        // Auto-dismiss toasts
         setTimeout(() => {
-            document.querySelectorAll('.animate-bounce-in').forEach(el => {
+            document.querySelectorAll('.toast').forEach(el => {
                 el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'all 0.5s ease';
-                setTimeout(() => el.remove(), 500);
+                el.style.transform = 'translateY(10px)';
+                el.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => el.remove(), 300);
             });
         }, 4000);
     </script>
     {% block extra_js %}{% endblock %}
 </body>
-
 </html>

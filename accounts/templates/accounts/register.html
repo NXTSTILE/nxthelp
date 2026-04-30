@@ -2,111 +2,76 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<div class="feed-container flex items-center justify-center min-h-[80vh] py-8">
-    <div class="w-full max-w-[350px] bg-white border border-slate-300 p-8 flex flex-col items-center mx-4 md:mx-0 rounded-sm">
-        <h1 class="text-3xl font-bold mb-3 tracking-tight text-slate-900" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">NxtHelp</h1>
+<div class="container" style="max-width: 400px; padding: 64px 16px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 32px;">
+        <h1 class="serif-display" style="font-size: 32px; margin-bottom: 8px;">Create <i>Account</i></h1>
+        <p style="color: var(--ink2); font-size: 14px;">Sign up to get help from your university peers</p>
+    </div>
+
+    <form method="POST" action="{% url 'register' %}" novalidate style="background: var(--surface); padding: 32px; border: 0.5px solid var(--border); border-radius: var(--radius-lg);">
+        {% csrf_token %}
         
-        <p class="text-[15px] font-semibold text-slate-500 text-center mb-6 leading-tight">
-            Sign up to get help from your university peers.
-        </p>
+        {% if form.non_field_errors %}
+        <div style="color: var(--success); font-size: 13px; margin-bottom: 16px;">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-        <a href="#" class="w-full bg-[#0095f6] hover:bg-[#1877f2] text-white font-semibold rounded-lg py-1.5 text-sm transition-colors mb-4 flex items-center justify-center gap-2">
-            <i class="fab fa-facebook-square text-lg"></i> Log in with Facebook
-        </a>
-
-        <div class="flex items-center gap-3 w-full mb-4">
-            <div class="h-px bg-slate-300 flex-1"></div>
-            <div class="text-[13px] font-semibold text-slate-500 uppercase">OR</div>
-            <div class="h-px bg-slate-300 flex-1"></div>
+        <div class="grid-2" style="margin-bottom: 16px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">First Name</label>
+                {{ form.first_name }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Last Name</label>
+                {{ form.last_name }}
+            </div>
         </div>
 
-        <form method="POST" action="{% url 'register' %}" novalidate class="w-full flex flex-col gap-2">
-            {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            {{ form.username }}
+        </div>
 
-            <div class="flex gap-2">
-                <div class="flex-1">
-                    {{ form.first_name }}
-                </div>
-                <div class="flex-1">
-                    {{ form.last_name }}
-                </div>
-            </div>
-            
-            {% if form.first_name.errors or form.last_name.errors %}
-            <div class="text-rose-500 text-xs px-1">Name is required/invalid.</div>
-            {% endif %}
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            {{ form.email }}
+        </div>
 
-            <div>
-                {{ form.username }}
-                {% for error in form.username.errors %}
-                <div class="text-rose-500 text-xs px-1 mt-0.5">{{ error }}</div>
-                {% endfor %}
-            </div>
+        <div class="form-group">
+            <label class="form-label">Profession / Major</label>
+            {{ form.profession }}
+        </div>
 
-            <div>
-                {{ form.email }}
-                {% for error in form.email.errors %}
-                <div class="text-rose-500 text-xs px-1 mt-0.5">{{ error }}</div>
-                {% endfor %}
-            </div>
+        <div class="form-group">
+            <label class="form-label">Password</label>
+            {{ form.password1 }}
+        </div>
 
-            <div>
-                {{ form.profession }}
-                {% for error in form.profession.errors %}
-                <div class="text-rose-500 text-xs px-1 mt-0.5">{{ error }}</div>
-                {% endfor %}
-            </div>
+        <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            {{ form.password2 }}
+        </div>
 
-            <div>
-                {{ form.password1 }}
-                {% for error in form.password1.errors %}
-                <div class="text-rose-500 text-xs px-1 mt-0.5">{{ error }}</div>
-                {% endfor %}
-            </div>
+        <p style="font-size: 11px; color: var(--ink3); margin-bottom: 16px; line-height: 1.5; text-align: center;">
+            By signing up, you agree to our Terms and Privacy Policy.
+        </p>
 
-            <div>
-                {{ form.password2 }}
-                {% for error in form.password2.errors %}
-                <div class="text-rose-500 text-xs px-1 mt-0.5">{{ error }}</div>
-                {% endfor %}
-            </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
+    </form>
 
-            {% if form.non_field_errors %}
-            <div class="text-rose-500 text-xs text-center my-1">
-                {% for error in form.non_field_errors %}
-                <div>{{ error }}</div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <p class="text-xs text-slate-500 text-center my-3 leading-tight px-2">
-                By signing up, you agree to our Terms, Privacy Policy and Cookies Policy.
-            </p>
-
-            <button type="submit" class="w-full bg-[#0095f6] hover:bg-[#1877f2] text-white font-semibold rounded-lg py-1.5 text-sm transition-colors">
-                Sign Up
-            </button>
-        </form>
+    <div style="text-align: center; margin-top: 24px; font-size: 14px; color: var(--ink2);">
+        Have an account? <a href="{% url 'login' %}" style="color: var(--accent); font-weight: 500;">Log in</a>
     </div>
 </div>
 
-<div class="w-full max-w-[350px] bg-white border border-slate-300 p-4 text-center text-sm mx-auto mt-4 rounded-sm mb-8">
-    Have an account? <a href="{% url 'login' %}" class="text-[#0095f6] font-semibold">Log in</a>
-</div>
-
-<style>
-    /* Styling Django forms to look like Instagram inputs */
-    input[type="text"], input[type="password"], input[type="email"] {
-        width: 100%;
-        background-color: #fafafa;
-        border: 1px solid #dbdbdb;
-        border-radius: 3px;
-        padding: 9px 8px 7px;
-        font-size: 12px;
-        outline: none;
-    }
-    input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus {
-        border-color: #a8a8a8;
-    }
-</style>
+<script>
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if(el.type !== 'checkbox' && el.type !== 'radio' && el.type !== 'file') {
+            el.classList.add('form-control');
+        }
+    });
+</script>
 {% endblock %}

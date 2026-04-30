@@ -2,136 +2,121 @@
 {% block title %}{{ help_request.title }}{% endblock %}
 
 {% block content %}
-<div class="feed-container">
+<div class="container" style="max-width: 800px; padding-bottom: 64px;">
+    
+    <div style="margin-bottom: 24px;">
+        <a href="{% url 'browse_requests' %}" style="font-size: 13px; font-weight: 500; color: var(--ink3);"><i class="fas fa-arrow-left"></i> Back to Explore</a>
+    </div>
+
     <!-- Main Request Card -->
-    <article class="ig-detail-container">
-        <!-- Header: Poster info -->
-        <div class="ig-detail-header">
-            <div class="ig-post-avatar" style="background: {{ help_request.posted_by.profile.avatar_color }}; width: 40px; height: 40px;">
-                {{ help_request.posted_by.profile.initials }}
-            </div>
-            <div class="flex flex-col">
-                <a href="{% url 'user_profile' username=help_request.posted_by.username %}" class="font-bold text-sm text-slate-900">
-                    {{ help_request.posted_by.profile.display_name }}
-                </a>
-                <span class="text-xs text-slate-500">{{ help_request.time_since_posted }}</span>
-            </div>
-            <div class="ml-auto">
-                <span class="ig-badge ig-badge-urgency-{{ help_request.urgency }}">{{ help_request.get_urgency_display }}</span>
-            </div>
-        </div>
-
-        <!-- Body: Title & Content -->
-        <div class="ig-detail-body">
-            <h1 class="ig-detail-title">{{ help_request.title }}</h1>
-            <div class="ig-detail-description">{{ help_request.description }}</div>
-            
-            {% if help_request.image %}
-            <div class="mb-6 rounded-lg overflow-hidden border border-slate-200">
-                <img src="{{ help_request.image.url }}" alt="{{ help_request.title }}" class="w-full h-auto">
-            </div>
-            {% endif %}
-
-            {% if is_owner %}
-            <div class="flex gap-2 mb-4 pt-4 border-t border-slate-100">
-                {% if help_request.status == 'open' or help_request.status == 'in_progress' %}
-                <form method="POST" action="{% url 'resolve_request' pk=help_request.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="ig-btn-primary bg-emerald-600 hover:bg-emerald-700">Resolve Request</button>
-                </form>
-                {% endif %}
-                {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
-                <form method="POST" action="{% url 'close_request' pk=help_request.pk %}">
-                    {% csrf_token %}
-                    <button type="submit" class="text-xs font-bold text-rose-600 px-4 py-2">Close Request</button>
-                </form>
-                {% endif %}
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Meta Info Row -->
-        <div class="ig-meta-row">
-            <div class="ig-meta-item">
-                <span class="ig-meta-label">Budget</span>
-                <span class="ig-meta-value text-emerald-600">₹{{ help_request.budget }}</span>
-            </div>
-            {% if help_request.category %}
-            <div class="ig-meta-item">
-                <span class="ig-meta-label">Category</span>
-                <span class="ig-meta-value">{{ help_request.category.name }}</span>
-            </div>
-            {% endif %}
-            {% if help_request.deadline %}
-            <div class="ig-meta-item">
-                <span class="ig-meta-label">Deadline</span>
-                <span class="ig-meta-value {% if help_request.is_overdue %}text-rose-600{% endif %}">
-                    {{ help_request.deadline|date:"M d" }}
-                </span>
-            </div>
-            {% endif %}
-            <div class="ig-meta-item">
-                <span class="ig-meta-label">Status</span>
-                <span class="ig-meta-value uppercase text-[10px]">{{ help_request.get_status_display }}</span>
-            </div>
-        </div>
-    </article>
-
-    <!-- Applicant Section (Owner View) -->
-    {% if is_owner %}
-    <div class="mb-8" id="applicants-section">
-        <h2 class="font-bold text-slate-500 text-sm uppercase tracking-wider mb-4 px-4">Applicants ({{ applications|length }})</h2>
-        {% if applications %}
-            {% for app in applications %}
-            <div class="ig-post mb-3">
-                <div class="p-4 flex items-center gap-3">
-                    <div class="ig-post-avatar" style="background: {{ app.applicant.profile.avatar_color }}">
-                        {{ app.applicant.profile.initials }}
-                    </div>
-                    <div class="flex-grow">
-                        <div class="flex items-center justify-between">
-                            <a href="{% url 'user_profile' username=app.applicant.username %}" class="font-bold text-sm">{{ app.applicant.profile.display_name }}</a>
-                            <span class="text-xs font-bold text-emerald-600">₹{{ app.proposed_budget|default:help_request.budget }}</span>
-                        </div>
-                        <p class="text-sm text-slate-600 line-clamp-1">{{ app.message }}</p>
-                    </div>
-                    <a href="{% url 'chat_room' pk=help_request.pk app_pk=app.pk %}" class="ig-btn-primary text-xs py-1.5">Chat</a>
+    <div class="request-card" style="display: block; padding: 32px; border-radius: var(--radius-lg); margin-bottom: 32px; cursor: default;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="badge status-{% if help_request.status == 'open' %}open{% elif help_request.status == 'in_progress' %}progress{% else %}completed{% endif %}" style="align-self: flex-start;">
+                    {{ help_request.get_status_display }}
+                </div>
+                <h1 class="serif-display" style="font-size: 32px; margin-top: 8px;">{{ help_request.title }}</h1>
+                <div style="font-size: 13px; color: var(--ink2);">
+                    Posted by <b>{{ help_request.posted_by.profile.display_name }}</b> · {{ help_request.time_since_posted }}
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="text-center py-8 bg-white border border-dashed border-slate-300 rounded-xl mx-4">
-                <p class="text-slate-400 text-sm">No applicants yet.</p>
+            <div class="card-price" style="font-size: 32px;">${{ help_request.budget }}</div>
+        </div>
+
+        <div style="font-size: 15px; color: var(--ink); line-height: 1.6; margin-bottom: 32px; white-space: pre-wrap;">{{ help_request.description }}</div>
+        
+        {% if help_request.image %}
+        <div style="margin-bottom: 32px; border-radius: var(--radius); overflow: hidden; border: 0.5px solid var(--border);">
+            <img src="{{ help_request.image.url }}" alt="Attachment" style="width: 100%; height: auto; display: block;">
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 12px; border-top: 0.5px solid var(--border); padding-top: 24px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <span class="stat-label">Category</span>
+                <span style="font-size: 14px; font-weight: 500;">{{ help_request.category.name|default:"General" }}</span>
             </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <span class="stat-label">Urgency</span>
+                <span style="font-size: 14px; font-weight: 500;">{{ help_request.get_urgency_display }}</span>
+            </div>
+            {% if help_request.deadline %}
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <span class="stat-label">Deadline</span>
+                <span style="font-size: 14px; font-weight: 500;">{{ help_request.deadline|date:"M d, Y" }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if is_owner %}
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+            {% if help_request.status == 'open' or help_request.status == 'in_progress' %}
+            <form method="POST" action="{% url 'resolve_request' pk=help_request.pk %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" style="background: var(--success);">Resolve Request</button>
+            </form>
+            {% endif %}
+            {% if help_request.status != 'closed' and help_request.status != 'resolved' %}
+            <form method="POST" action="{% url 'close_request' pk=help_request.pk %}" style="margin: 0;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost" style="color: var(--ink2);">Close</button>
+            </form>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
+
+    <!-- Applicants Section -->
+    {% if is_owner %}
+    <h2 class="serif-display" style="font-size: 24px; margin-bottom: 16px;">Applicants <i>({{ applications|length }})</i></h2>
+    {% if applications %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+        {% for app in applications %}
+        <div class="request-card" style="align-items: center; cursor: default;">
+            <div class="card-left" style="flex-grow: 1;">
+                <div class="card-title">{{ app.applicant.profile.display_name }}</div>
+                <div class="card-meta" style="font-size: 13px; color: var(--ink); margin-top: 4px;">{{ app.message }}</div>
+            </div>
+            <div class="card-right" style="flex-direction: row; align-items: center; gap: 16px;">
+                <div class="card-price" style="font-size: 20px;">${{ app.proposed_budget|default:help_request.budget }}</div>
+                <a href="{% url 'chat_room' pk=help_request.pk app_pk=app.pk %}" class="btn btn-primary" style="padding: 6px 16px; font-size: 13px;">Chat</a>
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="stat-card text-center" style="padding: 32px;">
+            <div class="stat-label">No applicants yet</div>
+        </div>
+    {% endif %}
     {% endif %}
 
-    <!-- Apply Section (Guest View) -->
+    <!-- Apply Section -->
     {% if not is_owner %}
         {% if existing_application %}
-        <div class="ig-post p-6 bg-sky-50 border-sky-200">
-            <h3 class="font-bold text-sky-800 mb-2">You've applied!</h3>
-            <p class="text-sm text-sky-700 mb-4">The poster will contact you via chat if they are interested.</p>
-            <a href="{% url 'chat_room' pk=help_request.pk app_pk=existing_application.pk %}" class="ig-btn-primary">Open Chat</a>
+        <div class="stat-card" style="text-align: center; background: var(--surface); padding: 32px;">
+            <h3 class="serif-display" style="font-size: 24px; margin-bottom: 8px;">Application <i>Sent</i></h3>
+            <p style="color: var(--ink2); font-size: 14px; margin-bottom: 16px;">The poster will review your bid and contact you via chat.</p>
+            <a href="{% url 'chat_room' pk=help_request.pk app_pk=existing_application.pk %}" class="btn btn-primary">Open Chat</a>
         </div>
         {% elif application_form %}
-        <div class="ig-post p-6">
-            <h2 class="font-bold text-lg mb-4">Apply to Help</h2>
+        <div class="request-card" style="display: block; padding: 32px; cursor: default;">
+            <h3 class="serif-display" style="font-size: 24px; margin-bottom: 16px;">Offer your <i>Help</i></h3>
             <form method="POST" action="{% url 'apply_to_help' pk=help_request.pk %}">
                 {% csrf_token %}
-                <div class="ig-form-group">
-                    <label class="ig-meta-label mb-2 block">Message to Poster</label>
-                    <textarea name="message" class="ig-input" placeholder="Explain how you can help..."></textarea>
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea name="message" class="form-control" rows="3" placeholder="Explain how you can help..."></textarea>
                 </div>
-                <div class="ig-form-group">
-                    <label class="ig-meta-label mb-2 block">Your Proposed Price (₹)</label>
-                    <input type="number" name="proposed_budget" value="{{ help_request.budget }}" class="ig-input">
+                <div class="form-group">
+                    <label class="form-label">Proposed Price ($)</label>
+                    <input type="number" name="proposed_budget" value="{{ help_request.budget }}" class="form-control">
                 </div>
-                <button type="submit" class="ig-btn-primary w-full py-3">Submit Application</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Bid</button>
             </form>
         </div>
         {% endif %}
     {% endif %}
+
 </div>
 {% endblock %}
