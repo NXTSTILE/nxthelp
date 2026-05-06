@@ -51,6 +51,10 @@ class UserRegisterForm(UserCreationForm):
         }),
         help_text='What is your role at the university?'
     )
+    terms_agreed = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'You must read and agree to the Terms of Service to create an account.'}
+    )
 
     class Meta:
         model = User

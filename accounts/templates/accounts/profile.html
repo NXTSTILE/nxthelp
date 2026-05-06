@@ -16,9 +16,17 @@
             <div class="profile-name-row">
                 <h1 class="serif-display profile-display-name">{{ profile.display_name }}</h1>
                 {% if profile_user == request.user %}
-                <a href="{% url 'edit_profile' %}" class="btn btn-ghost profile-edit-btn">
-                    <i class="fas fa-pen"></i><span>Edit Profile</span>
-                </a>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{% url 'edit_profile' %}" class="btn btn-ghost profile-edit-btn">
+                        <i class="fas fa-pen"></i><span>Edit Profile</span>
+                    </a>
+                    <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-ghost profile-edit-btn" style="color: #d32f2f; border-color: rgba(211, 47, 47, 0.3);">
+                            <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                        </button>
+                    </form>
+                </div>
                 {% endif %}
             </div>
 

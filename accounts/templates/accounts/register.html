@@ -55,9 +55,48 @@
             {{ form.password2 }}
         </div>
 
-        <p style="font-size: 11px; color: var(--ink3); margin-bottom: 16px; line-height: 1.5; text-align: center;">
-            By signing up, you agree to our Terms and Privacy Policy.
-        </p>
+        <div style="margin-bottom: 24px;">
+            <label class="form-label" style="font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; display: block;">Terms of Service</label>
+            <div style="height: 160px; overflow-y: auto; padding: 16px; background: var(--surface2); border-radius: 12px; border: 1px solid var(--border); font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 16px; text-align: left;">
+                <p><strong>NxtHelp Terms of Service</strong></p>
+                <p style="margin-top: 8px;">By accessing or using the NxtHelp platform, you agree to be bound by the following terms. If you do not agree to all terms and conditions, you are strictly prohibited from using the service.</p>
+                <p style="margin-top: 12px;"><strong>1. Platform Independence and Disclaimer of Affiliation</strong><br>
+                NxtHelp operates as an entirely independent, third-party platform. We are not partnered with, endorsed by, or affiliated with any university or college administration.<br>
+                <em>Limitation of Liability:</em> NxtHelp assumes no liability for any academic, disciplinary, or physical incidents occurring on campus or between students resulting from the use of this service.<br>
+                <em>Dispute Routing:</em> All platform-related disputes must be routed exclusively through NxtHelp’s internal resolution system. Escalating NxtHelp-specific disputes to university authorities without prior platform mediation constitutes a material breach of these Terms and will result in immediate account termination and potential legal action to protect the platform's independent operational status.</p>
+                <p style="margin-top: 12px;"><strong>2. Non-Circumvention Policy</strong><br>
+                To maintain trust and platform integrity, all payments and communications regarding requested tasks must remain strictly on NxtHelp.<br>
+                Users are expressly prohibited from bypassing the platform to complete tasks or process payments in physical form or via external applications.<br>
+                Detection of off-platform transactions or "side-deals" will result in immediate account suspension for both the Poster and the Helper, forfeiture of any pending balances, and permanent bans.</p>
+                <p style="margin-top: 12px;"><strong>3. Poster (Client) Obligations and Default Penalties</strong><br>
+                Posters are required to honor their financial commitments upon the verifiable completion of a task.<br>
+                Publishing fraudulent listings, spamming the platform, or refusing to release payment for satisfactorily completed work is strictly prohibited.<br>
+                Failure to remit payment will result in the immediate suspension of the Poster’s account and the assessment of an administrative fine to cover the Helper's lost time and platform dispute costs.</p>
+                <p style="margin-top: 12px;"><strong>4. Helper (Freelancer) Obligations and Fraud Penalties</strong><br>
+                Helpers are required to execute accepted tasks fully and honestly.<br>
+                Accepting payment or task agreements without the intent or execution of the required work constitutes fraud.<br>
+                If a Helper is found to have scammed a Poster or failed to deliver the agreed-upon service, NxtHelp reserves the right to reverse payments, levy financial penalties, and initiate permanent account bans.</p>
+                <p style="margin-top: 12px;"><strong>5. User Conduct and Content Disclaimers</strong><br>
+                Users are strictly prohibited from sharing, uploading, or transmitting any content that is abusive, harassing, discriminatory, or otherwise harmful.<br>
+                <em>Safe Harbor:</em> NxtHelp acts solely as an intermediary for user-generated content and is not legally responsible for the communications or media shared between users. However, NxtHelp reserves the unilateral right to delete violating content and terminate the accounts of offenders without notice.</p>
+                <p style="margin-top: 12px;"><strong>6. Enforcement and Account Suspension</strong><br>
+                NxtHelp maintains a zero-tolerance policy for fraudulent activity.<br>
+                Any attempt to defraud users, manipulate the platform, or breach these Terms will lead to immediate account suspension.<br>
+                NxtHelp reserves the right to impose financial fines for policy violations and to withhold any funds currently held in the violator's account to compensate affected parties.</p>
+            </div>
+            
+            <div style="display: flex; align-items: flex-start; gap: 10px; text-align: left;">
+                <div style="padding-top: 2px;">
+                    {{ form.terms_agreed }}
+                </div>
+                <label for="{{ form.terms_agreed.id_for_label }}" style="font-size: 13px; color: var(--ink); cursor: pointer; font-weight: 500;">
+                    I have read and agree to the NxtHelp Terms of Service.
+                </label>
+            </div>
+            {% if form.terms_agreed.errors %}
+                <div style="color: #d32f2f; font-size: 12px; margin-top: 6px; text-align: left;">{{ form.terms_agreed.errors.0 }}</div>
+            {% endif %}
+        </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
     </form>
