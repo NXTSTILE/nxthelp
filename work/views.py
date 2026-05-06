@@ -640,3 +640,46 @@ def api_unread_counts(request):
         'unread_chats': unread_chats,
         'unread_notifications': unread_notifs,
     })
+
+@login_required
+def api_unread_counts_html(request):
+    """HTMX endpoint to return OOB swaps for unread counts."""
+    unread_chats = ChatMessage.objects.filter(
+        Q(help_request__posted_by=request.user) | Q(application__applicant=request.user),
+        is_read=False
+    ).exclude(sender=request.user).count()
+    
+    unread_notifs = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    
+    # We return the HTML for both badges as OOB swaps
+    html = ""
+    if unread_chats > 0:
+        html += f'<span id="unread-chats-badge" class="notification-badge" hx-swap-oob="outerHTML">{unread_chats}</span>'
+    else:
+        html += '<span id="unread-chats-badge" hx-swap-oob="outerHTML"></span>'
+        
+    if unread_notifs > 0:
+        html += f'<span id="unread-notifs-badge" class="notification-badge" hx-swap-oob="outerHTML">{unread_notifs}</span>'
+    else:
+        html += '<span id="unread-notifs-badge" hx-swap-oob="outerHTML"></span>'
+        
+    from django.http import HttpResponse
+    return HttpResponse(html)
+
+@login_required
+def check_new_feed_posts(request):
+    """Check if there are new posts since a given timestamp/ID."""
+    last_id = request.GET.get('last_id')
+    if not last_id:
+        return JsonResponse({'new_count': 0})
+        
+    new_count = HelpRequest.objects.filter(
+        id__gt=last_id, 
+        status='open'
+    ).exclude(
+        posted_by=request.user
+    ).exclude(
+        applications__applicant=request.user
+    ).count()
+    
+    return JsonResponse({'new_count': new_count})

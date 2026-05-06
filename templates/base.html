@@ -90,13 +90,18 @@
                 <a href="{% url 'browse_requests' %}" class="sidebar-item {% if request.resolver_match.url_name == 'browse_requests' %}active{% endif %}">
                     <span><i class="fas fa-compass mr-2" style="width: 20px;"></i> Requests</span>
                 </a>
-                <a href="{% url 'my_chats' %}" class="sidebar-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}">
+                <a href="{% url 'my_chats' %}" class="sidebar-item {% if request.resolver_match.url_name == 'my_chats' %}active{% endif %}" style="display: flex; justify-content: space-between; align-items: center;">
                     <span><i class="fas fa-envelope mr-2" style="width: 20px;"></i> Inbox</span>
+                    <span id="unread-chats-badge"></span>
                 </a>
-                <a href="{% url 'notifications' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                <a href="{% url 'notifications' %}" class="sidebar-item {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" style="display: flex; justify-content: space-between; align-items: center;">
                     <span><i class="fas fa-bell mr-2" style="width: 20px;"></i> Notifications</span>
+                    <span id="unread-notifs-badge"></span>
                 </a>
             </div>
+
+            <!-- Real-time Polling (Lightweight) -->
+            <div hx-get="{% url 'api_unread_counts_html' %}" hx-trigger="load, every 30s" hx-swap="none"></div>
 
             <div class="sidebar-section" style="margin-top: auto;">
                 <form method="post" action="{% url 'logout' %}" style="margin:0;">

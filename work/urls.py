@@ -33,4 +33,6 @@ urlpatterns = [
     
     # API endpoints
     path('api/unread-counts/', views.api_unread_counts, name='api_unread_counts'),
+    path('api/unread-counts-html/', views.api_unread_counts_html, name='api_unread_counts_html'),
+    path('api/check-new-posts/', views.check_new_feed_posts, name='check_new_posts'),
 ]
